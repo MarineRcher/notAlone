@@ -1,6 +1,9 @@
+Pour demarrer le projet, il faut etre a la racine du projet et lancer la commande :
+
 ```
-docker-compose -f docker-compose.yml up --build
+make
 ```
+
 # Frontend
 
 ## Structure des dossiers
@@ -33,7 +36,7 @@ root
 │   │   └── colors.ts
 │   └── store/             # Gestion de l'état global (Redux, Zustand, etc.)
 │       └── index.ts
-│   
+│
 │
 ├── package.json           # Dépendances et scripts du projet
 ├── app.json               # Configuration de l'application
