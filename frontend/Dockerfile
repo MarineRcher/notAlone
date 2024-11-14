@@ -9,8 +9,6 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-RUN npm install @react-native/metro-config
-
 # Copy the rest of the project files
 COPY . .
 
