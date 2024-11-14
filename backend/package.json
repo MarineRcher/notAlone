@@ -11,5 +11,8 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "metro-config": "^0.81.0"
   }
 }

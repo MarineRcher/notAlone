@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+    frontend:
+        build:
+            context: ./frontend/
+            dockerfile: Dockerfile
+        ports:
+            - 8081:8081
+        networks:
+            - app-network
+
+    api:
+        build:
+            context: ./backend/
+            dockerfile: Dockerfile
+        ports:
+            - 3000:3000
+        networks:
+            - app-network
+        depends_on:
+            - db
+
+    db:
+        build:
+            context: ./db
+            dockerfile: Dockerfile
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpassword
+            MYSQL_DATABASE: myapp
+            MYSQL_USER: myappuser
+            MYSQL_PASSWORD: password
+        volumes:
+            - db-data:/var/lib/mysql
+        networks:
+            - app-network
+
+volumes:
+    db-data:
+
+networks:
+    app-network:
