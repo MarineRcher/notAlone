@@ -22,7 +22,15 @@ root
 │   ├── api/               # Services API et fichiers de configuration
 │   │   └── apiClient.ts
 │   ├── components/        # Composants réutilisables
-│   │   └── Button.ts
+│   │   ├── Atoms
+│   │   │   └──Button
+│   │   │      ├──Button.tsx
+│   │   │      ├──Button.types.ts
+│   │   │      ├──Button.style.ts
+│   │   │      └──Index.ts
+│   │   ├── Moleculs
+│   │   ├── Organisms
+│   │   └── Templates
 │   ├── screens/           # Pages de l'application
 │   │   ├── HomeScreen.ts
 │   │   └── ProfileScreen.ts
