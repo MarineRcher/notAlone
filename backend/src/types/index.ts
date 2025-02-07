@@ -1,8 +1,16 @@
 export type {
     ChatEventType,
-    BaseRoomEvent,
-    Message,
-    JoinRoom,
-    LeftRoom,
-    ChatRoomEvent
-} from './chat';
+    IBaseRoomEvent,
+    IMessage,
+    IJoinRoom,
+    ILeftRoom,
+    IChatRoomEvent
+} from './roomEvents';
+
+export type {
+    IRoom
+} from './room';
+
+export type {
+    User
+} from './socket';
