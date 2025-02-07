@@ -1,5 +1,5 @@
 import { GroupService } from '../../../src/services/GroupService'
-import { User, IRoom } from '../../../src/types';
+import { User } from '../../../src/types';
 
 describe('GroupService', () => {
     let groupService: GroupService;
