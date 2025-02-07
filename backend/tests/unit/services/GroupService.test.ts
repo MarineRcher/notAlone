@@ -1,5 +1,5 @@
-import { GroupService } from '../../../src/services/GroupService'
-import { User } from '../../../src/types';
+import { GroupService } from '../../../src/services/GroupService';
+import { IRoom, User } from '../../../src/types';
 
 describe('GroupService', () => {
     let groupService: GroupService;
@@ -8,98 +8,174 @@ describe('GroupService', () => {
     beforeEach(() => {
         groupService = new GroupService();
         mockUser = {
-            userId: '123',
-            name: 'Test User',
-            socketId: 'socket-123'
+            userId: 'user1',
+            name: 'John Doe'
         };
     });
 
-    describe('joinWaitList', () => {
-        it('should add a user to the waitlist', () => {
-            groupService.joinWaitList(mockUser);
-            // Vérification indirecte via la création de room qui nécessite 10 utilisateurs
-            expect(() => groupService.joinWaitList(mockUser)).not.toThrow();
+    describe('waitlist operations', () => {
+        describe('joinWaitList', () => {
+            it('should add a valid user to waitlist', () => {
+                groupService.joinWaitList(mockUser);
+                expect(groupService.getWaitListSize()).toBe(1);
+                expect(groupService.isUserInWaitList(mockUser.userId)).toBe(true);
+            });
+
+            it('should throw error for missing userId', () => {
+                const invalidUser = { userId: '', name: 'John' };
+                expect(() => groupService.joinWaitList(invalidUser)).toThrow('Invalid user data');
+            });
+
+            it('should throw error for missing name', () => {
+                const invalidUser = { userId: 'user1', name: '' };
+                expect(() => groupService.joinWaitList(invalidUser)).toThrow('Invalid user data');
+            });
         });
 
-        it('should throw error when user data is invalid', () => {
-            const invalidUser = { ...mockUser, userId: '' };
-            expect(() => groupService.joinWaitList(invalidUser)).toThrow('Invalid user data');
+        describe('removeUserFromWaitList', () => {
+            it('should remove user from waitlist', () => {
+                groupService.joinWaitList(mockUser);
+                expect(groupService.getWaitListSize()).toBe(1);
+
+                groupService.removeUserFromWaitList(mockUser.userId);
+                expect(groupService.getWaitListSize()).toBe(0);
+                expect(groupService.isUserInWaitList(mockUser.userId)).toBe(false);
+            });
+
+            it('should handle removing non-existent user', () => {
+                groupService.joinWaitList(mockUser);
+                groupService.removeUserFromWaitList('nonexistent-user');
+                expect(groupService.getWaitListSize()).toBe(1);
+                expect(groupService.isUserInWaitList(mockUser.userId)).toBe(true);
+            });
         });
 
-        it('should create a room when waitlist reaches 10 users', () => {
-            // Ajouter 10 utilisateurs
-            for (let i = 0; i < 10; i++) {
-                const user: User = {
-                    userId: `user-${i}`,
-                    name: `User ${i}`,
-                    socketId: `socket-${i}`
-                };
-                groupService.joinWaitList(user);
-            }
+        describe('isUserInWaitList', () => {
+            it('should return true for user in waitlist', () => {
+                groupService.joinWaitList(mockUser);
+                expect(groupService.isUserInWaitList(mockUser.userId)).toBe(true);
+            });
 
-            // Vérifier qu'une room a été créée
-            const rooms = groupService['rooms']; // Accès à la propriété privée pour le test
-            expect(rooms.length).toBe(1);
-            expect(rooms[0].users.length).toBe(10);
+            it('should return false for user not in waitlist', () => {
+                expect(groupService.isUserInWaitList('nonexistent')).toBe(false);
+            });
+
+            it('should preserve waitlist order when checking', () => {
+                const user2 = { userId: 'user2', name: 'Jane Doe' };
+                groupService.joinWaitList(mockUser);
+                groupService.joinWaitList(user2);
+
+                groupService.isUserInWaitList(mockUser.userId);
+                expect(groupService.getWaitListSize()).toBe(2);
+            });
         });
     });
 
-    describe('getRoomById', () => {
-        it('should return undefined for non-existent room', () => {
-            const room = groupService.getRoomById('non-existent');
-            expect(room).toBeUndefined();
+    describe('room operations', () => {
+        describe('createRoomIfPossible', () => {
+            it('should return null if less than 10 users in waitlist', () => {
+                for (let i = 0; i < 9; i++) {
+                    groupService.joinWaitList({
+                        userId: `user${i}`,
+                        name: `User ${i}`
+                    });
+                }
+                const room = groupService.createRoomIfPossible();
+                expect(room).toBeNull();
+            });
+
+            it('should create room with exactly 10 users', () => {
+                for (let i = 0; i < 10; i++) {
+                    groupService.joinWaitList({
+                        userId: `user${i}`,
+                        name: `User ${i}`
+                    });
+                }
+                const room = groupService.createRoomIfPossible();
+                expect(room).not.toBeNull();
+                expect(room?.users.length).toBe(10);
+            });
+
+            it('should clear users from waitlist after room creation', () => {
+                for (let i = 0; i < 10; i++) {
+                    groupService.joinWaitList({
+                        userId: `user${i}`,
+                        name: `User ${i}`
+                    });
+                }
+                groupService.createRoomIfPossible();
+                expect(groupService.getWaitListSize()).toBe(0);
+            });
         });
 
-        it('should return the correct room when it exists', () => {
-            // Créer une room en ajoutant 10 utilisateurs
-            for (let i = 0; i < 10; i++) {
-                const user: User = {
-                    userId: `user-${i}`,
-                    name: `User ${i}`,
-                    socketId: `socket-${i}`
-                };
-                groupService.joinWaitList(user);
-            }
+        describe('room management', () => {
+            let room: IRoom;
 
-            // Récupérer l'ID de la room créée
-            const room = groupService['rooms'][0];
-            const foundRoom = groupService.getRoomById(room.id);
+            beforeEach(() => {
+                for (let i = 0; i < 10; i++) {
+                    groupService.joinWaitList({
+                        userId: `user${i}`,
+                        name: `User ${i}`
+                    });
+                }
+                room = groupService.createRoomIfPossible()!;
+            });
 
-            expect(foundRoom).toBeDefined();
-            expect(foundRoom?.id).toBe(room.id);
-            expect(foundRoom?.users.length).toBe(10);
-        });
-    });
+            it('should get room by roomId', () => {
+                const foundRoom = groupService.getRoomById(room.id);
+                expect(foundRoom).toBeDefined();
+                expect(foundRoom?.id).toBe(room.id);
+            });
 
-    // Test des cas limites
-    describe('edge cases', () => {
-        it('should not create room with insufficient users', () => {
-            // Ajouter seulement 9 utilisateurs
-            for (let i = 0; i < 9; i++) {
-                const user: User = {
-                    userId: `user-${i}`,
-                    name: `User ${i}`,
-                    socketId: `socket-${i}`
-                };
-                groupService.joinWaitList(user);
-            }
+            it('should get room by userId', () => {
+                const foundRoom = groupService.getRoomByUserId('user0');
+                expect(foundRoom).toBeDefined();
+                expect(foundRoom?.id).toBe(room.id);
+            });
 
-            // Vérifier qu'aucune room n'a été créée
-            expect(groupService['rooms'].length).toBe(0);
+            it('should return undefined for non-existent roomId', () => {
+                expect(groupService.getRoomById('nonexistent')).toBeUndefined();
+            });
+
+            it('should return undefined for non-existent userId', () => {
+                expect(groupService.getRoomByUserId('nonexistent')).toBeUndefined();
+            });
         });
 
-        it('should handle multiple room creations', () => {
-            // Ajouter 20 utilisateurs pour créer 2 rooms
-            for (let i = 0; i < 20; i++) {
-                const user: User = {
-                    userId: `user-${i}`,
-                    name: `User ${i}`,
-                    socketId: `socket-${i}`
-                };
-                groupService.joinWaitList(user);
-            }
+        describe('handleUserDisconnect', () => {
+            let room: IRoom;
 
-            expect(groupService['rooms'].length).toBe(2);
+            beforeEach(() => {
+                for (let i = 0; i < 10; i++) {
+                    groupService.joinWaitList({
+                        userId: `user${i}`,
+                        name: `User ${i}`
+                    });
+                }
+                room = groupService.createRoomIfPossible()!;
+            });
+
+            it('should remove user from room', () => {
+                const user = room.users[0];
+                groupService.handleUserDisconnect(user);
+                const updatedRoom = groupService.getRoomById(room.id);
+                expect(updatedRoom?.users.length).toBe(9);
+                expect(updatedRoom?.users.find(u => u.userId === user.userId)).toBeUndefined();
+            });
+
+            it('should delete room when last user disconnects', () => {
+                room.users.forEach(user => {
+                    groupService.handleUserDisconnect(user);
+                });
+                expect(groupService.getRoomById(room.id)).toBeUndefined();
+            });
+
+            it('should handle disconnection of user not in room', () => {
+                const nonexistentUser = { userId: 'nonexistent', name: 'Non Existent' };
+                expect(() => {
+                    groupService.handleUserDisconnect(nonexistentUser);
+                }).not.toThrow();
+            });
         });
     });
 });

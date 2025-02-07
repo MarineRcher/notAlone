@@ -1,5 +1,4 @@
 export interface User {
     userId: string,
-    name: string,
-    socketId: string
+    name: string
 }
