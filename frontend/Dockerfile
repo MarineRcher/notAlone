@@ -1,9 +1,9 @@
 FROM reactnativecommunity/react-native-android:latest
 
 # Set the working directory
-WORKDIR .
+WORKDIR /app
 
-# Copy package files first to leverage Docker cache
+# Copy package files first
 COPY package*.json ./
 
 # Install dependencies
@@ -16,4 +16,4 @@ COPY . .
 EXPOSE 8081
 
 # Start the development server
-CMD ["npx", "react-native", "start", "--host", "0.0.0.0"]
+CMD ["npx", "expo", "start"]

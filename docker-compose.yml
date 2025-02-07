@@ -1,5 +1,4 @@
 version: "3"
-
 services:
     frontend:
         build:
@@ -9,6 +8,9 @@ services:
             - 8081:8081
         networks:
             - app-network
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
 
     api:
         build:
@@ -20,18 +22,23 @@ services:
             - app-network
         depends_on:
             - db
+        environment:
+            DATABASE_URL: postgres://root:root@db:5432/notalone
+        volumes:
+            - ./backend:/app
+            - /app/node_modules
 
     db:
-        build:
-            context: ./db
-            dockerfile: Dockerfile
+        image: postgres:latest
         environment:
-            MYSQL_ROOT_PASSWORD: rootpassword
-            MYSQL_DATABASE: myapp
-            MYSQL_USER: myappuser
-            MYSQL_PASSWORD: password
+            POSTGRES_DB: notalone
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+            POSTGRES_INITDB_ARGS: "--data-checksums"
         volumes:
-            - db-data:/var/lib/mysql
+            - db-data:/var/lib/postgresql/data
+        ports:
+            - 5434:5432
         networks:
             - app-network
 

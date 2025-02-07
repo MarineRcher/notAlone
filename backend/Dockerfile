@@ -1,9 +1,8 @@
 FROM node:14-alpine
 
-# Set the working directory
-WORKDIR .
+WORKDIR /app
 
-# Copy package files first
+# Copy package files
 COPY package*.json ./
 
 # Install dependencies
@@ -15,5 +14,5 @@ COPY . .
 # Expose the API port
 EXPOSE 3000
 
-# Start the API server
-CMD ["npm", "start"]
+# Use nodemon for development
+CMD ["npm", "run", "dev"]
