@@ -1,13 +1,17 @@
 const express = require("express");
 import { Request, Response } from "express";
-const initDatabase = require("./src/models/index");
+const createDb = require("./src/models/index");
+const authRoutes = require("./src/routes/authRoutes");
 
 const app = express();
 app.use(express.json());
 
+// Routes
+app.use("/api/auth", authRoutes);
+
 async function startServer() {
     try {
-        await initDatabase();
+        await createDb();
 
         app.get("/", (req: Request, res: Response) => {
             res.json({ message: "Backend API is running" });
