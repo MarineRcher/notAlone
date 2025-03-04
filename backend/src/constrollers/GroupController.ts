@@ -90,7 +90,7 @@ class GroupController {
             this.groupService.handleUserDisconnect(user);
 
             if (room) {
-                socket.to(room.id).emit('user:disconnected', {
+                this.io.to(room.id).emit('user:disconnected', {
                     userId: user.userId,
                     name: user.name,  // Ajout du nom pour plus de contexte
                     roomId: room.id,
