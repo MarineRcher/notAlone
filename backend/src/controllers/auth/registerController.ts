@@ -1,11 +1,18 @@
 import { Request, Response } from "express";
 const bcrypt = require("bcryptjs");
-const User = require("../models/Users");
+const User = require("../../models/Users");
 
 const register = async (req: Request, res: Response) => {
     try {
         const { login, email, password } = req.body;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{12,}$/;
         
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial",
+            });
+        }
+
         const existingEmail = await User.findOne({
             where: {
                 email: email,
@@ -54,5 +61,7 @@ const register = async (req: Request, res: Response) => {
         });
     }
 };
+
+
 
 module.exports = { register };

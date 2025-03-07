@@ -1,9 +1,12 @@
 const express = require("express");
+const dotenv = require("dotenv");
 import { Request, Response } from "express";
 const createDb = require("./src/models/index");
 const authRoutes = require("./src/routes/authRoutes");
 
+
 const app = express();
+dotenv.config();
 app.use(express.json());
 
 // Routes
