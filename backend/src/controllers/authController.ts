@@ -1,32 +1,43 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
+const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 
 const register = async (req: Request, res: Response) => {
     try {
         const { login, email, password } = req.body;
-
-        const existingUser = await User.findOne({
+        
+        const existingEmail = await User.findOne({
             where: {
                 email: email,
             },
         });
-
-        if (existingUser) {
+        
+        if (existingEmail) {
             return res.status(400).json({
                 message: "Un utilisateur avec cet email existe déjà",
             });
-        }
+         } 
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
+         const existingLogin = await User.findOne({
+            where: {
+                login: login,
+            },
+        });
+        
+        if (existingLogin) {
+            return res.status(400).json({
+                message: "Un utilisateur avec ce login existe déjà",
+            });
+         } 
+         const salt = await bcrypt.genSalt(10);
+         const hashedPassword = await bcrypt.hash(password, salt);
+     
         const newUser = await User.create({
             login,
             email,
             password: hashedPassword,
         });
-
+        
         const { password: _, ...userWithoutPassword } = newUser.get({
             plain: true,
         });
@@ -44,4 +55,4 @@ const register = async (req: Request, res: Response) => {
     }
 };
 
-module.exports = register;
+module.exports = { register };

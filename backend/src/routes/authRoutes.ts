@@ -1,5 +1,5 @@
 import express from "express";
-const register = require("../controllers/authController");
+const { register } = require("../controllers/authController");
 
 const router = express.Router();
 
