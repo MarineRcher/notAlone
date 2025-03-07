@@ -1,0 +1,105 @@
+
+    {
+    "login": "SunnyDream22",
+    "email": "brightday@example.com",
+    "password": "3W2WilR4oq!q",
+    "hasPremium": false,
+    "has2FA": false,
+    "isBlocked": false,
+    "notify": false,
+    "hourNotify": null,
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "TechNinja85",
+    "email": "digital.shadow@example.net",
+    "password": "Wc33^rq1tdTg",
+    "hasPremium": true,
+    "has2FA": false,
+    "isBlocked": false,
+    "notify": false,
+    "hourNotify": null,
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "MountainHiker",
+    "email": "peak.explorer@example.org",
+    "password": "*m3l#6FaA1$j",
+    "hasPremium": true,
+    "has2FA": true,
+    "isBlocked": false,
+    "notify": true,
+    "hourNotify": "07:00:00",
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "OceanWave34",
+    "email": "sea.breeze@example.com",
+    "password": "fYs^H6EyhVGY",
+    "hasPremium": true,
+    "has2FA": true,
+    "isBlocked": true,
+    "notify": true,
+    "hourNotify": "07:00:00",
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "StarGazer42",
+    "email": "cosmic.view@example.org",
+    "password": "z%hF5!*b&#Hr",
+    "hasPremium": false,
+    "has2FA": true,
+    "isBlocked": true,
+    "notify": true,
+    "hourNotify": "10:00:00",
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "PixelArtist",
+    "email": "creative.pixels@example.com",
+    "password": "MCi&vA9Tf5cr",
+    "hasPremium": false,
+    "has2FA": true,
+    "isBlocked": false,
+    "notify": true,
+    "hourNotify": "10:00:00",
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "MusicMaestro",
+    "email": "melody.maker@example.net",
+    "password": "wI*f$OsPA5GE",
+    "hasPremium": false,
+    "has2FA": false,
+    "isBlocked": false,
+    "notify": true,
+    "hourNotify": "10:00:00",
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "FitnessFanatic",
+    "email": "health.journey@example.org",
+    "password": "mH7pmfuf@s*o",
+    "hasPremium": false,
+    "has2FA": false,
+    "isBlocked": false,
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}
+{
+    "login": "CoffeeConnoisseur",
+    "email": "brew.master@example.com",
+    "password": "YM659d&%^UoL",
+    "hasPremium": false,
+    "has2FA": false,
+    "isBlocked": true,
+    "createdAt": "2025-03-07T09:27:22.639Z",
+    "updatedAt": "2025-03-07T09:27:22.639Z"
+}

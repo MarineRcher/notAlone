@@ -4,7 +4,7 @@ const User = require("../../models/Users");
 
 const register = async (req: Request, res: Response) => {
     try {
-        const { login, email, password } = req.body;
+        const { login, email, password, hasPremium, has2FA, isBlocked } = req.body;
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{12,}$/;
         
         if (!passwordRegex.test(password)) {
@@ -43,6 +43,9 @@ const register = async (req: Request, res: Response) => {
             login,
             email,
             password: hashedPassword,
+            hasPremium: hasPremium,
+            has2FA: has2FA,
+            isBlocked: isBlocked,
         });
         
         const { password: _, ...userWithoutPassword } = newUser.get({

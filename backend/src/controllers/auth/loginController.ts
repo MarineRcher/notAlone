@@ -19,16 +19,15 @@ const login = async (req: Request, res: Response) => {
         
         if (!user) {
             return res.status(401).json({
-                message: "Login/Email ou mot de passe incorrect",
+                message: "Login ou Email incorrect",
             });
         }
 
-        
         const isPasswordValid = await bcrypt.compare(password, user.password);
         
         if (!isPasswordValid) {
             return res.status(401).json({
-                message: "Login/Email ou mot de passe incorrect",
+                message: "Mot de passe incorrect",
             });
         }
 
@@ -38,7 +37,6 @@ const login = async (req: Request, res: Response) => {
             { expiresIn: "24h" }
         );
 
-        
         const { password: _, ...userWithoutPassword } = user.get({
             plain: true,
         });

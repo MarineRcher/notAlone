@@ -37,6 +37,7 @@ services:
             POSTGRES_INITDB_ARGS: "--data-checksums"
         volumes:
             - db-data:/var/lib/postgresql/data
+            - ./db:/docker-entrypoint-initdb.d 
         ports:
             - 5434:5432
         networks:
