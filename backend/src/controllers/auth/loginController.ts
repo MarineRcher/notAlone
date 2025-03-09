@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/Users");
-const { Op } = require("sequelize");
+const { db } = require("sequelize");
 
 const login = async (req: Request, res: Response) => {
     try {
@@ -10,7 +10,7 @@ const login = async (req: Request, res: Response) => {
         
         const user = await User.findOne({
             where: {
-                [Op.or]: [
+                [db.or]: [
                     { login: loginOrEmail },
                     { email: loginOrEmail }
                 ]
