@@ -32,6 +32,7 @@ CREATE TABLE public.users (
     password character varying(255) NOT NULL,
     has_premium boolean DEFAULT false,
     has2_f_a boolean DEFAULT false,
+    two_factor_secret character varying(255) DEFAULT NULL,
     is_blocked boolean DEFAULT false,
     notify boolean DEFAULT false,
     hour_notify time without time zone,

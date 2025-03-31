@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/Users");
-const { db } = require("sequelize");
+const { Op } = require("sequelize");
 
 const login = async (req: Request, res: Response) => {
     try {
@@ -10,7 +10,7 @@ const login = async (req: Request, res: Response) => {
         
         const user = await User.findOne({
             where: {
-                [db.or]: [
+                [Op.or]: [
                     { login: loginOrEmail },
                     { email: loginOrEmail }
                 ]
@@ -30,6 +30,23 @@ const login = async (req: Request, res: Response) => {
                 message: "Mot de passe incorrect",
             });
         }
+        if (user.has2FA) {
+            const tempToken = jwt.sign(
+                { 
+                    id: user.id,
+                    requiresTwoFactor: true
+                },
+                process.env.JWT_SECRET,
+                { expiresIn: "5m" }
+            );
+            
+            return res.status(200).json({
+                message: "Authentification à deux facteurs requise",
+                userId: user.id,
+                requiresTwoFactor: true,
+                tempToken: tempToken
+            });
+        }
 
         const token = jwt.sign(
             { id: user.id, login: user.login },
@@ -37,13 +54,14 @@ const login = async (req: Request, res: Response) => {
             { expiresIn: "24h" }
         );
 
-        const { password: _, ...userWithoutPassword } = user.get({
+        const { password: _, twoFactorSecret: __, ...userWithoutSensitiveData } = user.get({
             plain: true,
         });
 
+
         res.status(200).json({
             message: "Connexion réussie",
-            user: userWithoutPassword,
+            user: userWithoutSensitiveData,
             token
         });
     } catch (error) {

@@ -34,6 +34,10 @@ const user = db.define(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        twoFactorSecret: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         isBlocked: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,

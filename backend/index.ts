@@ -9,7 +9,6 @@ const app = express();
 dotenv.config();
 app.use(express.json());
 
-// Routes
 app.use("/api/auth", authRoutes);
 
 async function startServer() {
