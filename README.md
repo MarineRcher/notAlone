@@ -1,8 +1,7 @@
 Pour demarrer le projet, il faut etre a la racine du projet et lancer la commande :
 
-```
-make
-```
+On recupere son adresse IP avec `ipconfig` sur windows ou `ip addr` sur linux
+
 
 # Frontend
 

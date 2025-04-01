@@ -1,8 +1,9 @@
-version: "3"
 services:
     frontend:
         environment:
-                - EXPO_PUBLIC_IP=192.168.1.155
+            # - EXPO_PUBLIC_IP: 172.16.1.132
+            EXPO_DEVTOOLS_LISTEN_ADDRESS: 0.0.0.0
+
         build:
             context: ./frontend/
             dockerfile: Dockerfile
