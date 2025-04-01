@@ -1,18 +1,11 @@
-FROM node:14-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm i
-
-# Copy the rest of the project files
 COPY . .
+RUN npm i 
+RUN npm ci
 
-# Expose the API port
 EXPOSE 3000
 
-# Use nodemon for development
 CMD ["npm", "run", "dev"]
