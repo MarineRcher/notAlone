@@ -2,7 +2,7 @@
 
 # dependencies
 node_modules/
-
+frontend/.env
 # Expo
 .expo/
 dist/
