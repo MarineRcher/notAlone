@@ -1,8 +1,12 @@
+Pour les utilisateurs windows, il faut avoir make :
+- [Installer chocolatey](https://chocolatey.org/install)
+- Ensuite, `choco install make`
+
 Pour demarrer le projet, il faut etre a la racine du projet et lancer la commande :
 
-```
-make
-```
+`make backend` dans une fenetre du terminal, 
+puis `make frontend` dans une autre.
+
 
 # Frontend
 

@@ -1,6 +1,6 @@
-const User = require("./Users");
+const User = require("./user.model");
 
-async function createDb() {
+async function initDatabase() {
     try {
         await User.sync();
         console.log("Tables créées avec succès !");
@@ -9,4 +9,4 @@ async function createDb() {
     }
 }
 
-module.exports = createDb;
+module.exports = initDatabase;

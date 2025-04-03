@@ -1,6 +1,11 @@
-NAME	=	./docker-compose.yml 
+NAME = compose.yml
 
-start:
-		docker-compose -f $(NAME) down &&  docker-compose -f $(NAME) up --build
+backend:
+	@echo "🚀 Démarrage des conteneurs Docker..."
+	docker compose -f $(NAME) down && docker compose -f $(NAME) up --build
 
-PHONY: start stop
+frontend:
+	@echo "🖥️ Lancement du serveur frontend..."
+	cd frontend && yarn install && yarn start
+
+.PHONY: backend frontend

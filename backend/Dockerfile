@@ -1,18 +1,15 @@
-FROM node:14-alpine
+FROM node:20-alpine
+
+RUN apk add --no-cache yarn
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY package.json yarn.lock /app/
 
-# Install dependencies
-RUN npm install
+RUN yarn install
 
-# Copy the rest of the project files
 COPY . .
 
-# Expose the API port
 EXPOSE 3000
 
-# Use nodemon for development
-CMD ["npm", "run", "dev"]
+CMD ["yarn", "run", "dev"]
