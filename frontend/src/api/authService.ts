@@ -14,7 +14,6 @@ export const authService = {
     return await apiClient.post('/auth/register', userData);
   },
   
-  // Vous pourrez ajouter d'autres méthodes comme login, resetPassword, etc.
 };
 
 export default authService;

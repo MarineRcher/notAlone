@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import axios from 'axios';
+import authService from '../api/authService';
 
 const RegisterScreen = ({ navigation }) => {
   const [login, setLogin] = useState('');
@@ -58,7 +59,7 @@ const RegisterScreen = ({ navigation }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/auth/register', {
+      await authService.register({
         login,
         email,
         password,
@@ -66,15 +67,12 @@ const RegisterScreen = ({ navigation }) => {
         has2FA: false,
         isBlocked: false
       });
-
       Alert.alert('Succès', 'Inscription réussie!');
-      // Rediriger vers la page de connexion
-      if (navigation) {
-        navigation.navigate('Login');
-      }
+    
+      
     } catch (error) {
       let errorMessage = 'Une erreur est survenue lors de l\'inscription';
-      
+      console.log(error)
       if (error.response) {
         errorMessage = error.response.data.message || errorMessage;
       }

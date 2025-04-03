@@ -6,6 +6,6 @@ backend:
 
 frontend:
 	@echo "🖥️ Lancement du serveur frontend..."
-	cd frontend && npm i && npm ci && npm run start
+	cd frontend && yarn install && yarn start
 
 .PHONY: backend frontend
