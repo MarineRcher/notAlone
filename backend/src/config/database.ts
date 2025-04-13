@@ -1,17 +1,22 @@
-const { Sequelize } = require("sequelize");
+import { Sequelize } from 'sequelize';
+import config from './config.json'; 
 
-const sequelize = new Sequelize({
+type Environment = 'development' | 'test' | 'production';
+const env: Environment = (process.env.NODE_ENV || 'development') as Environment;
+
+const dbConfig = config[env]; 
+
+const sequelize = new Sequelize(
+  dbConfig.database,
+  dbConfig.username,
+  dbConfig.password,
+  {
+    host: dbConfig.host,
+    port: dbConfig.port,
     dialect: "postgres",
-    host: process.env.POSTGRES_HOST || "db",
-    username: process.env.POSTGRES_USER || "root",
-    password: process.env.POSTGRES_PASSWORD || "root",
-    database: process.env.POSTGRES_DB || "notalone",
-    port: process.env.POSTGRES_PORT || 5432,
-    logging: console.log,
-    define: {
-        timestamps: true,
-        underscored: true,
-    },
-});
+    define: dbConfig.define,
+    logging: dbConfig.logging,
+  }
+);
 
-module.exports = sequelize;
+export default sequelize;
