@@ -8,7 +8,15 @@
         "dev": "nodemon --exec ts-node index.ts",
         "build": "tsc",
         "migrate": "docker compose exec api ./node_modules/.bin/sequelize db:migrate",
-        "migrate:generate": "docker compose exec api ./node_modules/.bin/sequelize migration:generate --name"
+        "migrate:undo": "docker compose exec api ./node_modules/.bin/sequelize db:migrate:undo",
+        "migrate:undo:all": "docker compose exec api ./node_modules/.bin/sequelize db:migrate:undo:all --to",
+        "migrate:generate": "docker compose exec api ./node_modules/.bin/sequelize migration:generate --name",
+        "seed:generate": "docker compose exec api ./node_modules/.bin/sequelize seed:generate --name",
+        "seed:all": "docker compose exec api ./node_modules/.bin/sequelize seed:all",
+        "seed:undo:last": "docker compose exec api ./node_modules/.bin/sequelize seed:undo",
+        "seed:undo:all": "docker compose exec api ./node_modules/.bin/sequelize seed:undo:all",
+        "seed:undo": "docker compose exec api ./node_modules/.bin/sequelize seed:undo --seed"
+
     },
     "keywords": [],
     "author": "",

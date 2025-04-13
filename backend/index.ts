@@ -1,6 +1,7 @@
 import * as http from "node:http";
 import { Server } from "socket.io";
 import { Request, Response } from "express";
+import * as path from 'path';
 import express from "express";
 import dotenv from "dotenv";
 import sequelize from "./src/config/database";
@@ -8,7 +9,8 @@ import authRoutes from "./src/routes/authRoutes";
 import GroupController from "./src/constrollers/GroupController"; 
 const app = express();
 const server = http.createServer(app); 
-dotenv.config();
+
+dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 app.use(express.json());
 app.use("/api/auth", authRoutes); 

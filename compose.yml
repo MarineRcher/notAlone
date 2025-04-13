@@ -5,28 +5,34 @@ services:
             dockerfile: Dockerfile
         user: "1000:1000"
         ports:
-            - 3000:3000
+            - "${API_PORT}:3000" 
         networks:
             - app-network
         depends_on:
             - db
+        env_file:
+            - .env 
         environment:
-            DATABASE_URL: postgres://root:root@db:5432/notalone
+            DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
         volumes:
             - ./backend:/app
+            - ./.env:/app/.env
+
 
     db:
         image: postgres:latest
+        env_file:
+            - .env 
         environment:
-            POSTGRES_DB: notalone
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: root
+            POSTGRES_DB: "${POSTGRES_DB}"
+            POSTGRES_USER: "${POSTGRES_USER}"
+            POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
             POSTGRES_INITDB_ARGS: "--data-checksums"
         volumes:
             - db-data:/var/lib/postgresql/data
-            - ./db:/docker-entrypoint-initdb.d 
+            - ./db:/docker-entrypoint-initdb.d
         ports:
-            - 5434:5432
+            - "5434:${POSTGRES_PORT}" 
         networks:
             - app-network
 

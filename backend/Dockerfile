@@ -1,8 +1,8 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache yarn
-
 WORKDIR /app
+
+RUN apk add --no-cache yarn
 
 COPY package.json yarn.lock /app/
 
