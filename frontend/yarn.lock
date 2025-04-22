@@ -3573,6 +3573,11 @@ expo-modules-core@2.2.3:
   dependencies:
     invariant "^2.2.4"
 
+expo-secure-store@~14.0.1:
+  version "14.0.1"
+  resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-14.0.1.tgz#8953d5966430f5ff262f4d99e7551205870078d7"
+  integrity sha512-QUS+j4+UG4jRQalgnpmTvvrFnMVLqPiUZRzYPnG3+JrZ5kwVW2w6YS3WWerPoR7C6g3y/a2htRxRSylsDs+TaQ==
+
 expo-standard-web-crypto@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/expo-standard-web-crypto/-/expo-standard-web-crypto-2.0.1.tgz#f315a4d711cd57ace8c003e2cf465003a4baba94"
