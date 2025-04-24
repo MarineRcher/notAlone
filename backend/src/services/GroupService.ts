@@ -5,11 +5,66 @@ export class GroupService {
     private waitList: Queue<User>;
     private rooms: Map<string, IRoom>;
     private userToRoom: Map<string, string>; // userId -> roomId
+    private userPublicKeys: Map<string, string>; // userId -> publicKey
 
     constructor() {
         this.waitList = new Queue<User>();
         this.rooms = new Map();
         this.userToRoom = new Map();
+        this.userPublicKeys = new Map();
+    }
+
+     /**
+     * Store a user's public key
+     */
+     public storeUserPublicKey(userId: string, publicKey: string): void {
+        if (!userId || !publicKey) {
+            throw new Error('Invalid user ID or public key');
+        }
+        this.userPublicKeys.set(userId, publicKey);
+    }
+
+    /**
+     * Retrieve a user's public key
+     */
+    public getUserPublicKey(userId: string): string | undefined {
+        return this.userPublicKeys.get(userId);
+    }
+
+    /**
+     * Get all public keys for a specific room's members
+     */
+    public getRoomMemberPublicKeys(roomId: string): Map<string, string> {
+        const room = this.rooms.get(roomId);
+        if (!room) {
+            return new Map();
+        }
+
+        const memberKeys = new Map<string, string>();
+        for (const user of room.users) {
+            const publicKey = this.userPublicKeys.get(user.userId);
+            if (publicKey) {
+                memberKeys.set(user.userId, publicKey);
+            }
+        }
+
+        return memberKeys;
+    }
+
+    // Add to the existing handleUserConnect method or create a new one
+    public handleUserJoinRoom(roomId: string, user: User, publicKey: string): void {
+        const room = this.rooms.get(roomId);
+        if (room) {
+            // Store the user's public key
+            this.storeUserPublicKey(user.userId, publicKey);
+            
+            // Add user to room if not already there
+            if (!room.users.some(u => u.userId === user.userId)) {
+                room.users.push(user);
+                this.userToRoom.set(user.userId, roomId);
+                this.rooms.set(roomId, room);
+            }
+        }
     }
 
     public joinWaitList(user: User): void {

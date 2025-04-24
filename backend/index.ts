@@ -1,3 +1,4 @@
+// index.ts - Fix the server startup section
 import * as http from "node:http";
 import { Server } from "socket.io";
 import { Request, Response } from "express";
@@ -6,14 +7,19 @@ import express from "express";
 import dotenv from "dotenv";
 import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
+import keyRoutes from "./src/routes/keyRoutes"; 
 import GroupController from "./src/constrollers/GroupController"; 
+
+// Create Express app
 const app = express();
+// Create HTTP server with the Express app
 const server = http.createServer(app); 
 
 dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 app.use(express.json());
 app.use("/api/auth", authRoutes); 
+app.use("/api/keys", keyRoutes); 
 
 async function startServer() {
     try {
@@ -37,8 +43,9 @@ async function startServer() {
             console.log('Nouveau client connecté:', socket.id);
             groupController.handleConnection(socket);
         });
+        
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
         });
 
