@@ -1,16 +1,19 @@
-import express from 'express';
-import { register } from '../controllers/auth/registerController';
-import { login } from '../controllers/auth/loginController';
-import { changePassword } from '../controllers/auth/passwordController';
-import { 
-    generate2FASecret, 
-    verify2FASetup, 
+import express from "express";
+import { register } from "../controllers/auth/registerController";
+import { login } from "../controllers/auth/loginController";
+import { changePassword } from "../controllers/auth/passwordController";
+import {
+    generate2FASecret,
+    verify2FASetup,
     verify2FALogin,
-    disable2FA
-} from '../controllers/auth/twoFactorAuthController';
-import { authMiddleware } from '../middleware/authMiddleware';
+    disable2FA,
+} from "../controllers/auth/twoFactorAuthController";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { getCurrentUser } from "../controllers/auth/meController";
 
 const router = express.Router();
+
+router.get("/me", authMiddleware, getCurrentUser);
 
 router.post("/register", register);
 router.post("/login", login);
