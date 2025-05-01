@@ -10,7 +10,7 @@ import {
 } from "../controllers/auth/twoFactorAuthController";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { getCurrentUser } from "../controllers/auth/meController";
-
+import { logout } from "../controllers/auth/logoutController";
 const router = express.Router();
 
 router.get("/me", authMiddleware, getCurrentUser);
@@ -18,7 +18,7 @@ router.get("/me", authMiddleware, getCurrentUser);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/changePassword", changePassword);
-
+router.post("/logout", authMiddleware, logout);
 router.post("/2fa/generate", authMiddleware, generate2FASecret);
 router.post("/2fa/verify-setup", verify2FASetup);
 router.post("/2fa/verify-login", verify2FALogin);

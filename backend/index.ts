@@ -7,6 +7,8 @@ import dotenv from "dotenv";
 import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
 import GroupController from "./src/constrollers/GroupController";
+import { redisClient, connectRedis } from "./src/config/redis";
+
 const app = express();
 const server = http.createServer(app);
 
@@ -19,7 +21,7 @@ async function startServer() {
     try {
         await sequelize.authenticate();
         await sequelize.sync();
-
+        await connectRedis();
         app.get("/", (req: Request, res: Response) => {
             res.json({ message: "Backend API is running" });
         });

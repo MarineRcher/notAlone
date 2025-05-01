@@ -54,12 +54,10 @@ const Enable2FAScreen = ({ navigation }) => {
                     Alert.alert("Succès", "Clé copiée !");
                 }}
                 style={{
-                    backgroundColor: "#007AFF",
                     padding: 10,
-                    borderRadius: 5,
                 }}
             >
-                <Text style={{ color: "white" }}>Copier la clé</Text>
+                <Text>Copier la clé. Ne partagez jamais cette clé</Text>
             </TouchableOpacity>
             <TextInput
                 placeholder="Entrez le code de vérification"
