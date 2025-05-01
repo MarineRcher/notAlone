@@ -15,7 +15,7 @@ export interface LoginData {
 }
 
 export interface newPasswordData {
-    email: string;
+    loginOrEmail: string;
     oldPassword: string;
     newPassword: string;
 }

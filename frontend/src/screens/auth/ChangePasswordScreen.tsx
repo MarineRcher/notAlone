@@ -10,13 +10,13 @@ import {
 import authService from "../../api/authService";
 
 const ChangePasswordScreen = ({ navigation }) => {
-    const [email, setEmail] = useState("");
+    const [loginOrEmail, setLoginOrEmail] = useState("");
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({
-        email: "",
+        loginOrEmail: "",
         oldPassword: "",
         newPassword: "",
         confirmNewPassword: "",
@@ -25,22 +25,31 @@ const ChangePasswordScreen = ({ navigation }) => {
     const validateForm = () => {
         let isValid = true;
         const newErrors = {
-            email: "",
+            loginOrEmail: "",
             oldPassword: "",
             newPassword: "",
             confirmNewPassword: "",
         };
 
-        // Validation de l'email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.trim()) {
-            newErrors.email = "L'email est requis";
+        if (!loginOrEmail.trim()) {
+            newErrors.loginOrEmail = "Le login ou l'email est requis";
             isValid = false;
-        } else if (!emailRegex.test(email)) {
-            newErrors.email = "Format d'email invalide";
-            isValid = false;
+        } else {
+            if (loginOrEmail.includes("@")) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(loginOrEmail)) {
+                    newErrors.loginOrEmail = "Format d'email invalide";
+                    isValid = false;
+                }
+            } else {
+                const loginRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+                if (!loginRegex.test(loginOrEmail)) {
+                    newErrors.loginOrEmail =
+                        "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+                    isValid = false;
+                }
+            }
         }
-
         // Validation du mot de passe (utilisant le même regex que le backend)
         const passwordRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{12,}$/;
@@ -73,13 +82,14 @@ const ChangePasswordScreen = ({ navigation }) => {
 
         try {
             await authService.changePassword({
-                email,
+                loginOrEmail,
                 oldPassword,
                 newPassword,
             });
             Alert.alert("Succès", "Changement de mot de passe réussie!");
         } catch (error) {
-            let errorMessage = "Une erreur est survenue lors de l'inscription";
+            let errorMessage =
+                "Une erreur est survenue lors du changement de mot de passe";
             console.log(error);
             if (error.response) {
                 errorMessage = error.response.data.message || errorMessage;
@@ -97,17 +107,18 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <Text>Changer de mot de passe</Text>
 
                 <View>
-                    <Text>Email</Text>
+                    <Text>Login ou Email</Text>
                     <TextInput
-                        placeholder="Entrez votre email"
-                        value={email}
+                        placeholder="Entrez votre login ou email"
+                        value={loginOrEmail}
                         onChangeText={(text) =>
-                            setEmail(text.replace(/[<>]/g, ""))
+                            setLoginOrEmail(text.replace(/[<>]/g, ""))
                         }
-                        keyboardType="email-address"
                         autoCapitalize="none"
                     />
-                    {errors.email ? <Text>{errors.email}</Text> : null}
+                    {errors.loginOrEmail ? (
+                        <Text>{errors.loginOrEmail}</Text>
+                    ) : null}
                 </View>
 
                 <View>

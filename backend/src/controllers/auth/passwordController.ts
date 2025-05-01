@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../../models/User";
 import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 import logger from "../../config/logger";
+import { Op } from "sequelize";
 
 export const changePassword = async (
     req: Request,
@@ -10,8 +11,14 @@ export const changePassword = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const { email, oldPassword, newPassword } = req.body;
-        const user = await User.findOne({ where: { email }, raw: false });
+        const { loginOrEmail, oldPassword, newPassword } = req.body;
+
+        const user = await User.findOne({
+            where: {
+                [Op.or]: [{ login: loginOrEmail }, { email: loginOrEmail }],
+            },
+            raw: true,
+        });
         if (user && user.id) {
             logger.info("Tentative de changement de mot de passe", {
                 user: user.id,
@@ -19,20 +26,34 @@ export const changePassword = async (
             });
         }
 
-        if (
-            !user ||
-            !(await bcrypt.compare(oldPassword, user.getDataValue("password")))
-        ) {
+        if (!user || !(await bcrypt.compare(oldPassword, user.password))) {
             if (user) {
-                await user.update({
-                    failedLoginAttempts: user.failedLoginAttempts + 1,
-                    blockedUntil:
-                        user.failedLoginAttempts + 1 >= 3
-                            ? new Date(Date.now() + 15 * 60 * 1000)
-                            : null,
+                await User.update(
+                    {
+                        failedLoginAttempts: user.failedLoginAttempts + 1,
+                        blockedUntil:
+                            user.failedLoginAttempts + 1 >= 3
+                                ? new Date(Date.now() + 15 * 60 * 1000)
+                                : null,
+                    },
+                    {
+                        where: { id: user.id },
+                    }
+                );
+                logger.warn(
+                    "Échec changement MP - Ancien mot de passe incorrect",
+                    {
+                        user: loginOrEmail,
+                        ip: req.ip,
+                    }
+                );
+
+                res.status(401).json({
+                    message: "Ancien mot de passe incorrect",
                 });
+                return;
             }
-            res.status(401).json({ message: "Email incorrect" });
+            res.status(401).json({ message: "Email ou login incorrect" });
             return;
         }
         if (user?.blockedUntil && user.blockedUntil > new Date()) {
@@ -44,19 +65,7 @@ export const changePassword = async (
             });
             return;
         }
-        const isPasswordValid = await bcrypt.compare(
-            oldPassword,
-            user.getDataValue("password")
-        );
-        if (!isPasswordValid) {
-            logger.warn("Échec changement MP - Ancien mot de passe incorrect", {
-                user: user.id,
-                ip: req.ip,
-            });
 
-            res.status(401).json({ message: "Mot de passe incorrect" });
-            return;
-        }
         if (await isPasswordCompromised(newPassword)) {
             logger.warn("Échec changement MP - mot de passe compromis", {
                 user: user.id,
@@ -71,23 +80,24 @@ export const changePassword = async (
         }
 
         const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt);
-        const updatedUser = await user.save();
+        const password = await bcrypt.hash(newPassword, salt);
 
-        const { password: _, ...userWithoutPassword } = updatedUser.get({
-            plain: true,
-        });
         logger.info("Changement de mot de passe réussi", {
             user: user.id,
             ip: req.ip,
         });
-        await user.update({
-            failedLoginAttempts: 0,
-            blockedUntil: null,
-        });
+        await User.update(
+            {
+                failedLoginAttempts: 0,
+                blockedUntil: null,
+                password: password,
+            },
+            {
+                where: { id: user.id },
+            }
+        );
         res.status(200).json({
             message: "Mot de passe modifié avec succès",
-            user: userWithoutPassword,
         });
     } catch (error) {
         next(error);

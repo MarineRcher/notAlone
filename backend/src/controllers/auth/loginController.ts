@@ -36,13 +36,25 @@ export const login = async (
         }
         if (!user || !(await bcrypt.compare(password, user.password))) {
             if (user) {
-                await user.update({
-                    failedLoginAttempts: user.failedLoginAttempts + 1,
-                    blockedUntil:
-                        user.failedLoginAttempts + 1 >= 3
-                            ? new Date(Date.now() + 15 * 60 * 1000)
-                            : null,
+                await User.update(
+                    {
+                        failedLoginAttempts: user.failedLoginAttempts + 1,
+                        blockedUntil:
+                            user.failedLoginAttempts + 1 >= 3
+                                ? new Date(Date.now() + 15 * 60 * 1000)
+                                : null,
+                    },
+                    {
+                        where: { id: user.id },
+                    }
+                );
+                logger.warn("Échec de connexion - Mot de passe incorrect", {
+                    user: loginOrEmail,
+                    ip: req.ip,
                 });
+
+                res.status(401).json({ message: "Mot de passe incorrect" });
+                return;
             }
             logger.warn("Échec de connexion - Utilisateur non trouvé", {
                 user: loginOrEmail,
@@ -53,17 +65,6 @@ export const login = async (
             return;
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-            logger.warn("Échec de connexion - Mot de passe incorrect", {
-                user: loginOrEmail,
-                ip: req.ip,
-            });
-
-            res.status(401).json({ message: "Mot de passe incorrect" });
-            return;
-        }
         if (user.has2FA) {
             const tempToken = jwt.sign(
                 { id: user.id, requiresTwoFactor: true },
@@ -88,11 +89,16 @@ export const login = async (
             user: user.id,
             ip: req.ip,
         });
-        await user.update({
-            failedLoginAttempts: 0,
-            blockedUntil: null,
-        });
 
+        await User.update(
+            {
+                failedLoginAttempts: 0,
+                blockedUntil: null,
+            },
+            {
+                where: { id: user.id },
+            }
+        );
         res.status(200).json({
             message: "Connexion réussie",
             token,

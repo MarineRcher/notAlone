@@ -95,7 +95,7 @@ const LoginScreen = ({ navigation }) => {
                 <View>
                     <Text>Login</Text>
                     <TextInput
-                        placeholder="Entrez votre login"
+                        placeholder="Entrez votre login ou email"
                         value={loginOrEmail}
                         onChangeText={(text) =>
                             setLoginOrEmail(text.replace(/[<>]/g, ""))
