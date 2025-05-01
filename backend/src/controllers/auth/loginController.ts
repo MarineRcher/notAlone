@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../../models/User";
 import { Op } from "sequelize";
+import logger from "../../config/logger";
 
 export const login = async (
     req: Request,
@@ -12,6 +13,12 @@ export const login = async (
     try {
         const { loginOrEmail, password } = req.body;
 
+        logger.info("Tentative de connexion", {
+            user: loginOrEmail,
+            ip: req.ip,
+            timestamp: new Date(),
+        });
+
         const user = await User.findOne({
             where: {
                 [Op.or]: [{ login: loginOrEmail }, { email: loginOrEmail }],
@@ -19,12 +26,22 @@ export const login = async (
             raw: true,
         });
         if (!user) {
+            logger.warn("Échec de connexion - Utilisateur non trouvé", {
+                user: loginOrEmail,
+                ip: req.ip,
+            });
+
             res.status(401).json({ message: "Login ou Email incorrect" });
             return;
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
+            logger.warn("Échec de connexion - Mot de passe incorrect", {
+                user: loginOrEmail,
+                ip: req.ip,
+            });
+
             res.status(401).json({ message: "Mot de passe incorrect" });
             return;
         }
@@ -48,6 +65,10 @@ export const login = async (
             process.env.JWT_SECRET!,
             { expiresIn: "24h" }
         );
+        logger.info("Connexion réussie", {
+            user: user.id,
+            ip: req.ip,
+        });
 
         res.status(200).json({
             message: "Connexion réussie",

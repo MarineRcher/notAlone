@@ -18,6 +18,7 @@ services:
         volumes:
             - ./backend:/app
             - ./.env:/app/.env
+            - ./backend/logs:/app/logs
 
     db:
         image: postgres:latest

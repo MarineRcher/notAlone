@@ -3,6 +3,7 @@ import speakeasy from "speakeasy";
 import QRCode from "qrcode";
 import jwt from "jsonwebtoken";
 import User from "../../models/User";
+import logger from "../../config/logger";
 
 export const generate2FASecret = async (
     req: Request,
@@ -111,8 +112,16 @@ export const verify2FALogin = async (
             requiresTwoFactor: boolean;
             id: number;
         };
-
+        logger.info("Tentative de vérification 2FA", {
+            user: decoded.id,
+            ip: req.ip,
+        });
         if (!decoded.requiresTwoFactor) {
+            logger.warn("Échec 2FA - Code invalide", {
+                user: decoded.id,
+                ip: req.ip,
+            });
+
             res.status(400).json({
                 message: "Token invalide pour la vérification 2FA",
             });
@@ -120,6 +129,14 @@ export const verify2FALogin = async (
         }
         const user = await User.findByPk(decoded.id, { raw: true });
         if (!user || !user.twoFactorSecret) {
+            logger.warn(
+                "Échec 2FA - Utilisateur non trouvé ou 2FA non configurée",
+                {
+                    user: decoded.id,
+                    ip: req.ip,
+                }
+            );
+
             res.status(404).json({
                 message: "Utilisateur non trouvé ou 2FA non configurée",
             });
@@ -150,6 +167,11 @@ export const verify2FALogin = async (
             twoFactorSecret: __,
             ...userWithoutSensitiveData
         } = user;
+        logger.info("Vérification 2FA réussie", {
+            user: decoded.id,
+            ip: req.ip,
+        });
+
         res.status(200).json({
             message: "Authentification à deux facteurs réussie",
             user: userWithoutSensitiveData,
