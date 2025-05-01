@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     Alert,
 } from "react-native";
-import authService from "../../api/authService";
+import { authService } from "../../api/authService";
 import * as Clipboard from "expo-clipboard";
 
 const Enable2FAScreen = ({ navigation }) => {

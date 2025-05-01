@@ -19,6 +19,7 @@ router.get("/me", authMiddleware, getCurrentUser);
 router.post("/register", register);
 router.post("/login", checkBlockedStatus, login);
 router.post("/changePassword", checkBlockedStatus, changePassword);
+router.post("/refresh", changePassword);
 router.post("/logout", authMiddleware, logout);
 router.post("/2fa/generate", authMiddleware, generate2FASecret);
 router.post("/2fa/verify-setup", authMiddleware, verify2FASetup);

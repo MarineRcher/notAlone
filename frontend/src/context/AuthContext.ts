@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { authHelpers } from "../api/authHelpers";
-import apiClient from "../api/apiClient";
+import { getApiClient } from "../api/apiInstance";
 
 export const useAuthCheck = () => {
     useEffect(() => {
@@ -8,7 +8,7 @@ export const useAuthCheck = () => {
             const token = await authHelpers.getToken();
             if (token) {
                 try {
-                    await apiClient.get("/auth/me");
+                    await getApiClient().get("/auth/me");
                 } catch (error) {
                     await authHelpers.deleteToken();
                 }

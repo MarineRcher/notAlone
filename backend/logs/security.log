@@ -14,3 +14,9 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-05-01T20:12:02.175Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"warn","message":"Échec de connexion - Mot de passe incorrect","timestamp":"2025-05-01T20:12:02.254Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-05-01T20:12:03.941Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-05-01T20:59:08.767Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-05-01T20:59:14.939Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-05-01T20:59:17.987Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-05-01T20:59:17.990Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-05-01T21:18:17.039Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-05-01T21:18:17.111Z","user":2}

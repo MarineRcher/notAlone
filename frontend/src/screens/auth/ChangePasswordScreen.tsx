@@ -7,7 +7,7 @@ import {
     Alert,
     ScrollView,
 } from "react-native";
-import authService from "../../api/authService";
+import { authService } from "../../api/authService";
 
 const ChangePasswordScreen = ({ navigation }) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");

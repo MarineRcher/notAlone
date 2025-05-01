@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import authService from "../../api/authService";
+import { authService } from "../../api/authService";
 import { authHelpers } from "../../api/authHelpers";
 
 const TwoFactorLoginScreen = ({ route, navigation }) => {

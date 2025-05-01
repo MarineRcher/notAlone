@@ -7,8 +7,7 @@ import {
     Alert,
     ScrollView,
 } from "react-native";
-import axios from "axios";
-import authService from "../../api/authService";
+import { authService } from "../../api/authService";
 
 const RegisterScreen = ({ navigation }) => {
     const [login, setLogin] = useState("");

@@ -1,4 +1,3 @@
-import jwtDecode from "jwt-decode";
 import * as SecureStore from "expo-secure-store";
 
 interface DecodedToken {
