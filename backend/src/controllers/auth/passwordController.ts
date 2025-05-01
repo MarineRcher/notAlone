@@ -19,11 +19,31 @@ export const changePassword = async (
             });
         }
 
-        if (!user) {
+        if (
+            !user ||
+            !(await bcrypt.compare(oldPassword, user.getDataValue("password")))
+        ) {
+            if (user) {
+                await user.update({
+                    failedLoginAttempts: user.failedLoginAttempts + 1,
+                    blockedUntil:
+                        user.failedLoginAttempts + 1 >= 3
+                            ? new Date(Date.now() + 15 * 60 * 1000)
+                            : null,
+                });
+            }
             res.status(401).json({ message: "Email incorrect" });
             return;
         }
-
+        if (user?.blockedUntil && user.blockedUntil > new Date()) {
+            const remainingTime = Math.ceil(
+                (user.blockedUntil.getTime() - Date.now()) / 60000
+            );
+            res.status(429).json({
+                message: `Compte bloqué. Réessayez dans ${remainingTime} minutes.`,
+            });
+            return;
+        }
         const isPasswordValid = await bcrypt.compare(
             oldPassword,
             user.getDataValue("password")
@@ -61,7 +81,10 @@ export const changePassword = async (
             user: user.id,
             ip: req.ip,
         });
-
+        await user.update({
+            failedLoginAttempts: 0,
+            blockedUntil: null,
+        });
         res.status(200).json({
             message: "Mot de passe modifié avec succès",
             user: userWithoutPassword,

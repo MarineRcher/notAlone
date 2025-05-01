@@ -37,3 +37,5 @@ yarn-error.*
 # json
 package-lock.json
 pnpm-lock.yaml
+
+backend/logs/

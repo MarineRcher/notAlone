@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
-import { IUser } from "../types/users";
+import { UserAttributes } from "../types/users";
 import { redisClient } from "../config/redis";
 
 declare global {
     namespace Express {
         interface Request {
-            user?: IUser;
+            user?: UserAttributes;
         }
     }
 }
@@ -54,7 +54,7 @@ export const authMiddleware = async (
             return;
         }
 
-        req.user = user.get({ plain: true }) as IUser;
+        req.user = user.get({ plain: true }) as UserAttributes;
         next();
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
