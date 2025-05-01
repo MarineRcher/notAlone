@@ -23,6 +23,7 @@
     "description": "",
     "dependencies": {
         "@types/redis": "^4.0.11",
+        "axios": "^1.9.0",
         "bcryptjs": "^3.0.2",
         "crypto": "^1.0.1",
         "dotenv": "^16.4.7",

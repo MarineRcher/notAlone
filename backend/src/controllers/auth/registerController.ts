@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import User from "../../models/User";
 import jwt from "jsonwebtoken";
+import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 
 export const register = async (
     req: Request,
@@ -18,6 +19,13 @@ export const register = async (
             res.status(400).json({
                 message:
                     "Le mot de passe doit contenir au moins 12 caractères...",
+            });
+            return;
+        }
+        if (await isPasswordCompromised(password)) {
+            res.status(400).json({
+                message:
+                    "Ce mot de passe a été compromis. Choisissez-en un autre.",
             });
             return;
         }

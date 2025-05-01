@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import User from "../../models/User";
+import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 
 export const changePassword = async (
     req: Request,
@@ -22,6 +23,13 @@ export const changePassword = async (
         );
         if (!isPasswordValid) {
             res.status(401).json({ message: "Mot de passe incorrect" });
+            return;
+        }
+        if (await isPasswordCompromised(newPassword)) {
+            res.status(400).json({
+                message:
+                    "Ce mot de passe a été compromis. Choisissez-en un autre.",
+            });
             return;
         }
 

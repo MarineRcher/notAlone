@@ -7,7 +7,8 @@ import dotenv from "dotenv";
 import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
 import GroupController from "./src/constrollers/GroupController";
-import { redisClient, connectRedis } from "./src/config/redis";
+import { connectRedis } from "./src/config/redis";
+import helmet from "helmet";
 
 const app = express();
 const server = http.createServer(app);
@@ -50,6 +51,3 @@ async function startServer() {
 }
 
 startServer();
-function helmet(): any {
-    throw new Error("Function not implemented.");
-}
