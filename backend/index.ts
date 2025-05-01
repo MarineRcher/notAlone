@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 
 dotenv.config({ path: path.resolve(__dirname, "./.env") });
-
+app.use(helmet());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 
@@ -50,3 +50,6 @@ async function startServer() {
 }
 
 startServer();
+function helmet(): any {
+    throw new Error("Function not implemented.");
+}
