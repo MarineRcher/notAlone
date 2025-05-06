@@ -8,6 +8,7 @@ import {
     ScrollView,
 } from "react-native";
 import { authService } from "../../api/authService";
+import validator from "validator";
 
 const ChangePasswordScreen = ({ navigation }) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");
@@ -31,38 +32,50 @@ const ChangePasswordScreen = ({ navigation }) => {
             confirmNewPassword: "",
         };
 
+        // Validation du login ou email
         if (!loginOrEmail.trim()) {
             newErrors.loginOrEmail = "Le login ou l'email est requis";
             isValid = false;
+        } else if (loginOrEmail.includes("@")) {
+            // Validation d'email avec validator
+            if (!validator.isEmail(loginOrEmail)) {
+                newErrors.loginOrEmail = "Format d'email invalide";
+                isValid = false;
+            }
         } else {
-            if (loginOrEmail.includes("@")) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(loginOrEmail)) {
-                    newErrors.loginOrEmail = "Format d'email invalide";
-                    isValid = false;
-                }
-            } else {
-                const loginRegex = /^[a-zA-Z0-9_-]{3,20}$/;
-                if (!loginRegex.test(loginOrEmail)) {
-                    newErrors.loginOrEmail =
-                        "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
-                    isValid = false;
-                }
+            // Validation du login avec validator
+            if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
+                newErrors.loginOrEmail =
+                    "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+                isValid = false;
             }
         }
-        // Validation du mot de passe (utilisant le même regex que le backend)
-        const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{12,}$/;
-        if (!newPassword) {
-            newErrors.newPassword = "Le mot de passe est requis";
+
+        // Validation de l'ancien mot de passe
+        if (!oldPassword) {
+            newErrors.oldPassword = "L'ancien mot de passe est requis";
             isValid = false;
-        } else if (!passwordRegex.test(newPassword)) {
+        }
+
+        // Validation du nouveau mot de passe
+        if (!newPassword) {
+            newErrors.newPassword = "Le nouveau mot de passe est requis";
+            isValid = false;
+        } else if (
+            !validator.isStrongPassword(newPassword, {
+                minLength: 12,
+                minLowercase: 1,
+                minUppercase: 1,
+                minNumbers: 1,
+                minSymbols: 1,
+            })
+        ) {
             newErrors.newPassword =
                 "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial";
             isValid = false;
         }
 
-        // Confirmation du mot de passe
+        // Confirmation du nouveau mot de passe
         if (newPassword !== confirmNewPassword) {
             newErrors.confirmNewPassword =
                 "Les mots de passe ne correspondent pas";
@@ -73,6 +86,22 @@ const ChangePasswordScreen = ({ navigation }) => {
         return isValid;
     };
 
+    const handleLoginOrEmailChange = (text: string) => {
+        setLoginOrEmail(text);
+    };
+
+    const handleOldPasswordChange = (text: string) => {
+        setOldPassword(text);
+    };
+
+    const handleNewPasswordChange = (text: string) => {
+        setNewPassword(text);
+    };
+
+    const handleConfirmNewPasswordChange = (text: string) => {
+        setConfirmNewPassword(text);
+    };
+
     const handleChangePassword = async () => {
         if (!validateForm()) {
             return;
@@ -81,12 +110,22 @@ const ChangePasswordScreen = ({ navigation }) => {
         setIsLoading(true);
 
         try {
+            let sanitizedLoginOrEmail = loginOrEmail;
+            if (loginOrEmail.includes("@")) {
+                sanitizedLoginOrEmail =
+                    validator.normalizeEmail(loginOrEmail) || loginOrEmail;
+            } else {
+                sanitizedLoginOrEmail = validator.escape(loginOrEmail.trim());
+            }
+
             await authService.changePassword({
-                loginOrEmail,
+                loginOrEmail: sanitizedLoginOrEmail,
                 oldPassword,
                 newPassword,
             });
-            Alert.alert("Succès", "Changement de mot de passe réussie!");
+
+            Alert.alert("Succès", "Changement de mot de passe réussi!");
+            navigation.navigate("Login");
         } catch (error) {
             let errorMessage =
                 "Une erreur est survenue lors du changement de mot de passe";
@@ -111,9 +150,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre login ou email"
                         value={loginOrEmail}
-                        onChangeText={(text) =>
-                            setLoginOrEmail(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleLoginOrEmailChange}
                         autoCapitalize="none"
                     />
                     {errors.loginOrEmail ? (
@@ -126,9 +163,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre ancien mot de passe"
                         value={oldPassword}
-                        onChangeText={(text) =>
-                            setOldPassword(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleOldPasswordChange}
                         secureTextEntry
                     />
                     {errors.oldPassword ? (
@@ -140,9 +175,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre nouveau mot de passe"
                         value={newPassword}
-                        onChangeText={(text) =>
-                            setNewPassword(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleNewPasswordChange}
                         secureTextEntry
                     />
                     {errors.newPassword ? (
@@ -154,9 +187,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Confirmez votre nouveau mot de passe"
                         value={confirmNewPassword}
-                        onChangeText={(text) =>
-                            setConfirmNewPassword(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleConfirmNewPasswordChange}
                         secureTextEntry
                     />
                     {errors.confirmNewPassword ? (
@@ -178,7 +209,7 @@ const ChangePasswordScreen = ({ navigation }) => {
                 <TouchableOpacity
                     onPress={() => navigation && navigation.navigate("Login")}
                 >
-                    <Text>Déjà inscrit? Se connecter</Text>
+                    <Text>Retour à la connexion</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>

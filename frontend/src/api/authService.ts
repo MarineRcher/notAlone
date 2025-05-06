@@ -1,4 +1,4 @@
-import { initApiClient } from "./apiInstance";
+import apiClient from "./apiClient";
 import { authHelpers } from "./authHelpers";
 
 export interface RegisterData {
@@ -20,15 +20,12 @@ export interface newPasswordData {
     newPassword: string;
 }
 
-const apiClient = initApiClient();
-
 export const authService = {
     register: async (userData: RegisterData) => {
         const response = await apiClient.post("/auth/register", userData);
         await authHelpers.saveToken(response.data.token);
         return response;
     },
-
     login: async (userData: LoginData) => {
         const response = await apiClient.post("/auth/login", userData);
 
@@ -42,6 +39,7 @@ export const authService = {
         await authHelpers.saveToken(response.data.token);
         return response;
     },
+
     logout: async () => {
         await authHelpers.deleteToken();
     },
@@ -56,3 +54,5 @@ export const authService = {
     disable2FA: (data: { userId: string; otp: string }) =>
         apiClient.post("/auth/2fa/disable", data),
 };
+
+export default authService;

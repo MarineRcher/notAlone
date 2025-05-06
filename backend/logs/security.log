@@ -20,3 +20,7 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-05-01T20:59:17.990Z","user":2}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-05-01T21:18:17.039Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-05-01T21:18:17.111Z","user":2}
+{"ip":"::ffff:172.21.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-03T22:14:50.993Z","user":"athena@mail.com"}
+{"ip":"::ffff:172.21.0.1","level":"warn","message":"Échec de connexion - Utilisateur non trouvé","timestamp":"2025-05-03T22:14:51.007Z","user":"athena@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-04T10:18:03.488Z","user":"athena@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-05-04T10:18:03.623Z","user":34}

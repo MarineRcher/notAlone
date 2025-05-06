@@ -31,6 +31,7 @@ export const register = async (
         }
 
         const existingEmail = await User.findOne({ where: { email } });
+        console.log(existingEmail);
         if (existingEmail) {
             res.status(400).json({
                 message: "Un utilisateur avec cet email existe déjà",

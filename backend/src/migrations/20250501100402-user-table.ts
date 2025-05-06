@@ -23,19 +23,19 @@ export default {
                 type: DataTypes.STRING,
                 allowNull: false,
             },
-            hasPremium: {
+            has_premium: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            has2FA: {
+            has_2fa: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            twoFactorSecret: {
+            two_factor_secret: {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            isBlocked: {
+            is_blocked: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
@@ -43,23 +43,23 @@ export default {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            hourNotify: {
+            hour_notify: {
                 type: DataTypes.TIME,
                 allowNull: true,
             },
-            failedLoginAttempts: {
+            failed_login_attempts: {
                 type: DataTypes.INTEGER,
                 defaultValue: 0,
             },
-            blockedUntil: {
+            blocked_until: {
                 type: DataTypes.DATE,
                 allowNull: true,
             },
-            createdAt: {
+            created_at: {
                 type: DataTypes.DATE,
                 allowNull: false,
             },
-            updatedAt: {
+            updated_at: {
                 type: DataTypes.DATE,
                 allowNull: false,
             },

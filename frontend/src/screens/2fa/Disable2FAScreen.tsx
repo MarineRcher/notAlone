@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { authService } from "../../api/authService";
 import { authHelpers } from "../../api/authHelpers";
 import { jwtDecode } from "jwt-decode";
+import validator from "validator";
 
 interface DecodedToken {
     id: number;
@@ -28,6 +29,10 @@ const Disable2FAScreen = ({ navigation }) => {
     }, []);
 
     const handleDisable = async () => {
+        if (!validator.isNumeric(otp) || otp.length !== 6) {
+            Alert.alert("Erreur", "Le code doit être à 6 chiffres");
+            return;
+        }
         if (!userId) {
             Alert.alert("Erreur", "Utilisateur non identifié");
             return;

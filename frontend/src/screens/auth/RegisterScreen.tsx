@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import validator from "validator";
 import {
     View,
     Text,
@@ -31,35 +32,40 @@ const RegisterScreen = ({ navigation }) => {
             confirmPassword: "",
         };
 
-        // Validation du login
         if (!login.trim()) {
             newErrors.login = "Le login est requis";
             isValid = false;
+        } else if (!validator.matches(login, /^[a-zA-Z0-9_-]{3,20}$/)) {
+            newErrors.login =
+                "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+            isValid = false;
         }
 
-        // Validation de l'email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email.trim()) {
             newErrors.email = "L'email est requis";
             isValid = false;
-        } else if (!emailRegex.test(email)) {
+        } else if (!validator.isEmail(email)) {
             newErrors.email = "Format d'email invalide";
             isValid = false;
         }
 
-        // Validation du mot de passe (utilisant le même regex que le backend)
-        const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{12,}$/;
         if (!password) {
             newErrors.password = "Le mot de passe est requis";
             isValid = false;
-        } else if (!passwordRegex.test(password)) {
+        } else if (
+            !validator.isStrongPassword(password, {
+                minLength: 12,
+                minLowercase: 1,
+                minUppercase: 1,
+                minNumbers: 1,
+                minSymbols: 1,
+            })
+        ) {
             newErrors.password =
                 "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial";
             isValid = false;
         }
 
-        // Confirmation du mot de passe
         if (password !== confirmPassword) {
             newErrors.confirmPassword =
                 "Les mots de passe ne correspondent pas";
@@ -70,6 +76,22 @@ const RegisterScreen = ({ navigation }) => {
         return isValid;
     };
 
+    const handleLoginChange = (text: string) => {
+        setLogin(text);
+    };
+
+    const handleEmailChange = (text: string) => {
+        setEmail(text);
+    };
+
+    const handlePasswordChange = (text: string) => {
+        setPassword(text);
+    };
+
+    const handlePasswordConfirmChange = (text: string) => {
+        setConfirmPassword(text);
+    };
+
     const handleRegister = async () => {
         if (!validateForm()) {
             return;
@@ -78,15 +100,19 @@ const RegisterScreen = ({ navigation }) => {
         setIsLoading(true);
 
         try {
+            const sanitizedLogin = validator.escape(login.trim());
+            const normalizedEmail = validator.normalizeEmail(email) || email;
+
             await authService.register({
-                login,
-                email,
+                login: sanitizedLogin,
+                email: normalizedEmail,
                 password,
                 hasPremium: false,
                 has2FA: false,
                 isBlocked: false,
             });
             Alert.alert("Succès", "Inscription réussie!");
+            navigation.navigate("Login");
         } catch (error) {
             let errorMessage = "Une erreur est survenue lors de l'inscription";
             console.log(error);
@@ -110,9 +136,7 @@ const RegisterScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre login"
                         value={login}
-                        onChangeText={(text) =>
-                            setLogin(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleLoginChange}
                         autoCapitalize="none"
                     />
                     {errors.login ? <Text>{errors.login}</Text> : null}
@@ -123,9 +147,7 @@ const RegisterScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre email"
                         value={email}
-                        onChangeText={(text) =>
-                            setEmail(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleEmailChange}
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
@@ -137,9 +159,7 @@ const RegisterScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre mot de passe"
                         value={password}
-                        onChangeText={(text) =>
-                            setPassword(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handlePasswordChange}
                         secureTextEntry
                     />
                     {errors.password ? <Text>{errors.password}</Text> : null}
@@ -150,9 +170,7 @@ const RegisterScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Confirmez votre mot de passe"
                         value={confirmPassword}
-                        onChangeText={(text) =>
-                            setConfirmPassword(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handlePasswordConfirmChange}
                         secureTextEntry
                     />
                     {errors.confirmPassword ? (

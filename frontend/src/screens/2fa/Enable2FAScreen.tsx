@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { authService } from "../../api/authService";
 import * as Clipboard from "expo-clipboard";
+import validator from "validator";
 
 const Enable2FAScreen = ({ navigation }) => {
     const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -29,6 +30,10 @@ const Enable2FAScreen = ({ navigation }) => {
 
     const verifySetup = async () => {
         try {
+            if (!validator.isNumeric(otp) || otp.length !== 6) {
+                Alert.alert("Erreur", "Le code doit être à 6 chiffres");
+                return;
+            }
             await authService.verify2FASetup({ token: tempToken, otp });
             Alert.alert("Succès", "2FA activé avec succès !");
         } catch (error) {

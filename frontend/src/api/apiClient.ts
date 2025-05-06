@@ -1,42 +1,59 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import authService from "./authService";
 import { authHelpers } from "./authHelpers";
-import { DecodedToken } from "../types/auth";
 
-export const createApiClient = (refreshTokenCallback: () => Promise<void>) => {
-    const instance = axios.create({
-        baseURL: "http://192.168.1.155:3000/api",
-        timeout: 10000,
-    });
+interface DecodedToken {
+    exp: number;
+}
 
-    let refreshPromise: Promise<void> | null = null;
+const apiClient = axios.create({
+    baseURL: "http://192.168.1.139:3000/api",
+    timeout: 10000,
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
 
-    instance.interceptors.request.use(async (config) => {
-        const token = await authHelpers.getToken();
-        if (!token) return config;
+let refreshTokenPromise: Promise<any> | null = null;
 
-        const decoded = jwtDecode<DecodedToken>(token);
-        const now = Date.now() / 1000;
+apiClient.interceptors.request.use(async (config) => {
+    const token = await authHelpers.getToken();
+    if (!token) return config;
 
-        if (decoded.exp < now + 300) {
-            if (!refreshPromise) {
-                refreshPromise = refreshTokenCallback()
-                    .catch(async (error) => {
-                        await authHelpers.deleteToken();
-                        throw error;
-                    })
-                    .finally(() => {
-                        refreshPromise = null;
-                    });
-            }
-            await refreshPromise;
-            config.headers.Authorization = `Bearer ${await authHelpers.getToken()}`;
-        } else {
-            config.headers.Authorization = `Bearer ${token}`;
+    const decoded = jwtDecode<DecodedToken>(token);
+    const now = Date.now() / 1000;
+
+    if (decoded.exp < now + 300) {
+        if (!refreshTokenPromise) {
+            refreshTokenPromise = authService
+                .refreshToken()
+                .then(() => {})
+                .catch(async (error) => {
+                    await authHelpers.deleteToken();
+                    throw error;
+                })
+                .finally(() => {
+                    refreshTokenPromise = null;
+                });
         }
 
-        return config;
-    });
+        await refreshTokenPromise;
+        const newToken = await authHelpers.getToken();
+        config.headers.Authorization = `Bearer ${newToken}`;
+    } else {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
 
-    return instance;
-};
+    return config;
+});
+
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error("API Error:", error);
+        return Promise.reject(error);
+    }
+);
+
+export default apiClient;

@@ -7,6 +7,7 @@ import {
     Alert,
     ScrollView,
 } from "react-native";
+import validator from "validator";
 
 import { authService } from "../../api/authService";
 
@@ -15,11 +16,17 @@ const LoginScreen = ({ navigation }) => {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({
-        login: "",
-        email: "",
+        loginOrEmail: "",
         password: "",
-        confirmPassword: "",
     });
+
+    const handleLoginOrEmailChange = (text: string) => {
+        setLoginOrEmail(text);
+    };
+
+    const handlePasswordChange = (text: string) => {
+        setPassword(text);
+    };
 
     const validateForm = () => {
         let isValid = true;
@@ -28,20 +35,16 @@ const LoginScreen = ({ navigation }) => {
         if (!loginOrEmail.trim()) {
             newErrors.loginOrEmail = "Le login ou l'email est requis";
             isValid = false;
+        } else if (loginOrEmail.includes("@")) {
+            if (!validator.isEmail(loginOrEmail)) {
+                newErrors.loginOrEmail = "Format d'email invalide";
+                isValid = false;
+            }
         } else {
-            if (loginOrEmail.includes("@")) {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(loginOrEmail)) {
-                    newErrors.loginOrEmail = "Format d'email invalide";
-                    isValid = false;
-                }
-            } else {
-                const loginRegex = /^[a-zA-Z0-9_-]{3,20}$/;
-                if (!loginRegex.test(loginOrEmail)) {
-                    newErrors.loginOrEmail =
-                        "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
-                    isValid = false;
-                }
+            if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
+                newErrors.loginOrEmail =
+                    "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+                isValid = false;
             }
         }
 
@@ -93,16 +96,16 @@ const LoginScreen = ({ navigation }) => {
                 <Text>Créer un compte</Text>
 
                 <View>
-                    <Text>Login</Text>
+                    <Text>Login ou Email</Text>
                     <TextInput
                         placeholder="Entrez votre login ou email"
                         value={loginOrEmail}
-                        onChangeText={(text) =>
-                            setLoginOrEmail(text.replace(/[<>]/g, ""))
-                        }
+                        onChangeText={handleLoginOrEmailChange}
                         autoCapitalize="none"
                     />
-                    {errors.login ? <Text>{errors.login}</Text> : null}
+                    {errors.loginOrEmail ? (
+                        <Text>{errors.loginOrEmail}</Text>
+                    ) : null}
                 </View>
 
                 <View>
@@ -110,7 +113,7 @@ const LoginScreen = ({ navigation }) => {
                     <TextInput
                         placeholder="Entrez votre mot de passe"
                         value={password}
-                        onChangeText={setPassword}
+                        onChangeText={handlePasswordChange}
                         secureTextEntry
                     />
                     {errors.password ? <Text>{errors.password}</Text> : null}

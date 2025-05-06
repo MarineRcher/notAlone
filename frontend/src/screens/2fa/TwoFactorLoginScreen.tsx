@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { authService } from "../../api/authService";
+import validator from "validator";
 import { authHelpers } from "../../api/authHelpers";
 
 const TwoFactorLoginScreen = ({ route, navigation }) => {
@@ -9,6 +10,10 @@ const TwoFactorLoginScreen = ({ route, navigation }) => {
 
     const handleVerify = async () => {
         try {
+            if (!validator.isNumeric(otp) || otp.length !== 6) {
+                Alert.alert("Erreur", "Le code doit être à 6 chiffres");
+                return;
+            }
             const response = await authService.verify2FALogin({
                 tempToken,
                 otp,
