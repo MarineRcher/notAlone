@@ -20,7 +20,7 @@ export interface newPasswordData {
     newPassword: string;
 }
 
-export const authService = {
+const authService = {
     register: async (userData: RegisterData) => {
         const response = await apiClient.post("/auth/register", userData);
         await authHelpers.saveToken(response.data.token);
@@ -32,11 +32,6 @@ export const authService = {
         if (!response.data.requiresTwoFactor) {
             await authHelpers.saveToken(response.data.token);
         }
-        return response;
-    },
-    refreshToken: async () => {
-        const response = await apiClient.post("/auth/refresh");
-        await authHelpers.saveToken(response.data.token);
         return response;
     },
 
@@ -54,5 +49,10 @@ export const authService = {
     disable2FA: (data: { userId: string; otp: string }) =>
         apiClient.post("/auth/2fa/disable", data),
 };
+const refreshToken = async () => {
+    const response = await apiClient.post("/auth/refresh");
+    await authHelpers.saveToken(response.data.token);
+    return response.data.token;
+};
 
-export default authService;
+export { authService, refreshToken };

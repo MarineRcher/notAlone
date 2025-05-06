@@ -4,6 +4,54 @@ import User from "../../models/User";
 import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 import logger from "../../config/logger";
 import { Op } from "sequelize";
+import validator from "validator";
+
+const validatePasswordData = (
+    loginOrEmail: string,
+    oldPassword: string,
+    newPassword: string
+) => {
+    const errors: {
+        loginOrEmail?: string;
+        oldPassword?: string;
+        newPassword?: string;
+    } = {};
+    if (!loginOrEmail.trim()) {
+        errors.loginOrEmail = "Le login ou l'email est requis";
+    } else if (loginOrEmail.includes("@")) {
+        if (!validator.isEmail(loginOrEmail)) {
+            errors.loginOrEmail = "Format d'email invalide";
+        }
+    } else {
+        if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
+            errors.loginOrEmail =
+                "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+        }
+    }
+
+    if (!oldPassword) {
+        errors.oldPassword = "L'ancien mot de passe est requis";
+    }
+
+    if (!newPassword) {
+        errors.newPassword = "Le nouveau mot de passe est requis";
+    } else if (
+        !validator.isStrongPassword(newPassword, {
+            minLength: 12,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1,
+        })
+    ) {
+        errors.newPassword =
+            "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial";
+    }
+    return {
+        isValid: Object.keys(errors).length === 0,
+        errors,
+    };
+};
 
 export const changePassword = async (
     req: Request,
@@ -12,6 +60,26 @@ export const changePassword = async (
 ): Promise<void> => {
     try {
         const { loginOrEmail, oldPassword, newPassword } = req.body;
+
+        const { isValid, errors } = validatePasswordData(
+            loginOrEmail,
+            oldPassword,
+            newPassword
+        );
+        if (!isValid) {
+            logger.warn(
+                "Échec de validation du formulaire de changement de mot de passe.",
+                {
+                    errors,
+                    ip: req.ip,
+                }
+            );
+            res.status(400).json({
+                message: "Données de changement de mot de passe invalides",
+                errors,
+            });
+            return;
+        }
 
         const user = await User.findOne({
             where: {

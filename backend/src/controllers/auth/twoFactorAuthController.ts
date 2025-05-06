@@ -4,6 +4,13 @@ import QRCode from "qrcode";
 import jwt from "jsonwebtoken";
 import User from "../../models/User";
 import logger from "../../config/logger";
+import validator from "validator";
+
+const validateOtpData = async (otp: string) => {
+    if (!validator.isNumeric(otp) || otp.length !== 6) {
+        return "Le code doit être à 6 chiffres";
+    }
+};
 
 export const generate2FASecret = async (
     req: Request,
@@ -11,6 +18,7 @@ export const generate2FASecret = async (
     next: NextFunction
 ): Promise<void> => {
     try {
+        console.log("HE SUIS LA");
         const userId = req.user?.id;
         const user = await User.findByPk(userId, { raw: true });
 
@@ -55,6 +63,18 @@ export const verify2FASetup = async (
 ): Promise<void> => {
     try {
         const { token, otp } = req.body;
+        const error = await validateOtpData(otp);
+        if (error) {
+            logger.warn("Échec de validation du code", {
+                error,
+                ip: req.ip,
+            });
+            res.status(400).json({
+                message: "Échec de validation du code",
+                error,
+            });
+            return;
+        }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
             setupPhase: boolean;
@@ -107,7 +127,18 @@ export const verify2FALogin = async (
 ): Promise<void> => {
     try {
         const { tempToken, otp } = req.body;
-
+        const error = await validateOtpData(otp);
+        if (error) {
+            logger.warn("Échec de validation du code", {
+                error,
+                ip: req.ip,
+            });
+            res.status(400).json({
+                message: "Échec de validation du code",
+                error,
+            });
+            return;
+        }
         const decoded = jwt.verify(tempToken, process.env.JWT_SECRET!) as {
             requiresTwoFactor: boolean;
             id: number;

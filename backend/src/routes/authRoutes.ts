@@ -2,6 +2,7 @@ import express from "express";
 import { register } from "../controllers/auth/registerController";
 import { login } from "../controllers/auth/loginController";
 import { changePassword } from "../controllers/auth/passwordController";
+import { refreshToken } from "../controllers/auth/refreshTokenController";
 import {
     generate2FASecret,
     verify2FASetup,
@@ -19,7 +20,7 @@ router.get("/me", authMiddleware, getCurrentUser);
 router.post("/register", register);
 router.post("/login", checkBlockedStatus, login);
 router.post("/changePassword", checkBlockedStatus, changePassword);
-router.post("/refresh", changePassword);
+router.post("/refresh", refreshToken);
 router.post("/logout", authMiddleware, logout);
 router.post("/2fa/generate", authMiddleware, generate2FASecret);
 router.post("/2fa/verify-setup", authMiddleware, verify2FASetup);

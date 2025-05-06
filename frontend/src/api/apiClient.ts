@@ -1,11 +1,12 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import authService from "./authService";
 import { authHelpers } from "./authHelpers";
+import { refreshToken } from "./authService";
 
 interface DecodedToken {
     exp: number;
 }
+let refreshTokenPromise: Promise<any> | null = null;
 
 const apiClient = axios.create({
     baseURL: "http://192.168.1.139:3000/api",
@@ -14,9 +15,6 @@ const apiClient = axios.create({
         "Content-Type": "application/json",
     },
 });
-
-let refreshTokenPromise: Promise<any> | null = null;
-
 apiClient.interceptors.request.use(async (config) => {
     const token = await authHelpers.getToken();
     if (!token) return config;
@@ -26,8 +24,7 @@ apiClient.interceptors.request.use(async (config) => {
 
     if (decoded.exp < now + 300) {
         if (!refreshTokenPromise) {
-            refreshTokenPromise = authService
-                .refreshToken()
+            refreshTokenPromise = refreshToken()
                 .then(() => {})
                 .catch(async (error) => {
                     await authHelpers.deleteToken();

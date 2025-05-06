@@ -4,6 +4,33 @@ import jwt from "jsonwebtoken";
 import User from "../../models/User";
 import { Op } from "sequelize";
 import logger from "../../config/logger";
+import validator from "validator";
+
+const validateLoginData = (loginOrEmail: string, password: string) => {
+    const errors: { loginOrEmail?: string; password?: string } = {};
+
+    if (!loginOrEmail.trim()) {
+        errors.loginOrEmail = "Le login ou l'email est requis";
+    } else if (loginOrEmail.includes("@")) {
+        if (!validator.isEmail(loginOrEmail)) {
+            errors.loginOrEmail = "Format d'email invalide";
+        }
+    } else {
+        if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
+            errors.loginOrEmail =
+                "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+        }
+    }
+
+    if (!password) {
+        errors.password = "Le mot de passe est requis";
+    }
+
+    return {
+        isValid: Object.keys(errors).length === 0,
+        errors,
+    };
+};
 
 export const login = async (
     req: Request,
@@ -18,6 +45,19 @@ export const login = async (
             ip: req.ip,
             timestamp: new Date(),
         });
+
+        const { isValid, errors } = validateLoginData(loginOrEmail, password);
+        if (!isValid) {
+            logger.warn("Échec de validation du formulaire de connexion", {
+                errors,
+                ip: req.ip,
+            });
+            res.status(400).json({
+                message: "Données de connexion invalides",
+                errors,
+            });
+            return;
+        }
 
         const user = await User.findOne({
             where: {
