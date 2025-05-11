@@ -1,14 +1,17 @@
-export interface IUser {
-    id?: number;
+export interface UserAttributes {
+    id: number;
     login: string;
     email: string;
     password: string;
-    hasPremium?: boolean;
-    has2FA?: boolean;
-    twoFactorSecret?: string | null;
-    isBlocked?: boolean;
-    notify?: boolean;
-    hourNotify?: Date | null;
+    hasPremium: boolean;
+    has2FA: boolean;
+    twoFactorSecret: string | null;
+    isBlocked: boolean;
+    notify: boolean;
+    hourNotify: Date | null;
+    failedLoginAttempts: number;
+    blockedUntil: Date | null;
+
     createdAt?: Date;
     updatedAt?: Date;
 }

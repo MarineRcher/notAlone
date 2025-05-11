@@ -10,6 +10,11 @@ puis `make frontend` dans une autre.
 
 # Frontend
 
+## Communication avec API
+
+Dans `apiClient.ts`, a la place de l'adresse, ajouter celle que l'on retrouve sous le qr code generee lorsque nous faisons la commande `make frontend`
+"Metro waiting on exp://`xxx.xxx.x.xxx`:8081"
+
 ## Structure des dossiers
 
 ```
