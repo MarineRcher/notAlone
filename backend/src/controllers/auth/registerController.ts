@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import User from "../../models/User";
-import jwt from "jsonwebtoken";
 import validator from "validator";
 import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 import logger from "../../config/logger";
+import { generateToken } from "../../services/JwtServices";
 
 /**
  * Validates user input for registration:
@@ -155,10 +155,9 @@ export const register = async (
         });
 
         // Génération du token
-        const token = jwt.sign(
+        const token = generateToken(
             { id: newUser.id, login: newUser.login },
-            process.env.JWT_SECRET!,
-            { expiresIn: "24h" }
+            "24h"
         );
 
         logger.info("Inscription réussie", {

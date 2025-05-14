@@ -1,0 +1,24 @@
+{"email":"mariricher41@gmail.com","ip":"::ffff:172.19.0.1","level":"info","login":"Jenvs","message":"Tentative d'inscription","timestamp":"2025-05-14T21:13:02.884Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","login":"Jenvs","message":"Inscription réussie","timestamp":"2025-05-14T21:13:03.341Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:13:12.371Z","user":"athena@mail.com"}
+{"errors":{},"ip":"::ffff:172.19.0.1","level":"warn","message":"Échec de validation du formulaire de connexion","timestamp":"2025-05-14T21:13:12.373Z"}
+{"email":"mariricher41@gmail.com","ip":"::ffff:172.19.0.1","level":"info","login":"hjsj","message":"Tentative d'inscription","timestamp":"2025-05-14T21:13:39.086Z"}
+{"email":"mariricher41@gmail.com","ip":"::ffff:172.19.0.1","level":"warn","message":"Échec d'inscription - Email déjà utilisé","timestamp":"2025-05-14T21:13:39.355Z"}
+{"email":"marricher41@gmail.com","ip":"::ffff:172.19.0.1","level":"info","login":"hjsj","message":"Tentative d'inscription","timestamp":"2025-05-14T21:13:44.352Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","login":"hjsj","message":"Inscription réussie","timestamp":"2025-05-14T21:13:44.635Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:14:03.416Z","user":"marinericher41@gmail.com"}
+{"errors":{},"ip":"::ffff:172.19.0.1","level":"warn","message":"Échec de validation du formulaire de connexion","timestamp":"2025-05-14T21:14:03.417Z"}
+{"email":"athena@mail.com","ip":"::ffff:172.19.0.1","level":"info","login":"athena","message":"Tentative d'inscription","timestamp":"2025-05-14T21:15:50.374Z"}
+{"email":"athena@mail.com","ip":"::ffff:172.19.0.1","level":"warn","message":"Échec d'inscription - Email déjà utilisé","timestamp":"2025-05-14T21:15:50.546Z"}
+{"email":"athena@email.com","ip":"::ffff:172.19.0.1","level":"info","login":"athena","message":"Tentative d'inscription","timestamp":"2025-05-14T21:16:29.431Z"}
+{"ip":"::ffff:172.19.0.1","level":"warn","login":"athena","message":"Échec d'inscription - Login déjà utilisé","timestamp":"2025-05-14T21:16:29.567Z"}
+{"email":"athena@email.com","ip":"::ffff:172.19.0.1","level":"info","login":"athenak","message":"Tentative d'inscription","timestamp":"2025-05-14T21:16:36.476Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","login":"athenak","message":"Inscription réussie","timestamp":"2025-05-14T21:16:36.720Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:16:46.708Z","user":"athena@email.com"}
+{"errors":{},"ip":"::ffff:172.19.0.1","level":"warn","message":"Échec de validation du formulaire de connexion","timestamp":"2025-05-14T21:16:46.710Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:19:14.840Z","user":"athena@email.com"}
+{"errors":{},"ip":"::ffff:172.19.0.1","level":"warn","message":"Échec de validation du formulaire de connexion","timestamp":"2025-05-14T21:19:14.856Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:21:27.564Z","user":"athena@email.com"}
+{"errors":{},"ip":"::ffff:172.19.0.1","level":"warn","message":"Échec de validation du formulaire de connexion","timestamp":"2025-05-14T21:21:27.578Z"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:23:21.781Z","user":"athena@email.com"}
+{"ip":"::ffff:172.19.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-05-14T21:23:21.968Z","user":38}

@@ -5,6 +5,8 @@ import User from "../../models/User";
 import { Op } from "sequelize";
 import logger from "../../config/logger";
 import validator from "validator";
+import { validateLoginOrEmail } from "../../utils/auth/authValidator";
+import { generateToken } from "../../services/JwtServices";
 
 /**
  * Validates the login data for user authentication.
@@ -16,23 +18,14 @@ import validator from "validator";
 const validateLoginData = (loginOrEmail: string, password: string) => {
     const errors: { loginOrEmail?: string; password?: string } = {};
 
-    if (!loginOrEmail.trim()) {
-        errors.loginOrEmail = "Le login ou l'email est requis";
-    } else if (loginOrEmail.includes("@")) {
-        if (!validator.isEmail(loginOrEmail)) {
-            errors.loginOrEmail = "Format d'email invalide";
-        }
-    } else {
-        if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
-            errors.loginOrEmail =
-                "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
-        }
+    const loginOrEmailError = validateLoginOrEmail(loginOrEmail);
+    if (loginOrEmailError) {
+        errors.loginOrEmail = loginOrEmailError;
     }
 
     if (!password) {
         errors.password = "Le mot de passe est requis";
     }
-
     return {
         isValid: Object.keys(errors).length === 0,
         errors,
@@ -128,10 +121,9 @@ export const login = async (
         }
 
         if (user.has2FA) {
-            const tempToken = jwt.sign(
-                { id: user.id, requiresTwoFactor: true },
-                process.env.JWT_SECRET!,
-                { expiresIn: "5m" }
+            const tempToken = generateToken(
+                { id: user.id, login: user.login },
+                "24h"
             );
 
             res.status(200).json({
@@ -142,11 +134,7 @@ export const login = async (
             return;
         }
 
-        const token = jwt.sign(
-            { id: user.id, login: user.login },
-            process.env.JWT_SECRET!,
-            { expiresIn: "24h" }
-        );
+        const token = generateToken({ id: user.id, login: user.login }, "24h");
         logger.info("Connexion réussie", {
             user: user.id,
             ip: req.ip,

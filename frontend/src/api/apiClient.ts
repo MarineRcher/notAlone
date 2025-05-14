@@ -16,6 +16,14 @@ const apiClient = axios.create({
     },
 });
 apiClient.interceptors.request.use(async (config) => {
+    // Ignorer la gestion du jeton pour les routes d'authentification
+    if (
+        config.url?.startsWith("/api/auth/register") ||
+        config.url?.startsWith("/api/auth/login")
+    ) {
+        return config;
+    }
+
     const token = await authHelpers.getToken();
     if (!token) return config;
 
@@ -44,7 +52,6 @@ apiClient.interceptors.request.use(async (config) => {
 
     return config;
 });
-
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {

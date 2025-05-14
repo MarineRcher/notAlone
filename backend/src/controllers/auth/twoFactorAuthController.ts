@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction, raw } from "express";
-import speakeasy from "speakeasy";
-import QRCode from "qrcode";
 import jwt from "jsonwebtoken";
 import User from "../../models/User";
 import logger from "../../config/logger";
 import validator from "validator";
+import { generateToken } from "../../services/JwtServices";
+import { TwoFactorService } from "../../services/TwoFactorServices";
+
+const twoFactorService = new TwoFactorService();
 
 /**
  * Validates the OTP (One-Time Password) format.
@@ -33,7 +35,6 @@ export const generate2FASecret = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        console.log("HE SUIS LA");
         const userId = req.user?.id;
         const user = await User.findByPk(userId, { raw: true });
 
@@ -42,29 +43,19 @@ export const generate2FASecret = async (
             return;
         }
 
-        const secret = speakeasy.generateSecret({
-            name: `MonApplication:${user.email})}`,
-        });
-        if (!secret.otpauth_url) {
-            res.status(500).json({ message: "Failed to generate 2FA secret" });
-            return;
-        }
-        const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
-        const tempToken = jwt.sign(
-            {
-                userId: user.id,
-                secret: secret.base32,
-                setupPhase: true,
-            },
-            process.env.JWT_SECRET!,
-            { expiresIn: "10m" }
+        const { base32, otpauth_url, qrCode } =
+            await twoFactorService.generateSecret(user.email);
+
+        const tempToken = generateToken(
+            { userId: user.id, secret: base32, setupPhase: true },
+            "10m"
         );
 
         res.status(200).json({
             message: "Secret 2FA généré avec succès",
             tempToken,
-            qrCodeUrl,
-            secret: secret.base32,
+            qrCodeUrl: qrCode,
+            secret: base32,
         });
     } catch (error) {
         next(error);
@@ -112,11 +103,7 @@ export const verify2FASetup = async (
             return;
         }
 
-        const isValid = speakeasy.totp.verify({
-            secret: decoded.secret,
-            encoding: "base32",
-            token: otp,
-        });
+        const isValid = twoFactorService.verifyOTP(decoded.secret, otp);
 
         if (!isValid) {
             res.status(400).json({ message: "Code incorrect" });
@@ -205,11 +192,7 @@ export const verify2FALogin = async (
             return;
         }
 
-        const isValid = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: "base32",
-            token: otp,
-        });
+        const isValid = twoFactorService.verifyOTP(user.twoFactorSecret, otp);
 
         if (!isValid) {
             res.status(401).json({
@@ -218,11 +201,7 @@ export const verify2FALogin = async (
             return;
         }
 
-        const token = jwt.sign(
-            { id: user.id, login: user.login },
-            process.env.JWT_SECRET!,
-            { expiresIn: "24h" }
-        );
+        const token = generateToken({ id: user.id, login: user.login }, "24h");
 
         const {
             password: _,
@@ -274,11 +253,7 @@ export const disable2FA = async (
             return;
         }
 
-        const isValid = speakeasy.totp.verify({
-            secret: user.twoFactorSecret,
-            encoding: "base32",
-            token: otp,
-        });
+        const isValid = twoFactorService.verifyOTP(user.twoFactorSecret, otp);
 
         if (!isValid) {
             res.status(401).json({

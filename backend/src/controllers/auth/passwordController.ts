@@ -5,6 +5,7 @@ import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 import logger from "../../config/logger";
 import { Op } from "sequelize";
 import validator from "validator";
+import { validateLoginOrEmail } from "../../utils/auth/authValidator";
 
 /**
  * Validates the input data for a password change request.
@@ -24,17 +25,9 @@ const validatePasswordData = (
         oldPassword?: string;
         newPassword?: string;
     } = {};
-    if (!loginOrEmail.trim()) {
-        errors.loginOrEmail = "Le login ou l'email est requis";
-    } else if (loginOrEmail.includes("@")) {
-        if (!validator.isEmail(loginOrEmail)) {
-            errors.loginOrEmail = "Format d'email invalide";
-        }
-    } else {
-        if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
-            errors.loginOrEmail =
-                "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
-        }
+    const loginOrEmailError = validateLoginOrEmail(loginOrEmail);
+    if (loginOrEmailError) {
+        errors.loginOrEmail = loginOrEmailError;
     }
 
     if (!oldPassword) {
