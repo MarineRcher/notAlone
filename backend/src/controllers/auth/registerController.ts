@@ -7,7 +7,15 @@ import isPasswordCompromised from "../../utils/auth/isPasswordCompromised";
 import logger from "../../config/logger";
 
 /**
- * Validation des données d'inscription
+ * Validates user input for registration:
+ * - Checks login, email, and password format
+ * - Enforces password strength
+ * - Optionally checks for compromised passwords
+ *
+ * @param login - The user's desired login
+ * @param email - The user's email address
+ * @param password - The user's password
+ * @returns An object containing isValid boolean and error messages
  */
 const validateRegisterData = async (
     login: string,
@@ -55,6 +63,18 @@ const validateRegisterData = async (
     };
 };
 
+/**
+ * Handles user registration:
+ * - Validates input fields
+ * - Checks for duplicate login/email
+ * - Hashes password securely
+ * - Creates user in database
+ * - Returns JWT token
+ *
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Express next middleware function
+ */
 export const register = async (
     req: Request,
     res: Response,

@@ -1,6 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../../models/User";
 
+/**
+ * Retrieves the currently authenticated user based on the JWT payload.
+ *
+ * This endpoint:
+ * - Requires a valid authenticated user (via middleware attaching `req.user`)
+ * - Returns the user data excluding sensitive fields like password
+ *
+ * @route GET /auth/me
+ * @access Private
+ */
 export const getCurrentUser = async (
     req: Request,
     res: Response,

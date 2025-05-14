@@ -6,12 +6,27 @@ import User from "../../models/User";
 import logger from "../../config/logger";
 import validator from "validator";
 
+/**
+ * Validates the OTP (One-Time Password) format.
+ * Ensures it is numeric and exactly 6 digits long.
+ *
+ * @param otp - The OTP code to validate
+ * @returns An error message if invalid, otherwise undefined
+ */
 const validateOtpData = async (otp: string) => {
     if (!validator.isNumeric(otp) || otp.length !== 6) {
         return "Le code doit être à 6 chiffres";
     }
 };
 
+/**
+ * Generates a 2FA secret and corresponding QR code for the authenticated user.
+ * The secret is included in a temporary JWT token, valid for 10 minutes.
+ *
+ * @param req - Express request (user must be authenticated)
+ * @param res - Express response
+ * @param next - Express next function for error handling
+ */
 export const generate2FASecret = async (
     req: Request,
     res: Response,
@@ -56,6 +71,14 @@ export const generate2FASecret = async (
     }
 };
 
+/**
+ * Verifies the user's OTP during the 2FA setup process.
+ * If valid, 2FA is activated and the secret is stored in the database.
+ *
+ * @param req - Express request containing temp token and OTP
+ * @param res - Express response
+ * @param next - Express next function for error handling
+ */
 export const verify2FASetup = async (
     req: Request,
     res: Response,
@@ -120,6 +143,14 @@ export const verify2FASetup = async (
     }
 };
 
+/**
+ * Verifies the OTP during the login flow after initial credentials check.
+ * Issues a new full-session JWT if 2FA is successful.
+ *
+ * @param req - Express request containing the tempToken and OTP
+ * @param res - Express response
+ * @param next - Express next function for error handling
+ */
 export const verify2FALogin = async (
     req: Request,
     res: Response,
@@ -213,6 +244,14 @@ export const verify2FALogin = async (
     }
 };
 
+/**
+ * Disables 2FA for a user after validating their OTP.
+ * Removes the stored secret and flag from the user record.
+ *
+ * @param req - Express request containing userId and OTP
+ * @param res - Express response
+ * @param next - Express next function for error handling
+ */
 export const disable2FA = async (
     req: Request,
     res: Response,

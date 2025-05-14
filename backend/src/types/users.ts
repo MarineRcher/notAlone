@@ -15,3 +15,6 @@ export interface UserAttributes {
     createdAt?: Date;
     updatedAt?: Date;
 }
+export interface LoginRequestBody {
+    loginOrEmail: string;
+}

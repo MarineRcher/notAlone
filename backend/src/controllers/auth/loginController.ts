@@ -6,6 +6,13 @@ import { Op } from "sequelize";
 import logger from "../../config/logger";
 import validator from "validator";
 
+/**
+ * Validates the login data for user authentication.
+ *
+ * @param {string} loginOrEmail - The login or email of the user.
+ * @param {string} password - The password provided by the user.
+ * @returns {object} - The validation result and any validation errors.
+ */
 const validateLoginData = (loginOrEmail: string, password: string) => {
     const errors: { loginOrEmail?: string; password?: string } = {};
 
@@ -32,6 +39,21 @@ const validateLoginData = (loginOrEmail: string, password: string) => {
     };
 };
 
+/**
+ * Authenticates a user and generates a JWT token for session management.
+ *
+ * This endpoint:
+ * - Validates the login data (email or login and password).
+ * - Checks the user account status (e.g., locked due to multiple failed attempts).
+ * - If 2FA is enabled, generates a temporary token for 2FA.
+ * - Otherwise, generates a JWT token and returns it to the user.
+ *
+ * @route POST /auth/login
+ * @access Public
+ * @param {Request} req - The HTTP request.
+ * @param {Response} res - The HTTP response.
+ * @param {NextFunction} next - The next middleware function.
+ */
 export const login = async (
     req: Request,
     res: Response,

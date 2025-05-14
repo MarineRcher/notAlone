@@ -4,6 +4,14 @@ import { redisClient } from "./../../config/redis";
 import User from "../../models/User";
 import logger from "../../config/logger";
 
+/**
+ * Refreshes an access token by validating the old one,
+ * ensuring it is not revoked, and issuing a new token.
+ *
+ * @param req - Express request
+ * @param res - Express response
+ * @param next - Express next middleware
+ */
 export const refreshToken = async (
     req: Request,
     res: Response,

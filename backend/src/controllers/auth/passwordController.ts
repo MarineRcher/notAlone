@@ -6,6 +6,14 @@ import logger from "../../config/logger";
 import { Op } from "sequelize";
 import validator from "validator";
 
+/**
+ * Validates the input data for a password change request.
+ *
+ * @param loginOrEmail - The user's login or email.
+ * @param oldPassword - The user's current password.
+ * @param newPassword - The desired new password.
+ * @returns An object containing a boolean `isValid` and any validation `errors`.
+ */
 const validatePasswordData = (
     loginOrEmail: string,
     oldPassword: string,
@@ -53,6 +61,19 @@ const validatePasswordData = (
     };
 };
 
+/**
+ * Controller to handle password change requests.
+ *
+ * This endpoint:
+ * - Validates login/email, old password, and new password
+ * - Checks user identity and account block status
+ * - Prevents reuse of compromised passwords
+ * - Hashes and saves the new password
+ * - Tracks failed login attempts and blocks accounts after too many failures
+ *
+ * @route POST /auth/change-password
+ * @access Public (but requires valid credentials)
+ */
 export const changePassword = async (
     req: Request,
     res: Response,
