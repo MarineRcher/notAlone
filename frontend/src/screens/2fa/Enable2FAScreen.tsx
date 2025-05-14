@@ -35,7 +35,7 @@ const Enable2FAScreen = ({ navigation }) => {
                 return;
             }
             await authService.verify2FASetup({ token: tempToken, otp });
-            Alert.alert("Succès", "2FA activé avec succès !");
+            navigation.navigate("User");
         } catch (error) {
             Alert.alert("Erreur", "Code invalide ou expiré");
         }

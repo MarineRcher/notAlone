@@ -75,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
                     tempToken: response.data.tempToken,
                 });
             } else {
-                Alert.alert("Succès", "Connexion réussie !");
+                navigation.navigate("Main");
             }
         } catch (error) {
             let errorMessage = "Une erreur est survenue lors de la connexion";
@@ -139,18 +139,6 @@ const LoginScreen = ({ navigation }) => {
                         Vous avez oubliez votre mot de passe ? Changer de mot de
                         passe
                     </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() =>
-                        navigation && navigation.navigate("Enable2FA")
-                    }
-                >
-                    <Text>Activer 2FA</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("Disable2FA")}
-                >
-                    <Text>Désactiver la 2FA</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>

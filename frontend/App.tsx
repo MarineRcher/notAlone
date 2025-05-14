@@ -1,15 +1,14 @@
 import { StatusBar } from "expo-status-bar";
 import { registerRootComponent } from "expo";
 import AppNavigator from "./src/navigation/AppNavigator";
-import { useAuthCheck } from "./src/context/AuthContext";
+import { AuthProvider } from "./src/context/AuthContext";
 
 function App() {
-    useAuthCheck();
     return (
-        <>
+        <AuthProvider>
             <AppNavigator />
             <StatusBar style="auto" />
-        </>
+        </AuthProvider>
     );
 }
 

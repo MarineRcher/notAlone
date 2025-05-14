@@ -122,7 +122,7 @@ export const login = async (
 
         if (user.has2FA) {
             const tempToken = generateToken(
-                { id: user.id, login: user.login },
+                { id: user.id, login: user.login, has2fa: user.has2FA },
                 "24h"
             );
 

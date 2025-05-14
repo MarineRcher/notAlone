@@ -156,7 +156,7 @@ export const register = async (
 
         // Génération du token
         const token = generateToken(
-            { id: newUser.id, login: newUser.login },
+            { id: newUser.id, login: newUser.login, has2fa: newUser.has2FA },
             "24h"
         );
 

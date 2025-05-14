@@ -19,8 +19,7 @@ const TwoFactorLoginScreen = ({ route, navigation }) => {
                 otp,
             });
             await authHelpers.saveToken(response.data.token);
-            Alert.alert("Succès", "Connexion réussie !");
-            navigation.navigate("Login");
+            navigation.navigate("Main");
         } catch (error) {
             Alert.alert(
                 "Erreur",

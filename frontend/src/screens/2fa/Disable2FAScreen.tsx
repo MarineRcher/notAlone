@@ -43,8 +43,7 @@ const Disable2FAScreen = ({ navigation }) => {
                 userId: userId.toString(),
                 otp,
             });
-            Alert.alert("Succès", "2FA désactivé avec succès !");
-            navigation.goBack();
+            navigation.navigate("User");
         } catch (error) {
             Alert.alert(
                 "Erreur",

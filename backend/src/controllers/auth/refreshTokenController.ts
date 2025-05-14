@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { redisClient } from "./../../config/redis";
 import User from "../../models/User";
 import logger from "../../config/logger";
+import { generateToken } from "../../services/JwtServices";
 
 /**
  * Refreshes an access token by validating the old one,
@@ -42,10 +43,9 @@ export const refreshToken = async (
             return;
         }
 
-        const newToken = jwt.sign(
-            { id: user.id, login: user.login },
-            process.env.JWT_SECRET!,
-            { expiresIn: "24h" }
+        const newToken = generateToken(
+            { id: user.id, login: user.login, has2fa: user.has2FA },
+            "24h"
         );
 
         await redisClient.setEx(

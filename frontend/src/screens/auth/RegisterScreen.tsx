@@ -111,11 +111,10 @@ const RegisterScreen = ({ navigation }) => {
                 has2FA: false,
                 isBlocked: false,
             });
-            Alert.alert("Succès", "Inscription réussie!");
-            navigation.navigate("Login");
+            navigation.navigate("Main");
         } catch (error) {
             let errorMessage = "Une erreur est survenue lors de l'inscription";
-            console.log(error);
+
             if (error.response) {
                 errorMessage = error.response.data.message || errorMessage;
             }

@@ -10,58 +10,34 @@ import TwoFactorLoginScreen from "../screens/2fa/TwoFactorLoginScreen";
 import Disable2FAScreen from "../screens/2fa/Disable2FAScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 import ChangePasswordScreen from "../screens/auth/ChangePasswordScreen";
+import BottomTabNavigator from "../components/organisms/menu";
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
     return (
         <NavigationContainer>
-            {/* <Stack.Navigator initialRouteName="Textebox test">
-                <Stack.Screen
-                    name="Button test"
-                    component={ButtonTestScreen}
-                    options={{ title: 'Buttons' }}
-                />
-                <Stack.Screen
-                    name="Textebox test"
-                    component={TextboxTestScreen}
-                    options={{ title: 'Textboxs' }}
-                />
-            </Stack.Navigator> */}
-            <Stack.Navigator initialRouteName="Register">
-                <Stack.Screen
-                    name="Register"
-                    component={RegisterScreen}
-                    options={{ title: "Inscription" }}
-                />
-                <Stack.Screen
-                    name="Login"
-                    component={LoginScreen}
-                    options={{ title: "Connexion" }}
-                />
+            <Stack.Navigator>
+                {/* Écrans d'authentification */}
+                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen
                     name="ChangePassword"
                     component={ChangePasswordScreen}
-                    options={{ title: "changer de mot de passe" }}
                 />
+
+                {/* Écran principal avec les onglets */}
                 <Stack.Screen
-                    name="Enable2FA"
-                    component={Enable2FAScreen}
-                    options={{ title: "Activer la double authentification" }}
+                    name="Main"
+                    component={BottomTabNavigator}
+                    options={{ headerShown: false }}
                 />
+                {/* Écrans 2FA */}
+                <Stack.Screen name="Enable2FA" component={Enable2FAScreen} />
+                <Stack.Screen name="Disable2FA" component={Disable2FAScreen} />
                 <Stack.Screen
                     name="TwoFactorLogin"
                     component={TwoFactorLoginScreen}
-                    options={{
-                        title: "Connexion avec la double authentification",
-                    }}
-                />
-                <Stack.Screen
-                    name="Disable2FA"
-                    component={Disable2FAScreen}
-                    options={{
-                        title: "Desactiver avec la double authentification",
-                    }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

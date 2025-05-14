@@ -22,3 +22,5 @@
 {"errors":{},"ip":"::ffff:172.19.0.1","level":"warn","message":"Échec de validation du formulaire de connexion","timestamp":"2025-05-14T21:21:27.578Z"}
 {"ip":"::ffff:172.19.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T21:23:21.781Z","user":"athena@email.com"}
 {"ip":"::ffff:172.19.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-05-14T21:23:21.968Z","user":38}
+{"ip":"::ffff:172.20.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-05-14T22:21:00.708Z","user":"athena@mail.com"}
+{"ip":"::ffff:172.20.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-05-14T22:21:00.891Z","user":34}
