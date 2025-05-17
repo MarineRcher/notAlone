@@ -1,7 +1,8 @@
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import { Server, Socket } from 'socket.io';
 import GroupController from '../../../src/constrollers/GroupController';
 import { GroupService } from '../../../src/services/GroupService';
-import { User, IRoom } from '../../../src/types';
+import { User, IRoom, IMessage, IKeyRotationEvent } from '../../../src/types';
 
 // Mock de Socket.IO
 jest.mock('socket.io', () => {
@@ -41,6 +42,19 @@ describe('GroupController', () => {
     let mockGroupService: jest.Mocked<GroupService>;
     let mockEmit: jest.Mock;
 
+    const mockUser: User = {
+        userId: 'testUser',
+        name: 'Test User'
+    };
+
+    const mockRoom: IRoom = {
+        id: 'room1',
+        createdAt: new Date(),
+        users: [mockUser],
+        encryptedMessages: [],
+        keyRotations: []
+    };
+
     beforeEach(() => {
         jest.clearAllMocks();
 
@@ -64,26 +78,34 @@ describe('GroupController', () => {
             id: 'mockSocketId'
         } as unknown as jest.Mocked<Socket>;
 
-        mockGroupService = new GroupService() as jest.Mocked<GroupService>;
-        (GroupService as jest.MockedClass<typeof GroupService>).mockImplementation(() => mockGroupService);
+        mockGroupService = {
+            joinWaitList: jest.fn(),
+            getRoomByUserId: jest.fn(),
+            handleUserDisconnect: jest.fn(),
+            checkAndCreateRoom: jest.fn(),
+            setUserPublicKey: jest.fn(),
+            getAllRoomUserPublicKeys: jest.fn(),
+            addEncryptedMessage: jest.fn(),
+            handleKeyRotation: jest.fn()
+        } as unknown as jest.Mocked<GroupService>;
 
         controller = new GroupController(mockIo);
+        (controller as any).groupService = mockGroupService;
     });
 
     describe('handleConnection', () => {
-        it('should set up socket event listeners', () => {
+        it('should set up all socket event listeners', () => {
             controller.handleConnection(mockSocket);
+            
             expect(mockSocket.on).toHaveBeenCalledWith('userConnect', expect.any(Function));
             expect(mockSocket.on).toHaveBeenCalledWith('disconnect', expect.any(Function));
+            expect(mockSocket.on).toHaveBeenCalledWith('message', expect.any(Function));
+            expect(mockSocket.on).toHaveBeenCalledWith('publicKey', expect.any(Function));
+            expect(mockSocket.on).toHaveBeenCalledWith('keyRotation', expect.any(Function));
         });
     });
 
     describe('handleUserConnect', () => {
-        const mockUser: User = {
-            userId: 'testUser',
-            name: 'Test User'
-        };
-
         it('should handle valid user connection', () => {
             // Simuler l'appel à userConnect
             controller.handleConnection(mockSocket);
@@ -118,7 +140,8 @@ describe('GroupController', () => {
                 { userId: 'user1', name: 'User 1' },
                 { userId: 'user2', name: 'User 2' }
             ],
-            encryptedMessages: []
+            encryptedMessages: [],
+            keyRotations: []
         };
 
         beforeEach(() => {
@@ -154,7 +177,8 @@ describe('GroupController', () => {
             id: 'room1',
             createdAt: new Date(),
             users: [mockUser],
-            encryptedMessages: []
+            encryptedMessages: [],
+            keyRotations: []
         };
 
         beforeEach(() => {
@@ -189,6 +213,102 @@ describe('GroupController', () => {
             controller.sendMessageToRoom(roomId, event, data);
             expect(mockIo.to).toHaveBeenCalledWith(roomId);
             expect(mockEmit).toHaveBeenCalledWith(event, data);
+        });
+    });
+
+    describe('handleEncryptedMessage', () => {
+        const mockMessage: IMessage = {
+            id: 'msg1',
+            encryptedContent: 'encryptedData',
+            iv: 'base64IV',
+            signature: 'base64Signature',
+            timestamp: Date.now(),
+            senderId: 'testUser',
+            header: {
+                version: '1.0',
+                senderId: 'testUser',
+                recipientId: '',
+                messageId: 'msg1',
+                timestamp: Date.now()
+            }
+        };
+
+        beforeEach(() => {
+            (controller as any).activeConnections.set(mockSocket.id, mockUser);
+            mockGroupService.getRoomByUserId.mockReturnValue(mockRoom);
+        });
+
+        it('should handle encrypted message', () => {
+            controller.handleConnection(mockSocket);
+            const messageHandler = mockSocket.on.mock.calls.find(call => call[0] === 'message')?.[1];
+
+            if (messageHandler) {
+                messageHandler(mockMessage);
+
+                expect(mockGroupService.addEncryptedMessage).toHaveBeenCalledWith(mockRoom.id, mockMessage);
+                expect(mockIo.to).toHaveBeenCalledWith(mockRoom.id);
+                expect(mockIo.emit).toHaveBeenCalledWith('message', mockMessage);
+            }
+        });
+    });
+
+    describe('handlePublicKey', () => {
+        const mockPublicKeyData = {
+            userId: 'testUser',
+            publicKey: 'base64EncodedPublicKey'
+        };
+
+        beforeEach(() => {
+            mockGroupService.getRoomByUserId.mockReturnValue(mockRoom);
+            mockGroupService.getAllRoomUserPublicKeys.mockReturnValue(new Map([
+                ['testUser', 'base64EncodedPublicKey']
+            ]));
+        });
+
+        it('should handle public key exchange', () => {
+            controller.handleConnection(mockSocket);
+            const publicKeyHandler = mockSocket.on.mock.calls.find(call => call[0] === 'publicKey')?.[1];
+
+            if (publicKeyHandler) {
+                publicKeyHandler(mockPublicKeyData);
+
+                expect(mockGroupService.setUserPublicKey).toHaveBeenCalledWith(
+                    mockPublicKeyData.userId,
+                    mockPublicKeyData.publicKey
+                );
+                expect(mockSocket.emit).toHaveBeenCalledWith('roomPublicKeys', {
+                    roomId: mockRoom.id,
+                    publicKeys: { testUser: 'base64EncodedPublicKey' }
+                });
+            }
+        });
+    });
+
+    describe('handleKeyRotation', () => {
+        const mockKeyRotation: IKeyRotationEvent = {
+            groupId: 'room1',
+            encryptedGroupKey: 'encryptedNewKey',
+            keyId: 'key1',
+            timestamp: Date.now(),
+            senderId: 'testUser'
+        };
+
+        beforeEach(() => {
+            (controller as any).activeConnections.set(mockSocket.id, mockUser);
+            mockGroupService.getRoomByUserId.mockReturnValue(mockRoom);
+        });
+
+        it('should handle key rotation', () => {
+            controller.handleConnection(mockSocket);
+            const keyRotationHandler = mockSocket.on.mock.calls.find(call => call[0] === 'keyRotation')?.[1];
+
+            if (keyRotationHandler) {
+                keyRotationHandler(mockKeyRotation);
+
+                expect(mockGroupService.handleKeyRotation).toHaveBeenCalledWith(mockRoom.id, mockKeyRotation);
+                expect(mockIo.to).toHaveBeenCalledWith(mockRoom.id);
+                expect(mockIo.emit).toHaveBeenCalledWith('keyRotation', mockKeyRotation);
+            }
         });
     });
 });

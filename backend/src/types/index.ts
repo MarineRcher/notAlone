@@ -4,7 +4,8 @@ export type {
     IMessage,
     IJoinRoom,
     ILeftRoom,
-    IChatRoomEvent
+    IChatRoomEvent,
+    IKeyRotationEvent
 } from './roomEvents';
 
 export type {
