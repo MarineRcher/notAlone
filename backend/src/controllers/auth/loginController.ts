@@ -23,7 +23,7 @@ const validateLoginData = (loginOrEmail: string, password: string) => {
 
     if (!password) {
         errors.password = "Le mot de passe est requis";
-    }
+    } 
     return {
         isValid: Object.keys(errors).length === 0,
         errors,
