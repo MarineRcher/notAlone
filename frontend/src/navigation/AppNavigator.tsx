@@ -11,6 +11,7 @@ import Disable2FAScreen from "../screens/2fa/Disable2FAScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 import ChangePasswordScreen from "../screens/auth/ChangePasswordScreen";
 import BottomTabNavigator from "../components/organisms/menu";
+import ask2faScreen from "../screens/2fa/Ask2faScreen";
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,7 @@ const AppNavigator = () => {
                     options={{ headerShown: false }}
                 />
                 {/* Écrans 2FA */}
+                <Stack.Screen name="Ask2fa" component={ask2faScreen} />
                 <Stack.Screen name="Enable2FA" component={Enable2FAScreen} />
                 <Stack.Screen name="Disable2FA" component={Disable2FAScreen} />
                 <Stack.Screen

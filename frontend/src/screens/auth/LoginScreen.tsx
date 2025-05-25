@@ -75,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
                     tempToken: response.data.tempToken,
                 });
             } else {
-                navigation.navigate("Main");
+                navigation.navigate("Ask2fa");
             }
         } catch (error) {
             let errorMessage = "Une erreur est survenue lors de la connexion";

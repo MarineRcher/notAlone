@@ -9,14 +9,13 @@ interface DecodedToken {
 let refreshTokenPromise: Promise<any> | null = null;
 
 const apiClient = axios.create({
-    baseURL: "http://192.168.1.139:3000/api",
+    baseURL: "http://192.168.1.155:3000/api",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
     },
 });
 apiClient.interceptors.request.use(async (config) => {
-    // Ignorer la gestion du jeton pour les routes d'authentification
     if (
         config.url?.startsWith("/api/auth/register") ||
         config.url?.startsWith("/api/auth/login")
