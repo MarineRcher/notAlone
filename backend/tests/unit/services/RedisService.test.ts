@@ -1,8 +1,8 @@
-import RedisService, { CachedGroupInfo } from '../../services/RedisService';
-import { safeRedisClient } from '../../config/redis';
+import RedisService, { CachedGroupInfo } from '../../../src/services/RedisService';
+import { safeRedisClient } from '../../../src/config/redis';
 
 // Mock the redis config
-jest.mock('../../config/redis', () => ({
+jest.mock('../../../src/config/redis', () => ({
   safeRedisClient: {
     isConnected: jest.fn(),
     get: jest.fn(),

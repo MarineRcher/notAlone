@@ -1,12 +1,12 @@
-import GroupController from '../../controllers/GroupController';
-import GroupService from '../../services/GroupService';
-import RedisService from '../../services/RedisService';
+import GroupController from '../../../src/controllers/GroupController';
+import GroupService from '../../../src/services/GroupService';
+import RedisService from '../../../src/services/RedisService';
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 
 // Mock dependencies
-jest.mock('../../services/GroupService');
-jest.mock('../../services/RedisService');
+jest.mock('../../../src/services/GroupService');
+jest.mock('../../../src/services/RedisService');
 jest.mock('jsonwebtoken');
 
 const mockedGroupService = GroupService as jest.MockedClass<typeof GroupService>;

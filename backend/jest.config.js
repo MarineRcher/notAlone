@@ -2,10 +2,10 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    roots: ['<rootDir>/src'],
+    roots: ['<rootDir>/tests', '<rootDir>/src'],
     testMatch: [
-        '**/__tests__/**/*.test.ts',
-        '**/__tests__/**/*.test.js'
+        '**/tests/**/*.test.ts',
+        '**/tests/**/*.test.js'
     ],
     transform: {
         '^.+\\.ts$': 'ts-jest',
@@ -13,7 +13,6 @@ module.exports = {
     collectCoverageFrom: [
         'src/**/*.{ts,js}',
         '!src/**/*.d.ts',
-        '!src/__tests__/**',
         '!src/migrations/**',
         '!src/config/**'
     ],
@@ -23,7 +22,7 @@ module.exports = {
         'lcov',
         'html'
     ],
-    setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+    setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.ts'],
     testTimeout: 10000,
     clearMocks: true,
     resetMocks: true,

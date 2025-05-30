@@ -18,12 +18,12 @@ const mockGroupServiceInstance = {
 };
 
 // Mock the GroupService constructor
-jest.mock('../../services/GroupService', () => {
+jest.mock('../../../src/services/GroupService', () => {
   return jest.fn().mockImplementation(() => mockGroupServiceInstance);
 });
 
 // Import routes AFTER mocking
-import groupRoutes from '../../routes/groupRoutes';
+import groupRoutes from '../../../src/routes/groupRoutes';
 
 const mockedJwt = jwt as jest.Mocked<typeof jwt>;
 

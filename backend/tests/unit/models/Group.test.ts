@@ -1,5 +1,5 @@
 import { DataTypes, Sequelize } from 'sequelize';
-import Group from '../../models/Group';
+import Group from '../../../src/models/Group';
 
 // Mock Sequelize and related modules
 jest.mock('sequelize');
