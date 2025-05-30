@@ -16,6 +16,16 @@ const sequelize = new Sequelize(
         dialect: "postgres",
         define: dbConfig.define,
         logging: dbConfig.logging,
+        // Add retry and timeout options for better error handling
+        retry: {
+            max: 3
+        },
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 30000,
+            idle: 10000
+        }
     }
 );
 
