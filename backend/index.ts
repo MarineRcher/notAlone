@@ -6,6 +6,7 @@ import express from "express";
 import dotenv from "dotenv";
 import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
+import addictionRoutes from "./src/routes/addictionRoutes";
 import GroupController from "./src/constrollers/GroupController";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
@@ -17,6 +18,7 @@ dotenv.config({ path: path.resolve(__dirname, "./.env") });
 app.use(helmet());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/addictions", addictionRoutes);
 
 async function startServer() {
     try {
