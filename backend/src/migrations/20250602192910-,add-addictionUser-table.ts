@@ -52,18 +52,6 @@ export default {
                 allowNull: false,
             },
         });
-
-        await queryInterface.addIndex("addiction_users", ["id_addiction"]);
-        await queryInterface.addIndex("addiction_users", ["id_user"]);
-
-        await queryInterface.addIndex(
-            "addiction_users",
-            ["id_user", "id_addiction", "date"],
-            {
-                unique: true,
-                name: "unique_user_addiction_date",
-            }
-        );
     },
 
     async down(queryInterface: QueryInterface) {

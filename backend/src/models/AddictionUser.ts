@@ -70,12 +70,6 @@ AddictionUser.init(
         modelName: "AddictionUser",
         tableName: "addiction_users",
         timestamps: true,
-        indexes: [
-            {
-                fields: ["id_user", "id_addiction", "date"],
-                unique: true,
-            },
-        ],
     }
 );
 
