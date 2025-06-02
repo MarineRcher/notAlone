@@ -76,6 +76,7 @@ AddictionUser.init(
 AddictionUser.belongsTo(User, {
     foreignKey: "id_user",
     as: "user",
+    onDelete: "CASCADE",
 });
 
 AddictionUser.belongsTo(Addiction, {
@@ -86,6 +87,7 @@ AddictionUser.belongsTo(Addiction, {
 User.hasMany(AddictionUser, {
     foreignKey: "id_user",
     as: "addictionUsers",
+    onDelete: "CASCADE",
 });
 
 Addiction.hasMany(AddictionUser, {
