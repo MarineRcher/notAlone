@@ -130,3 +130,31 @@
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:39:06.552Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:39:06.553Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:39:06.555Z","user":1}
+{"email":"joi@jo.vh","ip":"::ffff:192.168.1.48","level":"info","login":"dij","message":"Tentative d'inscription","timestamp":"2025-06-09T10:57:33.988Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"dij","message":"Inscription réussie","timestamp":"2025-06-09T10:57:34.203Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T10:58:48.120Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T10:58:48.194Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T11:14:49.134Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T11:14:49.226Z","user":2}
+{"email":"dlnsbs@doss.com","ip":"::ffff:192.168.1.48","level":"info","login":"jdksb","message":"Tentative d'inscription","timestamp":"2025-06-09T11:15:19.353Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"jdksb","message":"Inscription réussie","timestamp":"2025-06-09T11:15:19.560Z"}
+{"email":"dojsba@jsosj.xksk","ip":"::ffff:192.168.1.48","level":"info","login":"dksbv","message":"Tentative d'inscription","timestamp":"2025-06-09T11:16:53.374Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"dksbv","message":"Inscription réussie","timestamp":"2025-06-09T11:16:53.612Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T11:17:34.262Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T11:17:34.336Z","user":2}
+{"email":"dojsba@jsosj.xksk","ip":"::ffff:192.168.1.48","level":"info","login":"dksbv","message":"Tentative d'inscription","timestamp":"2025-06-09T11:25:26.570Z"}
+{"email":"dojsba@jsosj.xksk","ip":"::ffff:192.168.1.48","level":"warn","message":"Échec d'inscription - Email déjà utilisé","timestamp":"2025-06-09T11:25:26.709Z"}
+{"email":"vin@jsosj.xksk","ip":"::ffff:192.168.1.48","level":"info","login":"dksbv","message":"Tentative d'inscription","timestamp":"2025-06-09T11:25:33.862Z"}
+{"ip":"::ffff:192.168.1.48","level":"warn","login":"dksbv","message":"Échec d'inscription - Login déjà utilisé","timestamp":"2025-06-09T11:25:33.921Z"}
+{"email":"vin@jsosj.xksk","ip":"::ffff:192.168.1.48","level":"info","login":"hjhvhbv","message":"Tentative d'inscription","timestamp":"2025-06-09T11:25:41.193Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"hjhvhbv","message":"Inscription réussie","timestamp":"2025-06-09T11:25:41.350Z"}
+{"email":"vin@jsosj.bk","ip":"::ffff:192.168.1.48","level":"info","login":"buccal","message":"Tentative d'inscription","timestamp":"2025-06-09T11:27:47.030Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"buccal","message":"Inscription réussie","timestamp":"2025-06-09T11:27:47.261Z"}
+{"email":"chj@bjjv.ngcc","ip":"::ffff:192.168.1.48","level":"info","login":"bdjsbn","message":"Tentative d'inscription","timestamp":"2025-06-09T11:28:16.254Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bdjsbn","message":"Inscription réussie","timestamp":"2025-06-09T11:28:16.413Z"}
+{"email":"dpsj@jsos.kd","ip":"::ffff:192.168.1.48","level":"info","login":"bbbvhb","message":"Tentative d'inscription","timestamp":"2025-06-09T11:33:53.107Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bbbvhb","message":"Inscription réussie","timestamp":"2025-06-09T11:33:53.343Z"}
+{"email":"jois@jose.cons","ip":"::ffff:192.168.1.48","level":"info","login":"sjskb","message":"Tentative d'inscription","timestamp":"2025-06-09T11:42:37.733Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"sjskb","message":"Inscription réussie","timestamp":"2025-06-09T11:42:37.965Z"}
+{"email":"diso@kspwj.com","ip":"::ffff:192.168.1.48","level":"info","login":"dnskb","message":"Tentative d'inscription","timestamp":"2025-06-09T11:45:57.718Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"dnskb","message":"Inscription réussie","timestamp":"2025-06-09T11:45:57.952Z","userId":12}

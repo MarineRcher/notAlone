@@ -132,7 +132,10 @@ export const login = async (
             return;
         }
 
-        const token = generateToken({ id: user.id, login: user.login }, "24h");
+        const token = generateToken(
+            { id: user.id, login: user.login, has2FA: user.has2FA },
+            "24h"
+        );
         logger.info("Connexion réussie", {
             user: user.id,
             ip: req.ip,

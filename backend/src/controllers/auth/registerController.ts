@@ -153,15 +153,18 @@ export const register = async (
             has2FA: has2FA || false,
             isBlocked: isBlocked || false,
         });
-
+        const createdUser = newUser.get({ plain: true });
         // Génération du token
         const token = generateToken(
-            { id: newUser.id, login: newUser.login, has2fa: newUser.has2FA },
+            {
+                id: createdUser.id,
+                login: createdUser.login,
+                has2FA: createdUser.has2FA,
+            },
             "24h"
         );
-
         logger.info("Inscription réussie", {
-            userId: newUser.id,
+            userId: createdUser.id,
             login: sanitizedLogin,
             ip: req.ip,
         });

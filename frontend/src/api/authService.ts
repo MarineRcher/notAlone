@@ -9,6 +9,7 @@ export interface RegisterData {
     has2FA?: boolean;
     isBlocked?: boolean;
 }
+
 export interface LoginData {
     loginOrEmail: string;
     password: string;
@@ -23,13 +24,16 @@ export interface newPasswordData {
 const authService = {
     register: async (userData: RegisterData) => {
         const response = await apiClient.post("/auth/register", userData);
-        await authHelpers.saveToken(response.data.token);
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
         return response;
     },
+
     login: async (userData: LoginData) => {
         const response = await apiClient.post("/auth/login", userData);
 
-        if (!response.data.requiresTwoFactor) {
+        if (!response.data.requiresTwoFactor && response.data.token) {
             await authHelpers.saveToken(response.data.token);
         }
         return response;
@@ -38,20 +42,43 @@ const authService = {
     logout: async () => {
         await authHelpers.deleteToken();
     },
+
     changePassword: async (userData: newPasswordData) => {
         return await apiClient.post("/auth/changePassword", userData);
     },
+
     generate2FASecret: () => apiClient.post("/auth/2fa/generate"),
-    verify2FASetup: (data: { token: string; otp: string }) =>
-        apiClient.post("/auth/2fa/verify-setup", data),
-    verify2FALogin: (data: { tempToken: string; otp: string }) =>
-        apiClient.post("/auth/2fa/verify-login", data),
+
+    verify2FASetup: async (data: { token: string; otp: string }) => {
+        const response = await apiClient.post("/auth/2fa/verify-setup", data);
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
+        return response;
+    },
+
+    verify2FALogin: async (data: { tempToken: string; otp: string }) => {
+        const response = await apiClient.post("/auth/2fa/verify-login", data);
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
+        return response;
+    },
+
     disable2FA: (data: { userId: string; otp: string }) =>
         apiClient.post("/auth/2fa/disable", data),
 };
+
 const refreshToken = async () => {
+    const token = await authHelpers.getToken();
+    if (!token) {
+        throw new Error("No token available");
+    }
+
     const response = await apiClient.post("/auth/refresh");
-    await authHelpers.saveToken(response.data.token);
+    if (response.data.token) {
+        await authHelpers.saveToken(response.data.token);
+    }
     return response.data.token;
 };
 

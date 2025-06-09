@@ -11,7 +11,9 @@ import { authService } from "../../api/authService";
 import * as Clipboard from "expo-clipboard";
 import validator from "validator";
 
-const Enable2FAScreen = ({ navigation }) => {
+const Enable2FAScreen = ({ navigation, route }) => {
+    const isFromRegistration = route?.params?.isFromRegistration || false;
+
     const [qrCodeUrl, setQrCodeUrl] = useState("");
     const [otp, setOtp] = useState("");
     const [tempToken, setTempToken] = useState("");
@@ -35,7 +37,11 @@ const Enable2FAScreen = ({ navigation }) => {
                 return;
             }
             await authService.verify2FASetup({ token: tempToken, otp });
-            navigation.navigate("User");
+            if (isFromRegistration) {
+                navigation.navigate("AddUserAddiction");
+            } else {
+                navigation.navigate("Main");
+            }
         } catch (error) {
             Alert.alert("Erreur", "Code invalide ou expiré");
         }

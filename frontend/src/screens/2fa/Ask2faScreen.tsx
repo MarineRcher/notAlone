@@ -1,6 +1,8 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 
-const ask2faScreen = ({ navigation }) => {
+const Ask2faScreen = ({ navigation, route }) => {
+    const isFromRegistration = route?.params?.isFromRegistration || false;
+
     return (
         <ScrollView>
             <View>
@@ -8,7 +10,15 @@ const ask2faScreen = ({ navigation }) => {
             </View>
             <View>
                 <TouchableOpacity
-                    onPress={() => navigation && navigation.navigate("Main")}
+                    onPress={() => {
+                        if (navigation) {
+                            if (isFromRegistration) {
+                                navigation.navigate("AddUserAddiction");
+                            } else {
+                                navigation.navigate("Main");
+                            }
+                        }
+                    }}
                 >
                     <Text>Non</Text>
                 </TouchableOpacity>
@@ -24,4 +34,4 @@ const ask2faScreen = ({ navigation }) => {
         </ScrollView>
     );
 };
-export default ask2faScreen;
+export default Ask2faScreen;

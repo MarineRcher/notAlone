@@ -111,7 +111,7 @@ const RegisterScreen = ({ navigation }) => {
                 has2FA: false,
                 isBlocked: false,
             });
-            navigation.navigate("Main");
+            navigation.navigate("Ask2fa", { isFromRegistration: true });
         } catch (error) {
             let errorMessage = "Une erreur est survenue lors de l'inscription";
 
