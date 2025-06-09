@@ -158,3 +158,10 @@
 {"ip":"::ffff:192.168.1.48","level":"info","login":"sjskb","message":"Inscription réussie","timestamp":"2025-06-09T11:42:37.965Z"}
 {"email":"diso@kspwj.com","ip":"::ffff:192.168.1.48","level":"info","login":"dnskb","message":"Tentative d'inscription","timestamp":"2025-06-09T11:45:57.718Z"}
 {"ip":"::ffff:192.168.1.48","level":"info","login":"dnskb","message":"Inscription réussie","timestamp":"2025-06-09T11:45:57.952Z","userId":12}
+{"email":"robin@voyelle.com","ip":"::ffff:192.168.1.48","level":"info","login":"robinhb","message":"Tentative d'inscription","timestamp":"2025-06-09T12:23:46.281Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"robinhb","message":"Inscription réussie","timestamp":"2025-06-09T12:23:46.509Z","userId":13}
+{"email":"bb@ju.vj","ip":"::ffff:192.168.1.48","level":"info","login":"djs","message":"Tentative d'inscription","timestamp":"2025-06-09T12:27:19.508Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"djs","message":"Inscription réussie","timestamp":"2025-06-09T12:27:19.665Z","userId":14}
+{"email":"bdis@osons.jsisj","ip":"::ffff:192.168.1.48","level":"info","login":"bdl","message":"Tentative d'inscription","timestamp":"2025-06-09T12:28:27.465Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bdl","message":"Inscription réussie","timestamp":"2025-06-09T12:28:27.617Z","userId":15}
+{"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T12:31:09.167Z","user":15}
