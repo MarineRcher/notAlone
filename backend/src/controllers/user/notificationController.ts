@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import User from "../../models/User";
 import logger from "../../config/logger";
+import { generateToken } from "../../services/JwtServices";
 /**
  * Validates a time string in HH:MM 24-hour format.
  *
@@ -49,14 +50,29 @@ export const activateNotifications = async (
             res.status(404).json({ message: "Utilisateur non trouvé" });
             return;
         }
+        const user = await User.findByPk(user_id, { raw: true });
+        if (user) {
+            const token = generateToken(
+                {
+                    id: user.id,
+                    login: user.login,
+                    has2FA: user.has2FA,
+                    notify: user.notify,
+                    notifyHour: user.hourNotify,
+                },
+                "24h"
+            );
+            // Journalisation
+            logger.info("Notifications activées", {
+                user_id,
+                ip: req.ip,
+            });
 
-        // Journalisation
-        logger.info("Notifications activées", {
-            user_id,
-            ip: req.ip,
-        });
-
-        res.status(200).json({ message: "Notifications activées avec succès" });
+            res.status(200).json({
+                message: "Notifications activées avec succès",
+                token,
+            });
+        }
     } catch (error) {
         logger.error("Erreur activation notifications", {
             error,
@@ -104,16 +120,28 @@ export const deactivateNotifications = async (
             res.status(404).json({ message: "Utilisateur non trouvé" });
             return;
         }
+        const user = await User.findByPk(user_id, { raw: true });
+        if (user) {
+            const token = generateToken(
+                {
+                    id: user.id,
+                    login: user.login,
+                    has2FA: user.has2FA,
+                    notify: user.notify,
+                    notifyHour: user.hourNotify,
+                },
+                "24h"
+            );
+            logger.info("Notifications désactivées", {
+                user_id,
+                ip: req.ip,
+            });
 
-        // Journalisation
-        logger.info("Notifications désactivées", {
-            user_id,
-            ip: req.ip,
-        });
-
-        res.status(200).json({
-            message: "Notifications désactivées avec succès",
-        });
+            res.status(200).json({
+                message: "Notifications désactivées avec succès",
+                token,
+            });
+        }
     } catch (error) {
         logger.error("Erreur désactivation notifications", {
             error,
@@ -180,17 +208,30 @@ export const setNotificationHour = async (
             });
             return;
         }
+        const user = await User.findByPk(user_id, { raw: true });
+        if (user) {
+            const token = generateToken(
+                {
+                    id: user.id,
+                    login: user.login,
+                    has2FA: user.has2FA,
+                    notify: user.notify,
+                    notifyHour: user.hourNotify,
+                },
+                "24h"
+            );
+            // Journalisation
+            logger.info("Heure de notification mise à jour", {
+                user_id,
+                hour,
+                ip: req.ip,
+            });
 
-        // Journalisation
-        logger.info("Heure de notification mise à jour", {
-            user_id,
-            hour,
-            ip: req.ip,
-        });
-
-        res.status(200).json({
-            message: `Heure de notification mise à jour à ${hour}`,
-        });
+            res.status(200).json({
+                message: `Heure de notification mise à jour à ${hour}`,
+                token,
+            });
+        }
     } catch (error) {
         logger.error("Erreur mise à jour heure notification", {
             error,

@@ -203,3 +203,15 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:11:04.578Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:11:10.710Z","user":2}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:11:10.712Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T16:24:57.712Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T16:24:57.806Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-09T16:25:06.096Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T16:32:32.418Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T16:32:32.493Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T16:41:39.125Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T16:41:39.200Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T16:42:32.606Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T16:42:32.679Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications désactivées","timestamp":"2025-06-09T16:42:40.436Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-09T16:42:41.719Z","user_id":2}
+{"hour":"17:40","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-09T16:42:50.978Z","user_id":2}

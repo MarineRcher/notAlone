@@ -160,6 +160,8 @@ export const register = async (
                 id: createdUser.id,
                 login: createdUser.login,
                 has2FA: createdUser.has2FA,
+                notify: createdUser.notify,
+                notifyHour: createdUser.hourNotify,
             },
             "24h"
         );

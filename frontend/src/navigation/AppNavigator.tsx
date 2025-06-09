@@ -14,6 +14,8 @@ import AddUserAddictionScreen from "../screens/userInformations/AddUserAddiction
 import AskNotificationsScreen from "../screens/userInformations/askNotificationsScreen";
 import AskNotificationsHourScreen from "../screens/userInformations/AskNotificationsHourScreen";
 import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
+import SupportScreen from "../screens/userInformations/supportScreen";
+import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 
 const Stack = createStackNavigator();
 
@@ -61,6 +63,11 @@ const AppNavigator = () => {
                     name="AddUserAddiction"
                     component={AddUserAddictionScreen}
                 />
+                <Stack.Screen
+                    name="PrivacyPolicy"
+                    component={PrivacyPolicycreen}
+                />
+                <Stack.Screen name="Support" component={SupportScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

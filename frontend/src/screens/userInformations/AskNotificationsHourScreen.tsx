@@ -10,9 +10,13 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import userService from "../../api/userService";
+import { useContext } from "react";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext, User } from "../../context/AuthContext";
 
 const AskNotificationsHourScreen = ({ navigation }) => {
-    const [hour, setHour] = useState(""); // Format HH:MM
+    const { setUser } = useContext(AuthContext);
+    const [hour, setHour] = useState("");
     const [showPicker, setShowPicker] = useState(false);
     const [loading, setLoading] = useState(false);
     const [date, setDate] = useState(new Date());
@@ -42,7 +46,12 @@ const AskNotificationsHourScreen = ({ navigation }) => {
 
         setLoading(true);
         try {
-            await userService.hourNotifications({ hour });
+            const response = await userService.hourNotifications({ hour });
+            if (response.data.token) {
+                const decoded = jwtDecode<User>(response.data.token);
+                setUser(decoded);
+            }
+
             Alert.alert("Succès", `Heure définie à ${hour}`, [
                 { text: "OK", onPress: () => navigation.navigate("Main") },
             ]);

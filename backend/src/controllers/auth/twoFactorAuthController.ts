@@ -131,6 +131,8 @@ export const verify2FASetup = async (
                 id: user.id,
                 login: user.login,
                 has2FA: true,
+                notify: user.notify,
+                notifyHour: user.hourNotify,
             },
             "24h"
         );
@@ -217,7 +219,13 @@ export const verify2FALogin = async (
         }
 
         const token = generateToken(
-            { id: user.id, login: user.login, has2FA: true },
+            {
+                id: user.id,
+                login: user.login,
+                has2FA: user.has2FA,
+                notify: user.notify,
+                notifyHour: user.hourNotify,
+            },
             "24h"
         );
 
@@ -294,6 +302,8 @@ export const disable2FA = async (
                 id: user.id,
                 login: user.login,
                 has2FA: false,
+                notify: user.notify,
+                notifyHour: user.hourNotify,
             },
             "24h"
         );

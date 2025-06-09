@@ -9,6 +9,23 @@ const userService = {
         const response = await apiClient.post("/users/activateNotifs", {
             headers: { Authorization: `Bearer ${token}` },
         });
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
+        return response.data;
+    },
+    deactivateNotifications: async () => {
+        const token = await authHelpers.getToken();
+        const response = await apiClient.post(
+            "/users/deactivateNotifs",
+            {},
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
         return response.data;
     },
     hourNotifications: async (data: { hour: string }) => {
@@ -18,6 +35,9 @@ const userService = {
         const response = await apiClient.post("/users/hourNotifs", data, {
             headers: { Authorization: `Bearer ${token}` },
         });
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
         return response.data;
     },
     changeEmail: async (data: { newEmail: string }) => {

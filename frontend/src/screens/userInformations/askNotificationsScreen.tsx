@@ -8,14 +8,22 @@ import {
     Alert,
 } from "react-native";
 import userService from "../../api/userService";
+import { useContext } from "react";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext, User } from "../../context/AuthContext";
 
 const AskNotificationsScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
+    const { setUser } = useContext(AuthContext);
 
     const handleActivateNotifications = async () => {
         setLoading(true);
         try {
-            await userService.activateNotifications();
+            const response = await userService.activateNotifications();
+            if (response.data.token) {
+                const decoded = jwtDecode<User>(response.data.token);
+                setUser(decoded);
+            }
             navigation.navigate("AskNotificationsHour");
         } catch (error) {
             console.error(
@@ -27,7 +35,6 @@ const AskNotificationsScreen = ({ navigation }) => {
             setLoading(false);
         }
     };
-
     return (
         <ScrollView>
             <Text>Souhaitez-vous activer les notifications ?</Text>
