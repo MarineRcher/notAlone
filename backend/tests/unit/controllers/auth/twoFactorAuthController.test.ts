@@ -84,17 +84,35 @@ describe("2FA Controller", () => {
                 true
             );
 
-            const mockUpdate = jest.fn();
             (User.findByPk as jest.Mock).mockResolvedValue({
-                update: mockUpdate,
+                id: 1,
+                login: "user1",
+                notify: true,
+                hourNotify: "08:00",
+                hasPremium: true,
             });
+            (User.update as jest.Mock).mockResolvedValue([1]);
 
             await verify2FASetup(mockReq, mockRes, mockNext);
-            expect(mockUpdate).toHaveBeenCalledWith({
-                twoFactorSecret: "SECRET",
-                has2FA: true,
-            });
+
+            expect(User.update).toHaveBeenCalledWith(
+                {
+                    twoFactorSecret: "SECRET",
+                    has2FA: true,
+                },
+                {
+                    where: { id: 1 },
+                }
+            );
+
             expect(mockStatus).toHaveBeenCalledWith(200);
+            expect(mockJson).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    message:
+                        "L'authentification à deux facteurs a été activée avec succès",
+                    newToken: expect.any(String),
+                })
+            );
         });
 
         it("should return 400 if OTP invalid", async () => {

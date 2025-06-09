@@ -49,10 +49,17 @@ describe("Register Controller", () => {
         (bcrypt.genSalt as jest.Mock).mockResolvedValue("mockedsalt");
         (bcrypt.hash as jest.Mock).mockResolvedValue("hashedpassword123");
         (User.create as jest.Mock).mockResolvedValue({
-            id: 1,
-            login: "testuser",
-            email: "test@example.com",
+            get: () => ({
+                id: 1,
+                login: "testuser",
+                email: "test@example.com",
+                has2FA: false,
+                hasPremium: false,
+                notify: false,
+                hourNotify: null,
+            }),
         });
+
         (jwt.sign as jest.Mock).mockReturnValue("mocked-jwt-token");
 
         // User.findOne default mock setup - return null by default
