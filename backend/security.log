@@ -165,3 +165,13 @@
 {"email":"bdis@osons.jsisj","ip":"::ffff:192.168.1.48","level":"info","login":"bdl","message":"Tentative d'inscription","timestamp":"2025-06-09T12:28:27.465Z"}
 {"ip":"::ffff:192.168.1.48","level":"info","login":"bdl","message":"Inscription réussie","timestamp":"2025-06-09T12:28:27.617Z","userId":15}
 {"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T12:31:09.167Z","user":15}
+{"email":"bdjsosjb@bdjsijs.con","ip":"::ffff:192.168.1.48","level":"info","login":"bdjdb","message":"Tentative d'inscription","timestamp":"2025-06-09T13:06:37.634Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bdjdb","message":"Inscription réussie","timestamp":"2025-06-09T13:06:37.873Z","userId":16}
+{"addiction":3,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T13:06:53.309Z","user":16}
+{"email":"bdjsosjb@bdjsijs.con","ip":"::ffff:192.168.1.48","level":"info","login":"bdjdb","message":"Tentative d'inscription","timestamp":"2025-06-09T13:08:32.082Z"}
+{"email":"bdjsosjb@bdjsijs.con","ip":"::ffff:192.168.1.48","level":"warn","message":"Échec d'inscription - Email déjà utilisé","timestamp":"2025-06-09T13:08:32.150Z"}
+{"email":"nnbbb@bdjsijs.con","ip":"::ffff:192.168.1.48","level":"info","login":"bbjjb","message":"Tentative d'inscription","timestamp":"2025-06-09T13:08:46.910Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bbjjb","message":"Inscription réussie","timestamp":"2025-06-09T13:08:47.053Z","userId":17}
+{"addiction":3,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T13:08:56.218Z","user":17}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-09T13:09:00.345Z","user_id":17}
+{"hour":"14:10","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-09T13:12:09.058Z","user_id":17}

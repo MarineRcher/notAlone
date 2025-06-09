@@ -11,6 +11,8 @@ import ChangePasswordScreen from "../screens/auth/ChangePasswordScreen";
 import BottomTabNavigator from "../components/organisms/menu";
 import Ask2faScreen from "../screens/2fa/Ask2faScreen";
 import AddUserAddictionScreen from "../screens/userInformations/AddUserAddictionScreen";
+import AskNotificationsScreen from "../screens/userInformations/askNotificationsScreen";
+import AskNotificationsHourScreen from "../screens/userInformations/AskNotificationsHourScreen";
 
 const Stack = createStackNavigator();
 
@@ -42,6 +44,14 @@ const AppNavigator = () => {
                 />
 
                 {/* user informations */}
+                <Stack.Screen
+                    name="AskNotifications"
+                    component={AskNotificationsScreen}
+                />
+                <Stack.Screen
+                    name="AskNotificationsHour"
+                    component={AskNotificationsHourScreen}
+                />
                 <Stack.Screen
                     name="AddUserAddiction"
                     component={AddUserAddictionScreen}

@@ -60,7 +60,7 @@ export const activateNotifications = async (
     } catch (error) {
         logger.error("Erreur activation notifications", {
             error,
-            user_id: req.user?.id, // Corrigé pour utiliser req.user.id
+            user_id: req.user?.id,
             ip: req.ip,
         });
         next(error);

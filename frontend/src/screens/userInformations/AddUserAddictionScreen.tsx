@@ -93,7 +93,10 @@ const AddUserAddictionScreen = ({ navigation }) => {
             });
 
             Alert.alert("Succès", "Addiction ajoutée avec succès", [
-                { text: "OK", onPress: () => navigation.goBack() },
+                {
+                    text: "OK",
+                    onPress: () => navigation.navigate("AskNotifications"),
+                },
             ]);
         } catch (error) {
             Alert.alert("Erreur", error.message);
