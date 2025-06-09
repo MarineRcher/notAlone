@@ -5,6 +5,7 @@ import { authService } from "../api/authService";
 
 const UserScreen = ({ navigation }) => {
     const { user } = useContext(AuthContext);
+    console.log(user);
     const handleLogout = async () => {
         try {
             await authService.logout();

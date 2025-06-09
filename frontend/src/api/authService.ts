@@ -65,8 +65,12 @@ const authService = {
         return response;
     },
 
-    disable2FA: (data: { userId: string; otp: string }) =>
-        apiClient.post("/auth/2fa/disable", data),
+    disable2FA: async (data: { userId: string; otp: string }) => {
+        const response = await apiClient.post("/auth/2fa/disable", data);
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
+    },
 };
 
 const refreshToken = async () => {

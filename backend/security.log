@@ -175,3 +175,31 @@
 {"addiction":3,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T13:08:56.218Z","user":17}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-09T13:09:00.345Z","user_id":17}
 {"hour":"14:10","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-09T13:12:09.058Z","user_id":17}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T14:21:00.348Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T14:21:00.432Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T14:23:41.961Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T14:23:42.034Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T14:29:38.927Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T14:29:46.753Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T14:29:46.757Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T14:50:23.461Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T14:50:35.235Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T14:50:35.245Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:02:26.986Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:02:35.309Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:02:35.312Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:05:06.700Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:05:15.318Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:05:15.320Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:06:59.735Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:07:06.253Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:07:06.257Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:07:46.136Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:07:53.985Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:07:53.989Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:08:59.158Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:09:07.670Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:09:07.673Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T15:11:04.578Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-09T15:11:10.710Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-09T15:11:10.712Z","user":2}

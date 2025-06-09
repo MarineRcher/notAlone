@@ -110,20 +110,35 @@ export const verify2FASetup = async (
             return;
         }
 
-        const user = await User.findByPk(decoded.userId);
+        const user = await User.findByPk(decoded.userId, { raw: true });
         if (!user) {
             res.status(404).json({ message: "Utilisateur non trouvé" });
             return;
         }
 
-        await user.update({
-            twoFactorSecret: decoded.secret,
-            has2FA: true,
-        });
+        await User.update(
+            {
+                twoFactorSecret: decoded.secret,
+                has2FA: true,
+            },
+            {
+                where: { id: decoded.userId },
+            }
+        );
+
+        const newToken = generateToken(
+            {
+                id: user.id,
+                login: user.login,
+                has2FA: true,
+            },
+            "24h"
+        );
 
         res.status(200).json({
             message:
                 "L'authentification à deux facteurs a été activée avec succès",
+            newToken,
         });
     } catch (error) {
         next(error);
@@ -201,7 +216,10 @@ export const verify2FALogin = async (
             return;
         }
 
-        const token = generateToken({ id: user.id, login: user.login }, "24h");
+        const token = generateToken(
+            { id: user.id, login: user.login, has2FA: true },
+            "24h"
+        );
 
         const {
             password: _,
@@ -271,10 +289,18 @@ export const disable2FA = async (
                 where: { id: userId },
             }
         );
-
+        const newToken = generateToken(
+            {
+                id: user.id,
+                login: user.login,
+                has2FA: false,
+            },
+            "24h"
+        );
         res.status(200).json({
             message:
                 "L'authentification à deux facteurs a été désactivée avec succès",
+            newToken,
         });
     } catch (error) {
         next(error);

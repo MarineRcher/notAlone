@@ -3,7 +3,7 @@ import { authHelpers } from "../api/authHelpers";
 import { jwtDecode } from "jwt-decode";
 import { View } from "react-native";
 
-type User = {
+export type User = {
     id: number;
     has2FA: boolean;
 };

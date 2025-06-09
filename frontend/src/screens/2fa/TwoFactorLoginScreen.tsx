@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { authService } from "../../api/authService";
 import validator from "validator";
 import { authHelpers } from "../../api/authHelpers";
+import { AuthContext, User } from "../../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const TwoFactorLoginScreen = ({ route, navigation }) => {
+    const { setUser } = useContext(AuthContext);
     const [otp, setOtp] = useState("");
     const { tempToken } = route.params;
 
@@ -19,6 +22,8 @@ const TwoFactorLoginScreen = ({ route, navigation }) => {
                 otp,
             });
             await authHelpers.saveToken(response.data.token);
+            const decoded = jwtDecode<User>(response.data.token);
+            setUser(decoded);
             navigation.navigate("Main");
         } catch (error) {
             Alert.alert(

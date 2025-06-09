@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
     View,
     Text,
@@ -10,6 +10,9 @@ import {
 import { authService } from "../../api/authService";
 import * as Clipboard from "expo-clipboard";
 import validator from "validator";
+import { authHelpers } from "../../api/authHelpers";
+import { jwtDecode } from "jwt-decode";
+import { AuthContext, User } from "../../context/AuthContext";
 
 const Enable2FAScreen = ({ navigation, route }) => {
     const isFromRegistration = route?.params?.isFromRegistration || false;
@@ -18,6 +21,8 @@ const Enable2FAScreen = ({ navigation, route }) => {
     const [otp, setOtp] = useState("");
     const [tempToken, setTempToken] = useState("");
     const [secretKey, setSecretKey] = useState("");
+
+    const { setUser } = useContext(AuthContext); // ✅ hook bien positionné
 
     const generate2FASecret = async () => {
         try {
@@ -36,7 +41,18 @@ const Enable2FAScreen = ({ navigation, route }) => {
                 Alert.alert("Erreur", "Le code doit être à 6 chiffres");
                 return;
             }
-            await authService.verify2FASetup({ token: tempToken, otp });
+
+            const response = await authService.verify2FASetup({
+                token: tempToken,
+                otp,
+            });
+
+            if (response.data.token) {
+                await authHelpers.saveToken(response.data.token);
+                const decoded = jwtDecode<User>(response.data.token);
+                setUser(decoded);
+            }
+
             if (isFromRegistration) {
                 navigation.navigate("AddUserAddiction");
             } else {
@@ -50,6 +66,7 @@ const Enable2FAScreen = ({ navigation, route }) => {
     useEffect(() => {
         generate2FASecret();
     }, []);
+
     return (
         <View>
             <Text>Scannez ce QR Code avec Google Authenticator :</Text>
@@ -70,7 +87,11 @@ const Enable2FAScreen = ({ navigation, route }) => {
             >
                 <Text>Copier la clé. Ne partagez jamais cette clé</Text>
             </TouchableOpacity>
+
             <TextInput
+                style={{
+                    margin: 10, // 🛠 typo corrigée: "margi" → "margin"
+                }}
                 placeholder="Entrez le code de vérification"
                 value={otp}
                 onChangeText={setOtp}
@@ -83,4 +104,5 @@ const Enable2FAScreen = ({ navigation, route }) => {
         </View>
     );
 };
+
 export default Enable2FAScreen;
