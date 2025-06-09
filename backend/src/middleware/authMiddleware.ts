@@ -53,6 +53,7 @@ export const authMiddleware = async (
             token,
             process.env.JWT_SECRET!
         ) as JwtPayload;
+
         const user = await User.findByPk(decoded.id);
         if (!user) {
             res.status(401).json({ message: "Utilisateur introuvable" });

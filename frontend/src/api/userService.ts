@@ -2,6 +2,30 @@ import apiClient from "./apiClient";
 import { authHelpers } from "./authHelpers";
 
 const userService = {
+    activatePremium: async () => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.post("/users/activatePremium", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
+        return response.data;
+    },
+    deactivatePremium: async () => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.post("/users/deactivatePremium", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data.token) {
+            await authHelpers.saveToken(response.data.token);
+        }
+        return response.data;
+    },
     activateNotifications: async () => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");

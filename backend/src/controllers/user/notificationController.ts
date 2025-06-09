@@ -59,6 +59,7 @@ export const activateNotifications = async (
                     has2FA: user.has2FA,
                     notify: user.notify,
                     notifyHour: user.hourNotify,
+                    hasPremium: user.hasPremium,
                 },
                 "24h"
             );
@@ -129,6 +130,7 @@ export const deactivateNotifications = async (
                     has2FA: user.has2FA,
                     notify: user.notify,
                     notifyHour: user.hourNotify,
+                    hasPremium: user.hasPremium,
                 },
                 "24h"
             );
@@ -217,6 +219,7 @@ export const setNotificationHour = async (
                     has2FA: user.has2FA,
                     notify: user.notify,
                     notifyHour: user.hourNotify,
+                    hasPremium: user.hasPremium,
                 },
                 "24h"
             );

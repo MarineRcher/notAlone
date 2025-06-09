@@ -8,6 +8,7 @@ export type User = {
     has2FA: boolean;
     notify?: boolean;
     hourNotify?: string;
+    hasPremium: boolean;
 };
 
 type AuthContextType = {
@@ -15,6 +16,7 @@ type AuthContextType = {
     setUser: (user: User | null) => void;
     update2FAStatus: (status: boolean) => void;
     updateNotificationSettings: (notify: boolean, hourNotify?: string) => void;
+    updatePremiumStatus: (status: boolean) => void;
 };
 
 interface AuthProviderProps {
@@ -26,12 +28,16 @@ export const AuthContext = createContext<AuthContextType>({
     setUser: () => {},
     update2FAStatus: () => {},
     updateNotificationSettings: () => {},
+    updatePremiumStatus: () => {},
 });
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
     const update2FAStatus = (status: boolean) => {
         setUser((prev) => (prev ? { ...prev, has2FA: status } : null));
+    };
+    const updatePremiumStatus = (status: boolean) => {
+        setUser((prev) => (prev ? { ...prev, hasPremium: status } : null));
     };
     const updateNotificationSettings = (
         notify: boolean,
@@ -65,6 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 setUser,
                 update2FAStatus,
                 updateNotificationSettings,
+                updatePremiumStatus,
             }}
         >
             <View style={{ flex: 1 }}>{children}</View>

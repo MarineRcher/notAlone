@@ -219,3 +219,29 @@
 {"email":"bdis@jsos.com","ip":"::ffff:192.168.1.48","level":"info","login":"heksb","message":"Tentative d'inscription","timestamp":"2025-06-09T16:56:15.799Z"}
 {"ip":"::ffff:192.168.1.48","level":"info","login":"heksb","message":"Inscription réussie","timestamp":"2025-06-09T16:56:16.007Z","userId":18}
 {"addiction":3,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T16:56:27.349Z","user":18}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:30:38.856Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:30:38.954Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:33:58.452Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:33:58.523Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:37:09.582Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:37:09.675Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:39:15.221Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:39:15.314Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:41:12.849Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:41:12.937Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:46:47.125Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:46:47.216Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:48:55.433Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:48:55.520Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:50:36.061Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:50:36.133Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:53:05.971Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:53:06.043Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:55:55.871Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:55:55.941Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:56:49.956Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:56:50.027Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:57:49.711Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:57:49.781Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-09T18:59:27.983Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-09T18:59:28.072Z","user":2}

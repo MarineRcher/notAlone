@@ -139,6 +139,7 @@ export const login = async (
                 has2FA: user.has2FA,
                 notify: user.notify,
                 notifyHour: user.hourNotify,
+                hasPremium: user.hasPremium,
             },
             "24h"
         );

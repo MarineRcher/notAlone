@@ -16,6 +16,7 @@ import AskNotificationsHourScreen from "../screens/userInformations/AskNotificat
 import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
+import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
 
 const Stack = createStackNavigator();
 
@@ -43,6 +44,10 @@ const AppNavigator = () => {
                 />
 
                 {/* user informations */}
+                <Stack.Screen
+                    name="ActivatePremium"
+                    component={ActivatePremiumScreen}
+                />
                 <Stack.Screen
                     name="ChangeEmail"
                     component={ChangeEmailScreen}

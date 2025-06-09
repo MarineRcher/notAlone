@@ -7,13 +7,15 @@ import {
     StyleSheet,
     Platform,
 } from "react-native";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext, User } from "../context/AuthContext";
 import { authService } from "../api/authService";
 import userService from "../api/userService";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { jwtDecode } from "jwt-decode";
 
 const UserScreen = ({ navigation }) => {
     const { user, updateNotificationSettings } = useContext(AuthContext);
+    const { setUser } = useContext(AuthContext);
     const [isEditingTime, setIsEditingTime] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
     const [time, setTime] = useState(new Date());
@@ -37,6 +39,22 @@ const UserScreen = ({ navigation }) => {
             });
         } catch (error) {
             Alert.alert("Erreur", "La déconnexion a échoué");
+        }
+    };
+    const handleDeactivatePremium = async () => {
+        try {
+            const response = await userService.deactivatePremium();
+
+            if (response.token) {
+                const decoded = jwtDecode<User>(response.token);
+                setUser(decoded);
+            }
+            Alert.alert("Succès", "Version premium desactive");
+        } catch (error) {
+            Alert.alert(
+                "Erreur",
+                "La deactivation de la version premium a échoué"
+            );
         }
     };
     const handleDeleteUserAccount = async () => {
@@ -87,6 +105,22 @@ const UserScreen = ({ navigation }) => {
     return (
         <View style={{ padding: 20 }}>
             <Text>Profil Utilisateur</Text>
+            {!user?.hasPremium ? (
+                <TouchableOpacity
+                    onPress={() => navigation.navigate("ActivatePremium")}
+                    style={{ marginVertical: 10 }}
+                >
+                    <Text>Activer l'abonnement premium</Text>
+                </TouchableOpacity>
+            ) : (
+                <TouchableOpacity
+                    onPress={handleDeactivatePremium}
+                    style={{ marginVertical: 10 }}
+                >
+                    <Text>Désactiver l'abonnement premium</Text>
+                </TouchableOpacity>
+            )}
+
             <TouchableOpacity
                 onPress={() => navigation.navigate("ChangeEmail")}
                 style={{ marginVertical: 10 }}

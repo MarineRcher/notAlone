@@ -162,6 +162,7 @@ export const register = async (
                 has2FA: createdUser.has2FA,
                 notify: createdUser.notify,
                 notifyHour: createdUser.hourNotify,
+                hasPremium: createdUser.hasPremium,
             },
             "24h"
         );

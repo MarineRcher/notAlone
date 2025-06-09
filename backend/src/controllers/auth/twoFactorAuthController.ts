@@ -133,6 +133,7 @@ export const verify2FASetup = async (
                 has2FA: true,
                 notify: user.notify,
                 notifyHour: user.hourNotify,
+                hasPremium: user.hasPremium,
             },
             "24h"
         );
@@ -225,6 +226,7 @@ export const verify2FALogin = async (
                 has2FA: user.has2FA,
                 notify: user.notify,
                 notifyHour: user.hourNotify,
+                hasPremium: user.hasPremium,
             },
             "24h"
         );
@@ -304,6 +306,7 @@ export const disable2FA = async (
                 has2FA: false,
                 notify: user.notify,
                 notifyHour: user.hourNotify,
+                hasPremium: user.hasPremium,
             },
             "24h"
         );
