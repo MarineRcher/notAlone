@@ -20,7 +20,18 @@ const UserScreen = ({ navigation }) => {
     return (
         <View style={{ padding: 20 }}>
             <Text>Profil Utilisateur</Text>
-
+            <TouchableOpacity
+                onPress={() => navigation.navigate("ChangeEmail")}
+                style={{ marginVertical: 10 }}
+            >
+                <Text>Changer d'email</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => navigation.navigate("ChangePassword")}
+                style={{ marginVertical: 10 }}
+            >
+                <Text>Changer de mot de passe</Text>
+            </TouchableOpacity>
             {user?.has2FA ? (
                 <TouchableOpacity
                     onPress={() => navigation.navigate("Disable2FA")}

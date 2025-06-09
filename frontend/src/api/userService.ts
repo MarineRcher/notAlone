@@ -20,6 +20,15 @@ const userService = {
         });
         return response.data;
     },
+    changeEmail: async (data: { newEmail: string }) => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.post("/users/changeEmail", data, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    },
 };
 
 export default userService;

@@ -7,12 +7,13 @@ import Enable2FAScreen from "../screens/2fa/Enable2FAScreen";
 import TwoFactorLoginScreen from "../screens/2fa/TwoFactorLoginScreen";
 import Disable2FAScreen from "../screens/2fa/Disable2FAScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
-import ChangePasswordScreen from "../screens/auth/ChangePasswordScreen";
+import ChangePasswordScreen from "../screens/userInformations/ChangePasswordScreen";
 import BottomTabNavigator from "../components/organisms/menu";
 import Ask2faScreen from "../screens/2fa/Ask2faScreen";
 import AddUserAddictionScreen from "../screens/userInformations/AddUserAddictionScreen";
 import AskNotificationsScreen from "../screens/userInformations/askNotificationsScreen";
 import AskNotificationsHourScreen from "../screens/userInformations/AskNotificationsHourScreen";
+import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 
 const Stack = createStackNavigator();
 
@@ -23,10 +24,6 @@ const AppNavigator = () => {
                 {/* Écrans d'authentification */}
                 <Stack.Screen name="Register" component={RegisterScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen
-                    name="ChangePassword"
-                    component={ChangePasswordScreen}
-                />
 
                 {/* Écran principal avec les onglets */}
                 <Stack.Screen
@@ -44,6 +41,14 @@ const AppNavigator = () => {
                 />
 
                 {/* user informations */}
+                <Stack.Screen
+                    name="ChangeEmail"
+                    component={ChangeEmailScreen}
+                />
+                <Stack.Screen
+                    name="ChangePassword"
+                    component={ChangePasswordScreen}
+                />
                 <Stack.Screen
                     name="AskNotifications"
                     component={AskNotificationsScreen}

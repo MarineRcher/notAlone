@@ -125,7 +125,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             });
 
             Alert.alert("Succès", "Changement de mot de passe réussi!");
-            navigation.navigate("Login");
+            navigation.goBack();
         } catch (error) {
             let errorMessage =
                 "Une erreur est survenue lors du changement de mot de passe";
@@ -204,12 +204,6 @@ const ChangePasswordScreen = ({ navigation }) => {
                             ? "Chargement..."
                             : "Changer de mot de passe"}
                     </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() => navigation && navigation.navigate("Login")}
-                >
-                    <Text>Retour à la connexion</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
