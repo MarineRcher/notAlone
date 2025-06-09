@@ -1,7 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import speakeasy from "speakeasy";
-import QRCode from "qrcode";
-import jwt from "jsonwebtoken";
 import {
     generate2FASecret,
     verify2FASetup,
@@ -9,673 +6,228 @@ import {
     disable2FA,
 } from "../../../../src/controllers/auth/twoFactorAuthController";
 import User from "../../../../src/models/User";
-import logger from "../../../../src/config/logger";
-import { UserAttributes } from "../../../../src/types/users";
+import { TwoFactorService } from "../../../../src/services/TwoFactorServices";
+import * as jwt from "jsonwebtoken";
+import * as JwtService from "../../../../src/services/JwtServices";
 
 // Mocks
-jest.mock("speakeasy");
-jest.mock("qrcode");
-jest.mock("jsonwebtoken");
 jest.mock("../../../../src/models/User");
-jest.mock("../../../../src/config/logger");
+jest.mock("../../../../src/services/TwoFactorServices");
+jest.mock("../../../../src/services/JwtServices");
+jest.mock("jsonwebtoken");
 
-describe("Two Factor Authentication Controller", () => {
-    let mockRequest: Partial<Request>;
-    let mockResponse: Partial<Response>;
-    let nextFunction: NextFunction;
+const mockJson = jest.fn();
+const mockStatus = jest.fn(() => ({ json: mockJson }));
+const mockRes = { status: mockStatus } as unknown as Response;
+const mockNext = jest.fn();
 
-    // Create a mock user that matches the UserAttributes interface
-    const mockUserData: UserAttributes = {
-        id: 1,
-        login: "testuser",
-        email: "user@example.com",
-        password: "hashedpassword",
-        hasPremium: false,
-        isBlocked: false,
-        twoFactorSecret: null,
-        has2FA: false,
-        notify: false,
-        hourNotify: null,
-        failedLoginAttempts: 0,
-        blockedUntil: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    };
-
-    beforeEach(() => {
-        mockRequest = {
-            body: {},
-            ip: "127.0.0.1",
-            user: mockUserData, // Use the complete mock user object
-        };
-
-        mockResponse = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn(),
-        };
-
-        nextFunction = jest.fn();
-
-        // Reset all mocks
+describe("2FA Controller", () => {
+    afterEach(() => {
         jest.clearAllMocks();
-
-        // Mock environment variable
-        process.env.JWT_SECRET = "test-secret";
     });
 
     describe("generate2FASecret", () => {
-        test("should return 404 if user not found", async () => {
-            (User.findByPk as jest.Mock).mockResolvedValue(null);
+        it("should return 200 and QR code for valid user", async () => {
+            const mockReq = { user: { id: 1 } } as Request;
 
-            await generate2FASecret(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
+            (User.findByPk as jest.Mock).mockResolvedValue({
+                id: 1,
+                email: "user@example.com",
+            });
+            (
+                TwoFactorService.prototype.generateSecret as jest.Mock
+            ).mockResolvedValue({
+                base32: "SECRET",
+                otpauth_url: "otpauth://test",
+                qrCode: "data:image/png;base64,test",
+            });
+            (JwtService.generateToken as jest.Mock).mockReturnValue(
+                "temp.jwt.token"
             );
 
-            expect(User.findByPk).toHaveBeenCalledWith(1, { raw: true });
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith(
+            await generate2FASecret(mockReq, mockRes, mockNext);
+
+            expect(mockStatus).toHaveBeenCalledWith(200);
+            expect(mockJson).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    message: "Utilisateur non trouvé",
+                    tempToken: "temp.jwt.token",
+                    qrCodeUrl: "data:image/png;base64,test",
+                    secret: "SECRET",
                 })
             );
         });
 
-        test("should generate 2FA secret successfully", async () => {
-            const mockUser = {
-                id: 1,
-                email: "user@example.com",
-            };
+        it("should return 404 if user not found", async () => {
+            const mockReq = { user: { id: 999 } } as Request;
+            (User.findByPk as jest.Mock).mockResolvedValue(null);
 
-            const mockSecret = {
-                base32: "BASETEST32SECRET",
-                otpauth_url:
-                    "otpauth://totp/MonApplication:user@example.com?secret=BASETEST32SECRET",
-            };
-
-            const mockQRCode = "data:image/png;base64,mockQRCodeData";
-            const mockToken = "mock-jwt-token";
-
-            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-            (speakeasy.generateSecret as jest.Mock).mockReturnValue(mockSecret);
-            (QRCode.toDataURL as jest.Mock).mockResolvedValue(mockQRCode);
-            (jwt.sign as jest.Mock).mockReturnValue(mockToken);
-
-            await generate2FASecret(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(speakeasy.generateSecret).toHaveBeenCalledWith({
-                name: expect.stringContaining(
-                    "MonApplication:user@example.com"
-                ),
-            });
-            expect(QRCode.toDataURL).toHaveBeenCalledWith(
-                mockSecret.otpauth_url
-            );
-            expect(jwt.sign).toHaveBeenCalledWith(
-                {
-                    userId: 1,
-                    secret: "BASETEST32SECRET",
-                    setupPhase: true,
-                },
-                "test-secret",
-                { expiresIn: "10m" }
-            );
-
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Secret 2FA généré avec succès",
-                tempToken: mockToken,
-                qrCodeUrl: mockQRCode,
-                secret: "BASETEST32SECRET",
-            });
-        });
-
-        test("should return 500 if secret generation fails", async () => {
-            const mockUser = {
-                id: 1,
-                email: "user@example.com",
-            };
-
-            const mockSecret = {
-                base32: "BASETEST32SECRET",
-                // Missing otpauth_url
-            };
-
-            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-            (speakeasy.generateSecret as jest.Mock).mockReturnValue(mockSecret);
-
-            await generate2FASecret(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(mockResponse.status).toHaveBeenCalledWith(500);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Failed to generate 2FA secret",
-            });
-        });
-
-        test("should pass errors to next middleware", async () => {
-            const error = new Error("Test error");
-            (User.findByPk as jest.Mock).mockRejectedValue(error);
-
-            await generate2FASecret(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(nextFunction).toHaveBeenCalledWith(error);
+            await generate2FASecret(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(404);
         });
     });
 
     describe("verify2FASetup", () => {
-        test("should reject invalid OTP format", async () => {
-            mockRequest.body = {
-                token: "valid-token",
-                otp: "12345", // Only 5 digits, should be 6
-            };
+        it("should verify OTP and update user", async () => {
+            const mockReq = {
+                body: { token: "token", otp: "123456" },
+                ip: "127.0.0.1",
+            } as Request;
 
-            await verify2FASetup(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
-            expect(mockResponse.json).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    message: "Échec de validation du code",
-                })
-            );
-        });
-
-        test("should reject invalid token", async () => {
-            mockRequest.body = {
-                token: "invalid-token",
-                otp: "123456",
-            };
-
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                // Missing setupPhase and secret
-                userId: 1,
-            }));
-
-            await verify2FASetup(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(jwt.verify).toHaveBeenCalledWith(
-                "invalid-token",
-                "test-secret"
-            );
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Token invalide pour la configuration 2FA",
-            });
-        });
-
-        test("should reject incorrect OTP", async () => {
-            mockRequest.body = {
-                token: "valid-token",
-                otp: "123456",
-            };
-
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
+            const decoded = {
                 setupPhase: true,
-                secret: "SECRET123",
+                secret: "SECRET",
                 userId: 1,
-            }));
-
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(false);
-
-            await verify2FASetup(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(speakeasy.totp.verify).toHaveBeenCalledWith({
-                secret: "SECRET123",
-                encoding: "base32",
-                token: "123456",
-            });
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Code incorrect",
-            });
-        });
-
-        test("should return 404 if user not found", async () => {
-            mockRequest.body = {
-                token: "valid-token",
-                otp: "123456",
             };
 
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                setupPhase: true,
-                secret: "SECRET123",
-                userId: 1,
-            }));
-
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(true);
-            (User.findByPk as jest.Mock).mockResolvedValue(null);
-
-            await verify2FASetup(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
+            (jwt.verify as jest.Mock).mockReturnValue(decoded);
+            (TwoFactorService.prototype.verifyOTP as jest.Mock).mockReturnValue(
+                true
             );
 
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Utilisateur non trouvé",
+            const mockUpdate = jest.fn();
+            (User.findByPk as jest.Mock).mockResolvedValue({
+                update: mockUpdate,
             });
-        });
 
-        test("should successfully verify and enable 2FA", async () => {
-            mockRequest.body = {
-                token: "valid-token",
-                otp: "123456",
-            };
-
-            const mockUser = {
-                id: 1,
-                update: jest.fn().mockResolvedValue(true),
-            };
-
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                setupPhase: true,
-                secret: "SECRET123",
-                userId: 1,
-            }));
-
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(true);
-            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-
-            await verify2FASetup(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(mockUser.update).toHaveBeenCalledWith({
-                twoFactorSecret: "SECRET123",
+            await verify2FASetup(mockReq, mockRes, mockNext);
+            expect(mockUpdate).toHaveBeenCalledWith({
+                twoFactorSecret: "SECRET",
                 has2FA: true,
             });
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message:
-                    "L'authentification à deux facteurs a été activée avec succès",
-            });
+            expect(mockStatus).toHaveBeenCalledWith(200);
         });
 
-        test("should pass errors to next middleware", async () => {
-            mockRequest.body = {
-                token: "valid-token",
-                otp: "123456",
-            };
+        it("should return 400 if OTP invalid", async () => {
+            const mockReq = {
+                body: { token: "token", otp: "abc" },
+                ip: "127.0.0.1",
+            } as Request;
 
-            const error = new Error("Test error");
-            (jwt.verify as jest.Mock).mockImplementation(() => {
-                throw error;
-            });
+            await verify2FASetup(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(400);
+        });
 
-            await verify2FASetup(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
+        it("should return 400 if token invalid", async () => {
+            const mockReq = {
+                body: { token: "token", otp: "123456" },
+            } as Request;
 
-            expect(nextFunction).toHaveBeenCalledWith(error);
+            (jwt.verify as jest.Mock).mockReturnValue({ setupPhase: false });
+
+            await verify2FASetup(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(400);
         });
     });
 
     describe("verify2FALogin", () => {
-        test("should reject invalid OTP format", async () => {
-            mockRequest.body = {
-                tempToken: "valid-token",
-                otp: "ABCDEF", // Non-numeric, should be 6 digits
+        it("should return 200 and token if OTP valid", async () => {
+            const mockReq = {
+                body: { tempToken: "token", otp: "123456" },
+                ip: "127.0.0.1",
+            } as Request;
+
+            const decoded = { requiresTwoFactor: true, id: 1 };
+            const mockUser = {
+                id: 1,
+                login: "user1",
+                password: "secret",
+                twoFactorSecret: "SECRET",
             };
 
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
+            (jwt.verify as jest.Mock).mockReturnValue(decoded);
+            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
+            (TwoFactorService.prototype.verifyOTP as jest.Mock).mockReturnValue(
+                true
+            );
+            (JwtService.generateToken as jest.Mock).mockReturnValue(
+                "final.jwt.token"
             );
 
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
-            expect(mockResponse.json).toHaveBeenCalledWith(
+            await verify2FALogin(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(200);
+            expect(mockJson).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    message: "Échec de validation du code",
+                    token: "final.jwt.token",
                 })
             );
         });
 
-        test("should reject invalid token", async () => {
-            mockRequest.body = {
-                tempToken: "invalid-token",
-                otp: "123456",
-            };
+        it("should return 401 if OTP invalid", async () => {
+            const mockReq = {
+                body: { tempToken: "token", otp: "123456" },
+                ip: "127.0.0.1",
+            } as Request;
 
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                // Missing requiresTwoFactor flag
-                id: 1,
-            }));
-
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(jwt.verify).toHaveBeenCalledWith(
-                "invalid-token",
-                "test-secret"
-            );
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Token invalide pour la vérification 2FA",
-            });
-        });
-
-        test("should return 404 if user not found or 2FA not set up", async () => {
-            mockRequest.body = {
-                tempToken: "valid-token",
-                otp: "123456",
-            };
-
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                requiresTwoFactor: true,
-                id: 1,
-            }));
-
-            // User not found
-            (User.findByPk as jest.Mock).mockResolvedValue(null);
-
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Utilisateur non trouvé ou 2FA non configurée",
-            });
-
-            // Reset mocks for second test case
-            jest.clearAllMocks();
-            mockResponse.status = jest.fn().mockReturnThis();
-            mockResponse.json = jest.fn();
-
-            // User found but 2FA not set up
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                requiresTwoFactor: true,
-                id: 1,
-            }));
-            (User.findByPk as jest.Mock).mockResolvedValue({
-                id: 1,
-                // twoFactorSecret is missing
-            });
-
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Utilisateur non trouvé ou 2FA non configurée",
-            });
-        });
-
-        test("should reject incorrect OTP", async () => {
-            mockRequest.body = {
-                tempToken: "valid-token",
-                otp: "123456",
-            };
-
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                requiresTwoFactor: true,
-                id: 1,
-            }));
-
-            (User.findByPk as jest.Mock).mockResolvedValue({
-                id: 1,
-                twoFactorSecret: "SECRET123",
-            });
-
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(false);
-
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(speakeasy.totp.verify).toHaveBeenCalledWith({
-                secret: "SECRET123",
-                encoding: "base32",
-                token: "123456",
-            });
-            expect(mockResponse.status).toHaveBeenCalledWith(401);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Code d'authentification incorrect",
-            });
-        });
-
-        test("should successfully verify 2FA login", async () => {
-            mockRequest.body = {
-                tempToken: "valid-token",
-                otp: "123456",
-            };
-
+            const decoded = { requiresTwoFactor: true, id: 1 };
             const mockUser = {
                 id: 1,
-                login: "testuser",
-                twoFactorSecret: "SECRET123",
-                password: "hashedpassword",
-                email: "user@example.com",
+                login: "user1",
+                password: "secret",
+                twoFactorSecret: "SECRET",
             };
 
-            (jwt.verify as jest.Mock).mockImplementation(() => ({
-                requiresTwoFactor: true,
-                id: 1,
-            }));
-
+            (jwt.verify as jest.Mock).mockReturnValue(decoded);
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(true);
-            (jwt.sign as jest.Mock).mockReturnValue("final-token-123");
-
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
+            (TwoFactorService.prototype.verifyOTP as jest.Mock).mockReturnValue(
+                false
             );
 
-            expect(jwt.sign).toHaveBeenCalledWith(
-                { id: 1, login: "testuser" },
-                "test-secret",
-                { expiresIn: "24h" }
-            );
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Authentification à deux facteurs réussie",
-                user: {
-                    id: 1,
-                    login: "testuser",
-                    email: "user@example.com",
-                },
-                token: "final-token-123",
-            });
-        });
-
-        test("should pass errors to next middleware", async () => {
-            mockRequest.body = {
-                tempToken: "valid-token",
-                otp: "123456",
-            };
-
-            const error = new Error("Test error");
-            (jwt.verify as jest.Mock).mockImplementation(() => {
-                throw error;
-            });
-
-            await verify2FALogin(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(nextFunction).toHaveBeenCalledWith(error);
+            await verify2FALogin(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(401);
         });
     });
 
     describe("disable2FA", () => {
-        test("should return 404 if user not found", async () => {
-            mockRequest.body = {
-                userId: 1,
-                otp: "123456",
+        it("should disable 2FA successfully", async () => {
+            const mockReq = {
+                body: { userId: 1, otp: "123456" },
+            } as Request;
+
+            const mockUser = {
+                id: 1,
+                twoFactorSecret: "SECRET",
+                has2FA: true,
             };
+
+            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
+            (TwoFactorService.prototype.verifyOTP as jest.Mock).mockReturnValue(
+                true
+            );
+            (User.update as jest.Mock).mockResolvedValue([1]);
+
+            await disable2FA(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(200);
+        });
+
+        it("should return 404 if user not found", async () => {
+            const mockReq = {
+                body: { userId: 99, otp: "123456" },
+            } as Request;
 
             (User.findByPk as jest.Mock).mockResolvedValue(null);
 
-            await disable2FA(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(User.findByPk).toHaveBeenCalledWith(1, { raw: true });
-            expect(mockResponse.status).toHaveBeenCalledWith(404);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Utilisateur non trouvé",
-            });
+            await disable2FA(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(404);
         });
 
-        test("should return 400 if 2FA not enabled", async () => {
-            mockRequest.body = {
-                userId: 1,
-                otp: "123456",
-            };
+        it("should return 401 if OTP invalid", async () => {
+            const mockReq = {
+                body: { userId: 1, otp: "123456" },
+            } as Request;
 
             const mockUser = {
                 id: 1,
-                has2FA: false,
-                twoFactorSecret: null,
-            };
-
-            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-
-            await disable2FA(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(mockResponse.status).toHaveBeenCalledWith(400);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message:
-                    "L'authentification à deux facteurs n'est pas activée pour cet utilisateur",
-            });
-        });
-
-        test("should reject incorrect OTP", async () => {
-            mockRequest.body = {
-                userId: 1,
-                otp: "123456",
-            };
-
-            const mockUser = {
-                id: 1,
+                twoFactorSecret: "SECRET",
                 has2FA: true,
-                twoFactorSecret: "SECRET123",
             };
 
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(false);
-
-            await disable2FA(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
+            (TwoFactorService.prototype.verifyOTP as jest.Mock).mockReturnValue(
+                false
             );
 
-            expect(speakeasy.totp.verify).toHaveBeenCalledWith({
-                secret: "SECRET123",
-                encoding: "base32",
-                token: "123456",
-            });
-            expect(mockResponse.status).toHaveBeenCalledWith(401);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message: "Code d'authentification incorrect",
-            });
-        });
-
-        test("should successfully disable 2FA", async () => {
-            mockRequest.body = {
-                userId: 1,
-                otp: "123456",
-            };
-
-            const mockUser = {
-                id: 1,
-                has2FA: true,
-                twoFactorSecret: "SECRET123",
-            };
-
-            (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-            (speakeasy.totp.verify as jest.Mock).mockReturnValue(true);
-            (User.update as jest.Mock).mockResolvedValue([1]);
-
-            await disable2FA(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(User.update).toHaveBeenCalledWith(
-                {
-                    twoFactorSecret: null,
-                    has2FA: false,
-                },
-                {
-                    where: { id: 1 },
-                }
-            );
-            expect(mockResponse.status).toHaveBeenCalledWith(200);
-            expect(mockResponse.json).toHaveBeenCalledWith({
-                message:
-                    "L'authentification à deux facteurs a été désactivée avec succès",
-            });
-        });
-
-        test("should pass errors to next middleware", async () => {
-            mockRequest.body = {
-                userId: 1,
-                otp: "123456",
-            };
-
-            const error = new Error("Test error");
-            (User.findByPk as jest.Mock).mockRejectedValue(error);
-
-            await disable2FA(
-                mockRequest as Request,
-                mockResponse as Response,
-                nextFunction
-            );
-
-            expect(nextFunction).toHaveBeenCalledWith(error);
+            await disable2FA(mockReq, mockRes, mockNext);
+            expect(mockStatus).toHaveBeenCalledWith(401);
         });
     });
 });

@@ -73,3 +73,60 @@
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Notifications désactivées","timestamp":"2025-06-02T21:40:21.676Z","user_id":2}
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Notifications activées","timestamp":"2025-06-02T21:42:06.504Z","user_id":2}
 {"hour":"19:25","ip":"::ffff:172.18.0.1","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-02T21:42:20.490Z","user_id":2}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T19:34:47.281Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:34:47.294Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T19:34:47.295Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:34:47.296Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T19:36:41.503Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:36:41.524Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T19:36:41.525Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:36:41.526Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de l'ajout d'une addiction","timestamp":"2025-06-08T19:36:42.088Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T19:39:17.288Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:39:17.302Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T19:39:17.303Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:39:17.304Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T19:41:07.463Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:41:07.485Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T19:41:07.486Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:41:07.487Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T19:42:44.207Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:42:44.226Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T19:42:44.227Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T19:42:44.228Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:04:13.033Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:04:13.048Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:04:13.049Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:04:13.050Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:04:38.041Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:04:38.062Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:04:38.064Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:04:38.065Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:04:58.025Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:04:58.040Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:04:58.040Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:04:58.042Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:06:22.787Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:06:22.812Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:06:22.813Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:06:22.814Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:34:47.524Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:34:47.539Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:34:47.540Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:34:47.542Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:35:12.404Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:35:12.429Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:35:12.430Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:35:12.431Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:36:34.826Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:36:34.851Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:36:34.852Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:36:34.854Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:37:00.738Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:37:00.755Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:37:00.756Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:37:00.758Z","user":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-08T20:39:06.533Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:39:06.552Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-08T20:39:06.553Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-08T20:39:06.555Z","user":1}

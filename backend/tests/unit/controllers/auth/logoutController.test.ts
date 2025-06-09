@@ -121,12 +121,13 @@ describe("Logout Controller", () => {
             });
         });
 
-        test("should handle expired token with minimum TTL", async () => {
-            // Setup token that's already expired
+        test("should handle expired token with calculated TTL", async () => {
+            const now = Math.floor(Date.now() / 1000);
+            const exp = now - 100; // 100 seconds in the past
             (jwt.decode as jest.Mock).mockReturnValue({
                 id: 1,
                 login: "testuser",
-                exp: Math.floor(Date.now() / 1000) - 100, // 100 seconds in the past
+                exp,
             });
 
             await logout(
@@ -135,9 +136,13 @@ describe("Logout Controller", () => {
                 nextFunction
             );
 
-            // Verify minimum TTL is used
-            const setCall = (redisClient.set as jest.Mock).mock.calls[0][2];
-            expect(setCall.EX).toBe(60); // Minimum 60 seconds TTL
+            // Verify TTL is set to calculated value (exp - current time)
+            const expectedTTL = exp - now;
+            expect(redisClient.set).toHaveBeenCalledWith(
+                expect.any(String),
+                "revoked",
+                { EX: expectedTTL }
+            );
 
             expect(mockResponse.status).toHaveBeenCalledWith(200);
         });

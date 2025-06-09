@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import User from "../../models/User";
 import { Op } from "sequelize";
 import logger from "../../config/logger";
-import validator from "validator";
 import { validateLoginOrEmail } from "../../utils/auth/authValidator";
 import { generateToken } from "../../services/JwtServices";
 
@@ -122,7 +120,7 @@ export const login = async (
 
         if (user.has2FA) {
             const tempToken = generateToken(
-                { id: user.id, login: user.login, has2fa: user.has2FA },
+                { id: user.id, login: user.login, requiresTwoFactor: true },
                 "24h"
             );
 

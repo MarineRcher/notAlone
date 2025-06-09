@@ -1,8 +1,7 @@
+// src/models/AddictionUser.ts
 import { Model, DataTypes, Optional } from "sequelize";
-import db from "./../config/database";
+import db from "../config/database";
 import { AddictionUserAttributes } from "../types/addictionUser";
-import User from "./User";
-import Addiction from "./Addiction";
 
 interface AddictionUserCreationAttributes
     extends Optional<AddictionUserAttributes, "id_addiction_user"> {}
@@ -20,6 +19,19 @@ class AddictionUser
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    static associate(models: any) {
+        AddictionUser.belongsTo(models.User, {
+            foreignKey: "id_user",
+            as: "user",
+            onDelete: "CASCADE",
+        });
+
+        AddictionUser.belongsTo(models.Addiction, {
+            foreignKey: "id_addiction",
+            as: "addiction",
+        });
+    }
 }
 
 AddictionUser.init(
@@ -32,18 +44,10 @@ AddictionUser.init(
         id_addiction: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: Addiction,
-                key: "id",
-            },
         },
         id_user: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: User,
-                key: "id",
-            },
         },
         date: {
             type: DataTypes.DATE,
@@ -53,16 +57,12 @@ AddictionUser.init(
         spending_a_day: {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
-            validate: {
-                min: 0,
-            },
+            validate: { min: 0 },
         },
         use_a_day: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            validate: {
-                min: 0,
-            },
+            validate: { min: 0 },
         },
     },
     {
@@ -72,27 +72,5 @@ AddictionUser.init(
         timestamps: true,
     }
 );
-
-AddictionUser.belongsTo(User, {
-    foreignKey: "id_user",
-    as: "user",
-    onDelete: "CASCADE",
-});
-
-AddictionUser.belongsTo(Addiction, {
-    foreignKey: "id_addiction",
-    as: "addiction",
-});
-
-User.hasMany(AddictionUser, {
-    foreignKey: "id_user",
-    as: "addictionUsers",
-    onDelete: "CASCADE",
-});
-
-Addiction.hasMany(AddictionUser, {
-    foreignKey: "id_addiction",
-    as: "addictionUsers",
-});
 
 export default AddictionUser;

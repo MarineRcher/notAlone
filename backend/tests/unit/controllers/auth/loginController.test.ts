@@ -292,6 +292,7 @@ describe("Login Controller", () => {
                 "test-secret",
                 expect.any(Object)
             );
+
             expect(mockResponse.status).toHaveBeenCalledWith(200);
             expect(mockResponse.json).toHaveBeenCalledWith(
                 expect.objectContaining({
