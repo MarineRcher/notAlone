@@ -1,3 +1,4 @@
+import AddictionUser from "../../models/AddictionUser";
 import User from "../../models/User";
 import { Request, Response, NextFunction } from "express";
 
@@ -28,7 +29,9 @@ export const deleteUserAccount = async (
             res.status(401).json({ message: "Non autorisé" });
             return;
         }
-
+        await AddictionUser.destroy({
+            where: { id_user: user_id },
+        });
         const deleted = await User.destroy({
             where: { id: user_id },
         });

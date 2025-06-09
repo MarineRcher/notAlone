@@ -39,6 +39,17 @@ const UserScreen = ({ navigation }) => {
             Alert.alert("Erreur", "La déconnexion a échoué");
         }
     };
+    const handleDeleteUserAccount = async () => {
+        try {
+            await userService.deleteUserAccount();
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "Register" }],
+            });
+        } catch (error) {
+            Alert.alert("Erreur", "La suppression a échoué");
+        }
+    };
     const toggleNotifications = async () => {
         try {
             if (user?.notify) {
@@ -186,6 +197,12 @@ const UserScreen = ({ navigation }) => {
                 style={{ marginVertical: 10, marginTop: 20 }}
             >
                 <Text style={{ color: "red" }}>Se déconnecter</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={handleDeleteUserAccount}
+                style={{ marginVertical: 10, marginTop: 20 }}
+            >
+                <Text style={{ color: "red" }}>Supprimer le compte</Text>
             </TouchableOpacity>
         </View>
     );

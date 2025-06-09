@@ -49,6 +49,15 @@ const userService = {
         });
         return response.data;
     },
+    deleteUserAccount: async () => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.delete("/users/delete", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    },
 };
 
 export default userService;

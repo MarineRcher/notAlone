@@ -215,3 +215,7 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications désactivées","timestamp":"2025-06-09T16:42:40.436Z","user_id":2}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-09T16:42:41.719Z","user_id":2}
 {"hour":"17:40","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-09T16:42:50.978Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications désactivées","timestamp":"2025-06-09T16:45:31.658Z","user_id":2}
+{"email":"bdis@jsos.com","ip":"::ffff:192.168.1.48","level":"info","login":"heksb","message":"Tentative d'inscription","timestamp":"2025-06-09T16:56:15.799Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"heksb","message":"Inscription réussie","timestamp":"2025-06-09T16:56:16.007Z","userId":18}
+{"addiction":3,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-09T16:56:27.349Z","user":18}
