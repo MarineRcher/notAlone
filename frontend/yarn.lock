@@ -833,6 +833,16 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
+"@expo-google-fonts/balsamiq-sans@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/balsamiq-sans/-/balsamiq-sans-0.4.0.tgz#5df8e710c025c962cac33223bf4f584684bbac33"
+  integrity sha512-+Yhx6Jfgn9l76pkohssG7UrW4L9tD2KXCxcoXsrB+l7f9KOoLUKZqdRNGsbGFWCpaUbDEGDNs3/1guUBeMMuHg==
+
+"@expo-google-fonts/quicksand@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/quicksand/-/quicksand-0.4.0.tgz#2004935a82e97ed100b07422f9e4a24e73aad79d"
+  integrity sha512-aR0OuptlhrFSgkUXWe66/mU4mv0/G1wGlFjFIRQX4AB5QRGUQ495XqswTgFlmkH2hxdyyGinyYQ8qX4firq/EA==
+
 "@expo/cli@0.24.13":
   version "0.24.13"
   resolved "https://registry.yarnpkg.com/@expo/cli/-/cli-0.24.13.tgz#0066e038982b7143f966d688e76e02d935f0dc8b"

@@ -9,6 +9,7 @@ import {
     ScrollView,
 } from "react-native";
 import { authService } from "../../api/authService";
+import Button from "../../components/button";
 
 const RegisterScreen = ({ navigation }) => {
     const [login, setLogin] = useState("");
@@ -177,9 +178,11 @@ const RegisterScreen = ({ navigation }) => {
                     ) : null}
                 </View>
 
-                <TouchableOpacity onPress={handleRegister} disabled={isLoading}>
-                    <Text>{isLoading ? "Chargement..." : "S'inscrire"}</Text>
-                </TouchableOpacity>
+                <Button
+                    title={isLoading ? "Chargement..." : "S'inscrire"}
+                    disabled={isLoading ? true : false}
+                    onPress={handleRegister}
+                />
 
                 <TouchableOpacity
                     onPress={() => navigation && navigation.navigate("Login")}

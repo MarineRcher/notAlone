@@ -1,5 +1,5 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import LoginScreen from "../screens/auth/LoginScreen";
@@ -8,7 +8,7 @@ import TwoFactorLoginScreen from "../screens/2fa/TwoFactorLoginScreen";
 import Disable2FAScreen from "../screens/2fa/Disable2FAScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 import ChangePasswordScreen from "../screens/userInformations/ChangePasswordScreen";
-import BottomTabNavigator from "../components/organisms/menu";
+import BottomTabNavigator from "../components/menu";
 import Ask2faScreen from "../screens/2fa/Ask2faScreen";
 import AddUserAddictionScreen from "../screens/userInformations/AddUserAddictionScreen";
 import AskNotificationsScreen from "../screens/userInformations/askNotificationsScreen";
@@ -17,15 +17,27 @@ import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
+import colors from "../css/colors";
 
 const Stack = createStackNavigator();
+const MyTheme = {
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        background: colors.background,
+    },
+};
 
 const AppNavigator = () => {
     return (
-        <NavigationContainer>
+        <NavigationContainer theme={MyTheme}>
             <Stack.Navigator>
                 {/* Écrans d'authentification */}
-                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Stack.Screen
+                    name="Register"
+                    component={RegisterScreen}
+                    options={{ headerShown: false }}
+                />
                 <Stack.Screen name="Login" component={LoginScreen} />
 
                 {/* Écran principal avec les onglets */}
