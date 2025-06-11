@@ -10,6 +10,9 @@ import {
 } from "react-native";
 import { authService } from "../../api/authService";
 import Button from "../../components/button";
+import Input from "../../components/input";
+import Mascot from "../../components/mascot";
+import styles from "./RegisterScreen.style";
 
 const RegisterScreen = ({ navigation }) => {
     const [login, setLogin] = useState("");
@@ -127,68 +130,76 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView>
-            <View>
-                <Text>Créer un compte</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.container}>
+                <Mascot
+                    mascot="hey"
+                    text="Bienvenue dans la clairière ! Chaque grande aventure commence par un premier pas."
+                />
 
-                <View>
-                    <Text>Login</Text>
-                    <TextInput
-                        placeholder="Entrez votre login"
-                        value={login}
-                        onChangeText={handleLoginChange}
-                        autoCapitalize="none"
-                    />
-                    {errors.login ? <Text>{errors.login}</Text> : null}
+                <View style={styles.formWrapper}>
+                    <View style={styles.formSection}>
+                        <Input
+                            placeholder="Entrez votre login"
+                            value={login}
+                            onChangeText={handleLoginChange}
+                            autoCapitalize="none"
+                            error={
+                                errors.login ? (
+                                    <Text>{errors.login}</Text>
+                                ) : null
+                            }
+                        />
+                        <Input
+                            placeholder="Entrez votre email"
+                            value={email}
+                            onChangeText={handleEmailChange}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            error={
+                                errors.email ? (
+                                    <Text>{errors.email}</Text>
+                                ) : null
+                            }
+                        />
+                        <Input
+                            placeholder="Entrez votre mot de passe"
+                            value={password}
+                            onChangeText={handlePasswordChange}
+                            error={
+                                errors.password ? (
+                                    <Text>{errors.password}</Text>
+                                ) : null
+                            }
+                            secureTextEntry
+                        />
+                        <Input
+                            placeholder="Confirmez votre mot de passe"
+                            value={confirmPassword}
+                            onChangeText={handlePasswordConfirmChange}
+                            error={
+                                errors.confirmPassword ? (
+                                    <Text>{errors.confirmPassword}</Text>
+                                ) : null
+                            }
+                            secureTextEntry
+                        />
+                    </View>
+                    <TouchableOpacity
+                        style={styles.inlineLink}
+                        onPress={() =>
+                            navigation && navigation.navigate("Login")
+                        }
+                    >
+                        <Text>Vous avez un compte ? </Text>
+                        <Text style={styles.link}>Connectez-vous</Text>
+                    </TouchableOpacity>
                 </View>
-
-                <View>
-                    <Text>Email</Text>
-                    <TextInput
-                        placeholder="Entrez votre email"
-                        value={email}
-                        onChangeText={handleEmailChange}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-                    {errors.email ? <Text>{errors.email}</Text> : null}
-                </View>
-
-                <View>
-                    <Text>Mot de passe</Text>
-                    <TextInput
-                        placeholder="Entrez votre mot de passe"
-                        value={password}
-                        onChangeText={handlePasswordChange}
-                        secureTextEntry
-                    />
-                    {errors.password ? <Text>{errors.password}</Text> : null}
-                </View>
-
-                <View>
-                    <Text>Confirmer le mot de passe</Text>
-                    <TextInput
-                        placeholder="Confirmez votre mot de passe"
-                        value={confirmPassword}
-                        onChangeText={handlePasswordConfirmChange}
-                        secureTextEntry
-                    />
-                    {errors.confirmPassword ? (
-                        <Text>{errors.confirmPassword}</Text>
-                    ) : null}
-                </View>
-
                 <Button
                     title={isLoading ? "Chargement..." : "S'inscrire"}
                     disabled={isLoading ? true : false}
                     onPress={handleRegister}
                 />
-
-                <TouchableOpacity
-                    onPress={() => navigation && navigation.navigate("Login")}
-                >
-                    <Text>Déjà inscrit? Se connecter</Text>
-                </TouchableOpacity>
             </View>
         </ScrollView>
     );

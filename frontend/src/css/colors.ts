@@ -6,6 +6,7 @@ const colors = {
     secondaryBackeground: "#FCDBB3",
     disable: "#AAB0A0",
     sky: "#A3CFEF",
+    error: "#FF4444",
 };
 
 export default colors;

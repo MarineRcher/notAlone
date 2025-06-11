@@ -6,6 +6,7 @@ const styles = StyleSheet.create({
     baseButton: {
         paddingVertical: 16,
         paddingHorizontal: 32,
+        marginBottom: 32,
         borderRadius: 25,
         alignItems: "center",
         justifyContent: "center",

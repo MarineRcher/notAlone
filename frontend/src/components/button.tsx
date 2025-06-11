@@ -19,7 +19,7 @@ interface CustomButtonProps {
     textStyle?: TextStyle;
 }
 
-const CustomButton: React.FC<CustomButtonProps> = ({
+const button: React.FC<CustomButtonProps> = ({
     title,
     onPress,
     type = "primary",
@@ -43,4 +43,4 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     );
 };
 
-export default CustomButton;
+export default button;
