@@ -71,6 +71,7 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="ChangePassword"
                     component={ChangePasswordScreen}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="AskNotifications"

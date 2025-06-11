@@ -9,6 +9,11 @@ import {
 } from "react-native";
 import { authService } from "../../api/authService";
 import validator from "validator";
+import styles from "../auth/auth.style";
+import Mascot from "../../components/mascot";
+import Button from "../../components/button";
+import Input from "../../components/input";
+import ChevronLeft from "../../../assets/icons/chevron-left.svg";
 
 const ChangePasswordScreen = ({ navigation }) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");
@@ -141,70 +146,72 @@ const ChangePasswordScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView>
-            <View>
-                <Text>Changer de mot de passe</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}
+            >
+                <ChevronLeft width={24} height={24} />
+            </TouchableOpacity>
 
-                <View>
-                    <Text>Login ou Email</Text>
-                    <TextInput
+            <View style={styles.container}>
+                <Mascot
+                    mascot="hey"
+                    text="Bienvenue dans la clairière ! Chaque grande aventure commence par un premier pas."
+                />
+                <View style={styles.formSection}>
+                    <Input
                         placeholder="Entrez votre login ou email"
                         value={loginOrEmail}
                         onChangeText={handleLoginOrEmailChange}
                         autoCapitalize="none"
+                        error={
+                            errors.loginOrEmail ? (
+                                <Text>{errors.loginOrEmail}</Text>
+                            ) : null
+                        }
                     />
-                    {errors.loginOrEmail ? (
-                        <Text>{errors.loginOrEmail}</Text>
-                    ) : null}
-                </View>
-
-                <View>
-                    <Text>Ancien mot de passe</Text>
-                    <TextInput
+                    <Input
                         placeholder="Entrez votre ancien mot de passe"
                         value={oldPassword}
                         onChangeText={handleOldPasswordChange}
+                        error={
+                            errors.oldPassword ? (
+                                <Text>{errors.oldPassword}</Text>
+                            ) : null
+                        }
                         secureTextEntry
                     />
-                    {errors.oldPassword ? (
-                        <Text>{errors.oldPassword}</Text>
-                    ) : null}
-                </View>
-                <View>
-                    <Text>Nouveau mot de passe</Text>
-                    <TextInput
+                    <Input
                         placeholder="Entrez votre nouveau mot de passe"
                         value={newPassword}
                         onChangeText={handleNewPasswordChange}
+                        error={
+                            errors.newPassword ? (
+                                <Text>{errors.newPassword}</Text>
+                            ) : null
+                        }
                         secureTextEntry
                     />
-                    {errors.newPassword ? (
-                        <Text>{errors.newPassword}</Text>
-                    ) : null}
-                </View>
-                <View>
-                    <Text>Confirmer le nouveau mot de passe</Text>
-                    <TextInput
+                    <Input
                         placeholder="Confirmez votre nouveau mot de passe"
                         value={confirmNewPassword}
                         onChangeText={handleConfirmNewPasswordChange}
+                        error={
+                            errors.confirmNewPassword ? (
+                                <Text>{errors.confirmNewPassword}</Text>
+                            ) : null
+                        }
                         secureTextEntry
                     />
-                    {errors.confirmNewPassword ? (
-                        <Text>{errors.confirmNewPassword}</Text>
-                    ) : null}
                 </View>
-
-                <TouchableOpacity
+                <Button
+                    title={
+                        isLoading ? "Chargement..." : "Changer de mot de passe"
+                    }
+                    disabled={isLoading ? true : false}
                     onPress={handleChangePassword}
-                    disabled={isLoading}
-                >
-                    <Text>
-                        {isLoading
-                            ? "Chargement..."
-                            : "Changer de mot de passe"}
-                    </Text>
-                </TouchableOpacity>
+                />
             </View>
         </ScrollView>
     );

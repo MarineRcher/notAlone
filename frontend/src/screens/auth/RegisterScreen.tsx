@@ -12,7 +12,7 @@ import { authService } from "../../api/authService";
 import Button from "../../components/button";
 import Input from "../../components/input";
 import Mascot from "../../components/mascot";
-import styles from "./RegisterScreen.style";
+import styles from "./auth.style";
 
 const RegisterScreen = ({ navigation }) => {
     const [login, setLogin] = useState("");

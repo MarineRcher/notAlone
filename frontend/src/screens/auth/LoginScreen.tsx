@@ -10,7 +10,7 @@ import {
 import validator from "validator";
 
 import { authService } from "../../api/authService";
-import styles from "./RegisterScreen.style";
+import styles from "./auth.style";
 import Mascot from "../../components/mascot";
 import Input from "../../components/input";
 import Button from "../../components/button";

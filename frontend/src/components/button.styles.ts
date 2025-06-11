@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         alignItems: "center",
         justifyContent: "center",
-        maxWidth: 200,
+        maxWidth: 300,
     },
     baseText: {
         fontSize: 18,

@@ -6,6 +6,19 @@ const styles = StyleSheet.create({
     scrollContainer: {
         flexGrow: 1,
     },
+    backButton: {
+        position: "absolute",
+        top: 40,
+        left: 20,
+        zIndex: 10,
+    },
+
+    backIcon: {
+        width: 24,
+        height: 24,
+        resizeMode: "contain",
+    },
+
     formSection: {
         flex: 1,
         width: "90%",
