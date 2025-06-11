@@ -1,15 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    Alert,
+    ScrollView,
+} from "react-native";
 import { authService } from "../../api/authService";
 import { authHelpers } from "../../api/authHelpers";
 import { jwtDecode } from "jwt-decode";
 import validator from "validator";
 import { AuthContext, User } from "../../context/AuthContext";
+import styles from "../form.style";
+import Mascot from "../../components/mascot";
+import Button from "../../components/button";
+import Input from "../../components/input";
+import BackButton from "../../components/backNavigation";
 
 const Disable2FAScreen = ({ navigation }) => {
     const [otp, setOtp] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
-    const { setUser } = useContext(AuthContext); // ✅ hook bien placé
+    const { setUser } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -21,8 +33,8 @@ const Disable2FAScreen = ({ navigation }) => {
             }
 
             const decoded = jwtDecode<User>(token);
-            setUser(decoded); // optionnel ici, mais au cas où
-            setUserId(decoded.id); // ✅ on stocke l'id
+            setUser(decoded);
+            setUserId(decoded.id);
         };
 
         fetchUserId();
@@ -62,18 +74,27 @@ const Disable2FAScreen = ({ navigation }) => {
     };
 
     return (
-        <View>
-            <Text>Entrez le code de vérification pour désactiver la 2FA :</Text>
-            <TextInput
-                placeholder="Code à 6 chiffres"
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="numeric"
-            />
-            <TouchableOpacity onPress={handleDisable}>
-                <Text>Désactiver</Text>
-            </TouchableOpacity>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+            <View style={styles.container}>
+                <Mascot
+                    mascot="happy"
+                    text="Tu veux ranger ton double des clés ? Assure-toi que ton terrier reste bien gardé."
+                />
+                <View style={styles.formWrapper}>
+                    <Text>
+                        Entrez le code de vérification pour désactiver la 2FA :
+                    </Text>
+                    <Input
+                        placeholder="Entrez le code de vérification"
+                        value={otp}
+                        onChangeText={setOtp}
+                        keyboardType="numeric"
+                    />
+                </View>
+                <Button title="Désactiver" onPress={handleDisable} />
+            </View>
+        </ScrollView>
     );
 };
 

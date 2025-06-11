@@ -6,6 +6,7 @@ import {
     TextInput,
     TouchableOpacity,
     Alert,
+    ScrollView,
 } from "react-native";
 import { authService } from "../../api/authService";
 import * as Clipboard from "expo-clipboard";
@@ -13,6 +14,11 @@ import validator from "validator";
 import { authHelpers } from "../../api/authHelpers";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext, User } from "../../context/AuthContext";
+import Mascot from "../../components/mascot";
+import styles from "../form.style";
+import Button from "../../components/button";
+import Input from "../../components/input";
+import BackButton from "../../components/backNavigation";
 
 const Enable2FAScreen = ({ navigation, route }) => {
     const isFromRegistration = route?.params?.isFromRegistration || false;
@@ -22,7 +28,7 @@ const Enable2FAScreen = ({ navigation, route }) => {
     const [tempToken, setTempToken] = useState("");
     const [secretKey, setSecretKey] = useState("");
 
-    const { setUser } = useContext(AuthContext); // ✅ hook bien positionné
+    const { setUser } = useContext(AuthContext);
 
     const generate2FASecret = async () => {
         try {
@@ -68,40 +74,43 @@ const Enable2FAScreen = ({ navigation, route }) => {
     }, []);
 
     return (
-        <View>
-            <Text>Scannez ce QR Code avec Google Authenticator :</Text>
-            {qrCodeUrl && (
-                <Image
-                    source={{ uri: qrCodeUrl }}
-                    style={{ width: 200, height: 200 }}
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+
+            <View style={styles.container}>
+                <Mascot
+                    mascot="super"
+                    text="Nouvelle clé pour ton terrier. Ta sécurité, c’est sacré ici."
                 />
-            )}
-            <TouchableOpacity
-                onPress={async () => {
-                    await Clipboard.setStringAsync(secretKey);
-                    Alert.alert("Succès", "Clé copiée !");
-                }}
-                style={{
-                    padding: 10,
-                }}
-            >
-                <Text>Copier la clé. Ne partagez jamais cette clé</Text>
-            </TouchableOpacity>
+                <View style={styles.formWrapper}>
+                    <Text>Scannez ce QR Code avec Google Authenticator :</Text>
+                    {qrCodeUrl && (
+                        <Image
+                            source={{ uri: qrCodeUrl }}
+                            style={{ width: 200, height: 200 }}
+                        />
+                    )}
+                    <TouchableOpacity
+                        style={styles.inlineLinkLogin}
+                        onPress={async () => {
+                            await Clipboard.setStringAsync(secretKey);
+                            Alert.alert("Succès", "Clé copiée !");
+                        }}
+                    >
+                        <Text style={styles.link}>Copier la clé.</Text>
+                        <Text>Ne partagez jamais cette clé</Text>
+                    </TouchableOpacity>
 
-            <TextInput
-                style={{
-                    margin: 10, // 🛠 typo corrigée: "margi" → "margin"
-                }}
-                placeholder="Entrez le code de vérification"
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="numeric"
-            />
-
-            <TouchableOpacity onPress={verifySetup}>
-                <Text>Vérifier</Text>
-            </TouchableOpacity>
-        </View>
+                    <Input
+                        placeholder="Entrez le code de vérification"
+                        value={otp}
+                        onChangeText={setOtp}
+                        keyboardType="numeric"
+                    />
+                </View>
+                <Button title="Vérifier" onPress={verifySetup} />
+            </View>
+        </ScrollView>
     );
 };
 

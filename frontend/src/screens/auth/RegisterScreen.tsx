@@ -12,7 +12,7 @@ import { authService } from "../../api/authService";
 import Button from "../../components/button";
 import Input from "../../components/input";
 import Mascot from "../../components/mascot";
-import styles from "./auth.style";
+import styles from "../form.style";
 
 const RegisterScreen = ({ navigation }) => {
     const [login, setLogin] = useState("");
@@ -191,7 +191,7 @@ const RegisterScreen = ({ navigation }) => {
                             navigation && navigation.navigate("Login")
                         }
                     >
-                        <Text>Vous avez un compte ? </Text>
+                        <Text style={styles.text}>Vous avez un compte ? </Text>
                         <Text style={styles.link}>Connectez-vous</Text>
                     </TouchableOpacity>
                 </View>

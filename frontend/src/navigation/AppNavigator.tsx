@@ -51,12 +51,25 @@ const AppNavigator = () => {
                     options={{ headerShown: false }}
                 />
                 {/* Écrans 2FA */}
-                <Stack.Screen name="Ask2fa" component={Ask2faScreen} />
-                <Stack.Screen name="Enable2FA" component={Enable2FAScreen} />
-                <Stack.Screen name="Disable2FA" component={Disable2FAScreen} />
+                <Stack.Screen
+                    name="Ask2fa"
+                    component={Ask2faScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Enable2FA"
+                    component={Enable2FAScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Disable2FA"
+                    component={Disable2FAScreen}
+                    options={{ headerShown: false }}
+                />
                 <Stack.Screen
                     name="TwoFactorLogin"
                     component={TwoFactorLoginScreen}
+                    options={{ headerShown: false }}
                 />
 
                 {/* user informations */}

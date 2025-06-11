@@ -1,35 +1,43 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import styles from "../form.style";
+import Mascot from "../../components/mascot";
+import Button from "../../components/button";
+import BackButton from "../../components/backNavigation";
 
 const Ask2faScreen = ({ navigation, route }) => {
     const isFromRegistration = route?.params?.isFromRegistration || false;
 
     return (
-        <ScrollView>
-            <View>
-                <Text>Voulez vous activer la double authentification ?</Text>
-            </View>
-            <View>
-                <TouchableOpacity
-                    onPress={() => {
-                        if (navigation) {
-                            if (isFromRegistration) {
-                                navigation.navigate("AddUserAddiction");
-                            } else {
-                                navigation.navigate("Main");
-                            }
-                        }
-                    }}
-                >
-                    <Text>Non</Text>
-                </TouchableOpacity>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton navigation />
 
-                <TouchableOpacity
-                    onPress={() =>
-                        navigation && navigation.navigate("Enable2FA")
-                    }
-                >
-                    <Text>Oui</Text>
-                </TouchableOpacity>
+            <View>
+                <Mascot
+                    mascot="super"
+                    text="Un renard avisé sécurise toujours son terrier… Tu veux activer la double protection ?"
+                />
+
+                <View style={styles.buttonRow}>
+                    <Button
+                        type="secondary"
+                        title="Non"
+                        onPress={() => {
+                            if (navigation) {
+                                if (isFromRegistration) {
+                                    navigation.navigate("AddUserAddiction");
+                                } else {
+                                    navigation.navigate("Main");
+                                }
+                            }
+                        }}
+                    />
+                    <Button
+                        title="Oui"
+                        onPress={() =>
+                            navigation && navigation.navigate("Enable2FA")
+                        }
+                    />
+                </View>
             </View>
         </ScrollView>
     );

@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 
     input: {
         width: "100%",
-        backgroundColor: colors.background,
+        backgroundColor: "white",
         borderColor: colors.text,
         color: colors.text,
     },

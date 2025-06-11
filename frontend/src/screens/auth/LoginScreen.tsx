@@ -10,7 +10,7 @@ import {
 import validator from "validator";
 
 import { authService } from "../../api/authService";
-import styles from "./auth.style";
+import styles from "../form.style";
 import Mascot from "../../components/mascot";
 import Input from "../../components/input";
 import Button from "../../components/button";
@@ -134,7 +134,9 @@ const LoginScreen = ({ navigation }) => {
                             navigation && navigation.navigate("Register")
                         }
                     >
-                        <Text>Vous n'evez pas de compte ?</Text>
+                        <Text style={styles.text}>
+                            Vous n'avez pas de compte ?
+                        </Text>
                         <Text style={styles.link}>S'inscrire</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -143,7 +145,9 @@ const LoginScreen = ({ navigation }) => {
                             navigation && navigation.navigate("ChangePassword")
                         }
                     >
-                        <Text>Vous avez oubliez votre mot de passe ?</Text>
+                        <Text style={styles.text}>
+                            Vous avez oubliez votre mot de passe ?
+                        </Text>
                         <Text style={styles.link}>Changer de mot de passe</Text>
                     </TouchableOpacity>
                 </View>

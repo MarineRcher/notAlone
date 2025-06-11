@@ -9,11 +9,11 @@ import {
 } from "react-native";
 import { authService } from "../../api/authService";
 import validator from "validator";
-import styles from "../auth/auth.style";
+import styles from "../form.style";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import Input from "../../components/input";
-import ChevronLeft from "../../../assets/icons/chevron-left.svg";
+import BackButton from "../../components/backNavigation";
 
 const ChangePasswordScreen = ({ navigation }) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");
@@ -147,17 +147,11 @@ const ChangePasswordScreen = ({ navigation }) => {
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => navigation.goBack()}
-            >
-                <ChevronLeft width={24} height={24} />
-            </TouchableOpacity>
-
+            <BackButton />
             <View style={styles.container}>
                 <Mascot
-                    mascot="hey"
-                    text="Bienvenue dans la clairière ! Chaque grande aventure commence par un premier pas."
+                    mascot="super"
+                    text="Comme tout bon renard, tu caches bien tes traces. Bien joué !"
                 />
                 <View style={styles.formSection}>
                     <Input

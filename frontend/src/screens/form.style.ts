@@ -1,22 +1,11 @@
 import { StyleSheet } from "react-native";
-import colors from "../../css/colors";
-import { Fonts } from "../../css/font";
+import colors from "../css/colors";
+import { Fonts } from "../css/font";
 
 const styles = StyleSheet.create({
     scrollContainer: {
         flexGrow: 1,
-    },
-    backButton: {
-        position: "absolute",
-        top: 40,
-        left: 20,
-        zIndex: 10,
-    },
-
-    backIcon: {
-        width: 24,
-        height: 24,
-        resizeMode: "contain",
+        fontFamily: Fonts.quicksand.regular,
     },
 
     formSection: {
@@ -37,8 +26,12 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     link: {
+        fontSize: 16,
         color: colors.primary,
         fontFamily: Fonts.quicksand.bold,
+    },
+    text: {
+        fontSize: 16,
     },
     inlineLink: {
         marginBottom: 63,
@@ -50,6 +43,13 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.quicksand.regular,
         justifyContent: "center",
         alignItems: "center",
+    },
+    buttonRow: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 32,
+        height: "70%",
     },
 });
 

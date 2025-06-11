@@ -1,10 +1,15 @@
 import React, { useContext, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, Alert, ScrollView } from "react-native";
 import { authService } from "../../api/authService";
 import validator from "validator";
 import { authHelpers } from "../../api/authHelpers";
 import { AuthContext, User } from "../../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import Mascot from "../../components/mascot";
+import Button from "../../components/button";
+import styles from "../form.style";
+import BackButton from "../../components/backNavigation";
+import Input from "../../components/input";
 
 const TwoFactorLoginScreen = ({ route, navigation }) => {
     const { setUser } = useContext(AuthContext);
@@ -34,18 +39,25 @@ const TwoFactorLoginScreen = ({ route, navigation }) => {
     };
 
     return (
-        <View>
-            <Text>Entrez le code de vérification 2FA :</Text>
-            <TextInput
-                placeholder="Code à 6 chiffres"
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="numeric"
-            />
-            <TouchableOpacity onPress={handleVerify}>
-                <Text>Vérifier</Text>
-            </TouchableOpacity>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+
+            <View style={styles.container}>
+                <Mascot
+                    mascot="super"
+                    text="Un renard avisé sécurise toujours son terrier… "
+                />
+                <View style={styles.formWrapper}>
+                    <Input
+                        placeholder="Entrez le code de vérification"
+                        value={otp}
+                        onChangeText={setOtp}
+                        keyboardType="numeric"
+                    />
+                </View>
+                <Button title="Vérifier" onPress={handleVerify} />
+            </View>
+        </ScrollView>
     );
 };
 
