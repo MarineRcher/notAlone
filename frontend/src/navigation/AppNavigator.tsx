@@ -38,7 +38,11 @@ const AppNavigator = () => {
                     component={RegisterScreen}
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen
+                    name="Login"
+                    component={LoginScreen}
+                    options={{ headerShown: false }}
+                />
 
                 {/* Écran principal avec les onglets */}
                 <Stack.Screen

@@ -9,11 +9,11 @@ const styles = StyleSheet.create({
     formSection: {
         flex: 1,
         width: "90%",
+        marginTop: 80,
     },
     formWrapper: {
         width: "100%",
         flex: 1,
-        justifyContent: "space-between",
         alignItems: "center",
     },
 
@@ -31,6 +31,12 @@ const styles = StyleSheet.create({
         marginBottom: 63,
         flexDirection: "row",
         fontFamily: Fonts.quicksand.regular,
+    },
+    inlineLinkLogin: {
+        marginBottom: 63,
+        fontFamily: Fonts.quicksand.regular,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
 

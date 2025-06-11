@@ -10,6 +10,10 @@ import {
 import validator from "validator";
 
 import { authService } from "../../api/authService";
+import styles from "./RegisterScreen.style";
+import Mascot from "../../components/mascot";
+import Input from "../../components/input";
+import Button from "../../components/button";
 
 const LoginScreen = ({ navigation }) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");
@@ -91,55 +95,63 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView>
-            <View>
-                <Text>Créer un compte</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.container}>
+                <Mascot
+                    mascot="hey"
+                    text="J’ai quitté mon terrier rien que pour toi. Prêt à avancer ensemble ?"
+                />
 
-                <View>
-                    <Text>Login ou Email</Text>
-                    <TextInput
-                        placeholder="Entrez votre login ou email"
-                        value={loginOrEmail}
-                        onChangeText={handleLoginOrEmailChange}
-                        autoCapitalize="none"
-                    />
-                    {errors.loginOrEmail ? (
-                        <Text>{errors.loginOrEmail}</Text>
-                    ) : null}
+                <View style={styles.formWrapper}>
+                    <View style={styles.formSection}>
+                        <Input
+                            placeholder="Entrez votre login ou email"
+                            value={loginOrEmail}
+                            onChangeText={handleLoginOrEmailChange}
+                            autoCapitalize="none"
+                            error={
+                                errors.loginOrEmail ? (
+                                    <Text>{errors.loginOrEmail}</Text>
+                                ) : null
+                            }
+                        />
+                        <Input
+                            placeholder="Entrez votre mot de passe"
+                            value={password}
+                            onChangeText={handlePasswordChange}
+                            error={
+                                errors.password ? (
+                                    <Text>{errors.password}</Text>
+                                ) : null
+                            }
+                            secureTextEntry
+                        />
+                    </View>
+
+                    <TouchableOpacity
+                        style={styles.inlineLinkLogin}
+                        onPress={() =>
+                            navigation && navigation.navigate("Register")
+                        }
+                    >
+                        <Text>Vous n'evez pas de compte ?</Text>
+                        <Text style={styles.link}>S'inscrire</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.inlineLinkLogin}
+                        onPress={() =>
+                            navigation && navigation.navigate("ChangePassword")
+                        }
+                    >
+                        <Text>Vous avez oubliez votre mot de passe ?</Text>
+                        <Text style={styles.link}>Changer de mot de passe</Text>
+                    </TouchableOpacity>
                 </View>
-
-                <View>
-                    <Text>Mot de passe</Text>
-                    <TextInput
-                        placeholder="Entrez votre mot de passe"
-                        value={password}
-                        onChangeText={handlePasswordChange}
-                        secureTextEntry
-                    />
-                    {errors.password ? <Text>{errors.password}</Text> : null}
-                </View>
-
-                <TouchableOpacity onPress={handleLogin} disabled={isLoading}>
-                    <Text>{isLoading ? "Chargement..." : "Se connecter"}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() =>
-                        navigation && navigation.navigate("Register")
-                    }
-                >
-                    <Text>Vous n'evez pas de compte ? S\'inscrire</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() =>
-                        navigation && navigation.navigate("ChangePassword")
-                    }
-                >
-                    <Text>
-                        Vous avez oubliez votre mot de passe ? Changer de mot de
-                        passe
-                    </Text>
-                </TouchableOpacity>
+                <Button
+                    title={isLoading ? "Chargement..." : "Se connecter"}
+                    disabled={isLoading ? true : false}
+                    onPress={handleLogin}
+                />
             </View>
         </ScrollView>
     );
