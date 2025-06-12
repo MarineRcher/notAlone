@@ -13,29 +13,23 @@ import userService from "../../api/userService";
 import { useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext, User } from "../../context/AuthContext";
+import styles from "../form.style";
+import BackButton from "../../components/backNavigation";
+import Mascot from "../../components/mascot";
+import Button from "../../components/button";
+import TimePicker from "../../components/timePicker";
 
 const AskNotificationsHourScreen = ({ navigation }) => {
     const { setUser } = useContext(AuthContext);
     const [hour, setHour] = useState("");
     const [showPicker, setShowPicker] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const [date, setDate] = useState(new Date());
 
     const formatToHHMM = (dateObj: Date): string => {
         const h = dateObj.getHours().toString().padStart(2, "0");
         const m = dateObj.getMinutes().toString().padStart(2, "0");
         return `${h}:${m}`;
-    };
-
-    const onChangeTime = (event, selectedDate) => {
-        if (Platform.OS === "android") {
-            setShowPicker(false);
-        }
-        if (selectedDate) {
-            setDate(selectedDate);
-            const formatted = formatToHHMM(selectedDate);
-            setHour(formatted);
-        }
     };
 
     const handleSubmit = async () => {
@@ -47,14 +41,11 @@ const AskNotificationsHourScreen = ({ navigation }) => {
         setLoading(true);
         try {
             const response = await userService.hourNotifications({ hour });
-            if (response.data.token) {
-                const decoded = jwtDecode<User>(response.data.token);
+            if (response.token) {
+                const decoded = jwtDecode<User>(response.token);
                 setUser(decoded);
             }
-
-            Alert.alert("Succès", `Heure définie à ${hour}`, [
-                { text: "OK", onPress: () => navigation.navigate("Main") },
-            ]);
+            navigation.navigate("Main");
         } catch (error) {
             console.error("Erreur heure notifications :", error);
             Alert.alert("Erreur", "Impossible de définir l'heure.");
@@ -64,43 +55,34 @@ const AskNotificationsHourScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-            <Text style={{ fontSize: 18, marginBottom: 20 }}>
-                À quelle heure voulez-vous recevoir les notifications ?
-            </Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.container}>
+                <BackButton />
 
-            <TouchableOpacity
-                onPress={() => setShowPicker(true)}
-                style={{ marginBottom: 20 }}
-            >
-                <Text style={{ fontSize: 16 }}>
-                    {hour ? `Heure choisie : ${hour}` : "Choisir une heure"}
-                </Text>
-            </TouchableOpacity>
-
-            {showPicker && (
-                <DateTimePicker
-                    value={date}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={onChangeTime}
+                <Mascot
+                    mascot="hey"
+                    text="Dis-moi, quel est le meilleur moment pour que je vienne te souffler quelques encouragements ?"
                 />
-            )}
 
-            <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={loading}
-                style={{ backgroundColor: "#4CAF50", padding: 10 }}
-            >
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                        Valider
-                    </Text>
-                )}
-            </TouchableOpacity>
+                <View style={styles.formSection}>
+                    <TimePicker
+                        value={date}
+                        onChange={(d) => {
+                            setDate(d);
+                            setHour(formatToHHMM(d));
+                        }}
+                        showPicker={showPicker}
+                        setShowPicker={setShowPicker}
+                        placeholder="Heure de notification"
+                        error={hour ? "" : "Veuillez choisir une heure"}
+                    />
+                    <Button
+                        title={isLoading ? "Chargement..." : "Valider"}
+                        disabled={isLoading ? true : false}
+                        onPress={handleSubmit}
+                    />
+                </View>
+            </View>
         </ScrollView>
     );
 };

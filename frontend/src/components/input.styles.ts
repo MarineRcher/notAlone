@@ -1,4 +1,3 @@
-// input.styles.ts
 import { StyleSheet } from "react-native";
 import colors from "../css/colors";
 import { Fonts } from "../css/font";

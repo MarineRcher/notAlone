@@ -11,6 +11,10 @@ import userService from "../../api/userService";
 import { useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext, User } from "../../context/AuthContext";
+import styles from "../form.style";
+import Mascot from "../../components/mascot";
+import Button from "../../components/button";
+import BackButton from "../../components/backNavigation";
 
 const AskNotificationsScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
@@ -20,8 +24,8 @@ const AskNotificationsScreen = ({ navigation }) => {
         setLoading(true);
         try {
             const response = await userService.activateNotifications();
-            if (response.data.token) {
-                const decoded = jwtDecode<User>(response.data.token);
+            if (response.token) {
+                const decoded = jwtDecode<User>(response.token);
                 setUser(decoded);
             }
             navigation.navigate("AskNotificationsHour");
@@ -36,24 +40,22 @@ const AskNotificationsScreen = ({ navigation }) => {
         }
     };
     return (
-        <ScrollView>
-            <Text>Souhaitez-vous activer les notifications ?</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
 
-            {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-                <View>
-                    <TouchableOpacity
+            <View>
+                <Mascot
+                    mascot="hey"
+                    text="Tu veux que je t’envoie un petit coucou de temps en temps pour te soutenir ?"
+                />
+                <View style={styles.buttonRow}>
+                    <Button
+                        title="Non"
                         onPress={() => navigation.navigate("Main")}
-                    >
-                        <Text>Non</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={handleActivateNotifications}>
-                        <Text>Oui</Text>
-                    </TouchableOpacity>
+                    />
+                    <Button title="Oui" onPress={handleActivateNotifications} />
                 </View>
-            )}
+            </View>
         </ScrollView>
     );
 };

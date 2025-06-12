@@ -76,10 +76,12 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="ActivatePremium"
                     component={ActivatePremiumScreen}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="ChangeEmail"
                     component={ChangeEmailScreen}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="ChangePassword"
@@ -89,20 +91,28 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="AskNotifications"
                     component={AskNotificationsScreen}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="AskNotificationsHour"
                     component={AskNotificationsHourScreen}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="AddUserAddiction"
                     component={AddUserAddictionScreen}
+                    options={{ headerShown: false }}
                 />
                 <Stack.Screen
                     name="PrivacyPolicy"
                     component={PrivacyPolicycreen}
+                    options={{ headerShown: false }}
                 />
-                <Stack.Screen name="Support" component={SupportScreen} />
+                <Stack.Screen
+                    name="Support"
+                    component={SupportScreen}
+                    options={{ headerShown: false }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );

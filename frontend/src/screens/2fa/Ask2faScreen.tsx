@@ -9,7 +9,7 @@ const Ask2faScreen = ({ navigation, route }) => {
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <BackButton navigation />
+            <BackButton />
 
             <View>
                 <Mascot

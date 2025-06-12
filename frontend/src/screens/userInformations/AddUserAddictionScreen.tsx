@@ -11,10 +11,16 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import addictionService from "../../api/addictionService";
+import Mascot from "../../components/mascot";
+import styles from "../form.style";
+import BackButton from "../../components/backNavigation";
+import Input from "../../components/input";
+import Button from "../../components/button";
+import DatePicker from "../../components/datePicker";
 
 interface Addiction {
     id: number;
-    name: string;
+    addiction: string;
 }
 
 const AddUserAddictionScreen = ({ navigation }) => {
@@ -92,12 +98,7 @@ const AddUserAddictionScreen = ({ navigation }) => {
                     : undefined,
             });
 
-            Alert.alert("Succès", "Addiction ajoutée avec succès", [
-                {
-                    text: "OK",
-                    onPress: () => navigation.navigate("AskNotifications"),
-                },
-            ]);
+            navigation.navigate("AskNotifications");
         } catch (error) {
             Alert.alert("Erreur", error.message);
         } finally {
@@ -114,77 +115,61 @@ const AddUserAddictionScreen = ({ navigation }) => {
     }
 
     return (
-        <ScrollView>
-            <Text>Ajouter une addiction</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+            <View style={styles.container}>
+                <Mascot mascot="hey" text="Parle-moi un peu de toi..." />
 
-            {/* Sélecteur d'addiction */}
-            <View>
-                <Text>Addiction</Text>
-                <View>
+                <View style={styles.formSection}>
                     <Picker
                         selectedValue={selectedAddiction}
                         onValueChange={(itemValue) =>
                             setSelectedAddiction(itemValue)
                         }
                     >
+                        <Picker.Item
+                            style={styles.pickerItem}
+                            label="Sélectionnez une addiction"
+                            value={null}
+                            enabled={false}
+                        />
                         {addictions.map((addiction) => (
                             <Picker.Item
+                                style={styles.pickerItem}
                                 key={addiction.id}
                                 label={addiction.addiction}
                                 value={addiction.id}
                             />
                         ))}
                     </Picker>
-                </View>
-            </View>
 
-            {/* Sélecteur de date */}
-            <View>
-                <Text>Date de début</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                    <Text>{date.toLocaleDateString("fr-FR")}</Text>
-                </TouchableOpacity>
-                {showDatePicker && (
-                    <DateTimePicker
+                    <DatePicker
                         value={date}
-                        mode="date"
-                        display="default"
-                        onChange={handleDateChange}
-                        maximumDate={new Date()}
+                        onChange={setDate}
+                        placeholder="Sélectionnez une date"
+                        showPicker={showDatePicker}
+                        setShowPicker={setShowDatePicker}
                     />
-                )}
-            </View>
+                    <Input
+                        placeholder="Consommation par jour"
+                        keyboardType="numeric"
+                        value={usePerDay}
+                        onChangeText={setUsePerDay}
+                    />
+                    <Input
+                        placeholder="Dépenses par jour"
+                        keyboardType="numeric"
+                        value={spendingPerDay}
+                        onChangeText={setSpendingPerDay}
+                    />
+                </View>
 
-            {/* Utilisations par jour */}
-            <View>
-                <Text>Utilisations par jour</Text>
-                <TextInput
-                    placeholder="Ex: 5"
-                    keyboardType="numeric"
-                    value={usePerDay}
-                    onChangeText={setUsePerDay}
+                <Button
+                    title={isLoading ? "Chargement..." : "Ajouter l'addiction"}
+                    disabled={isLoading ? true : false}
+                    onPress={handleSubmit}
                 />
             </View>
-
-            {/* Dépenses par jour */}
-            <View>
-                <Text>Dépenses par jour</Text>
-                <TextInput
-                    placeholder="Ex: 10.50"
-                    keyboardType="numeric"
-                    value={spendingPerDay}
-                    onChangeText={setSpendingPerDay}
-                />
-            </View>
-
-            {/* Bouton de soumission */}
-            <TouchableOpacity onPress={handleSubmit} disabled={isLoading}>
-                {isLoading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text>Ajouter l'addiction</Text>
-                )}
-            </TouchableOpacity>
         </ScrollView>
     );
 };

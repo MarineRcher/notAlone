@@ -81,7 +81,7 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     const handleLoginChange = (text: string) => {
-        setLogin(text);
+        setLogin(text.trim());
     };
 
     const handleEmailChange = (text: string) => {

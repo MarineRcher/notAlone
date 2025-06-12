@@ -25,7 +25,7 @@ const LoginScreen = ({ navigation }) => {
     });
 
     const handleLoginOrEmailChange = (text: string) => {
-        setLoginOrEmail(text);
+        setLoginOrEmail(text.trim());
     };
 
     const handlePasswordChange = (text: string) => {

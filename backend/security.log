@@ -303,3 +303,21 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-11T22:02:23.317Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-11T22:03:52.932Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-11T22:08:27.163Z","user":"athena@mail.com"}
+{"email":"marinericher41@gmail.com","ip":"::ffff:192.168.1.48","level":"info","login":"Mama","message":"Tentative d'inscription","timestamp":"2025-06-12T18:41:34.346Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"Mama","message":"Inscription réussie","timestamp":"2025-06-12T18:41:34.580Z","userId":19}
+{"email":"marinerich@gmail.com","ip":"::ffff:192.168.1.48","level":"info","login":"ddxbin","message":"Tentative d'inscription","timestamp":"2025-06-12T19:02:16.327Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"ddxbin","message":"Inscription réussie","timestamp":"2025-06-12T19:02:16.866Z","userId":20}
+{"email":"marine.richer41@gm.com","ip":"::ffff:192.168.1.48","level":"info","login":"bjsbsv","message":"Tentative d'inscription","timestamp":"2025-06-12T19:10:32.429Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bjsbsv","message":"Inscription réussie","timestamp":"2025-06-12T19:10:33.054Z","userId":21}
+{"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-12T19:14:20.669Z","user":21}
+{"email":"maricher41@gmail.com","ip":"::ffff:192.168.1.48","level":"info","login":"bdishv","message":"Tentative d'inscription","timestamp":"2025-06-12T20:54:10.423Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"bdishv","message":"Inscription réussie","timestamp":"2025-06-12T20:54:10.967Z","userId":22}
+{"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-12T20:54:22.424Z","user":22}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T20:54:26.927Z","user_id":22}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T20:55:57.269Z","user_id":22}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T21:07:07.765Z","user_id":22}
+{"email":"marineric@gmail.com","ip":"::ffff:192.168.1.48","level":"info","login":"hdksbv","message":"Tentative d'inscription","timestamp":"2025-06-12T21:54:44.103Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"hdksbv","message":"Inscription réussie","timestamp":"2025-06-12T21:54:44.623Z","userId":23}
+{"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-12T21:54:55.075Z","user":23}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T21:54:57.631Z","user_id":23}
+{"hour":"23:53","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-12T21:55:04.113Z","user_id":23}

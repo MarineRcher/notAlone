@@ -51,6 +51,11 @@ const styles = StyleSheet.create({
         gap: 32,
         height: "70%",
     },
+    pickerItem: {
+        fontFamily: Fonts.quicksand.regular,
+        fontSize: 14,
+        color: colors.text,
+    },
 });
 
 export default styles;
