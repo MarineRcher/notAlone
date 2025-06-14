@@ -104,7 +104,7 @@ const UserScreen = ({ navigation }) => {
 
     return (
         <View style={{ padding: 20 }}>
-            <Text>Profil Utilisateur</Text>
+            <Text>Compte Utilisateur</Text>
             {!user?.hasPremium ? (
                 <TouchableOpacity
                     onPress={() => navigation.navigate("ActivatePremium")}

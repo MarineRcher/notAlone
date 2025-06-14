@@ -321,3 +321,19 @@
 {"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-12T21:54:55.075Z","user":23}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T21:54:57.631Z","user_id":23}
 {"hour":"23:53","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-12T21:55:04.113Z","user_id":23}
+{"hour":"22:53","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-12T21:56:35.992Z","user_id":23}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T21:56:40.052Z","user_id":23}
+{"hour":"23:55","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-12T21:56:44.487Z","user_id":23}
+{"email":"maricher41@gmail.com","ip":"::ffff:192.168.1.48","level":"info","login":"nxkdn","message":"Tentative d'inscription","timestamp":"2025-06-12T21:57:23.771Z"}
+{"email":"maricher41@gmail.com","ip":"::ffff:192.168.1.48","level":"warn","message":"Échec d'inscription - Email déjà utilisé","timestamp":"2025-06-12T21:57:24.217Z"}
+{"email":"ma.richer41@gmail.co","ip":"::ffff:192.168.1.48","level":"info","login":"nxkdn","message":"Tentative d'inscription","timestamp":"2025-06-12T21:57:29.568Z"}
+{"ip":"::ffff:192.168.1.48","level":"info","login":"nxkdn","message":"Inscription réussie","timestamp":"2025-06-12T21:57:29.968Z","userId":24}
+{"addiction":2,"ip":"::ffff:192.168.1.48","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-12T21:57:47.547Z","user":24}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-12T21:57:50.762Z","user_id":24}
+{"hour":"23:56","ip":"::ffff:192.168.1.48","level":"info","message":"Heure de notification mise à jour","timestamp":"2025-06-12T21:57:53.807Z","user_id":24}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-14T19:24:54.360Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-14T19:25:06.228Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-14T19:25:06.240Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-14T19:39:05.600Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-14T19:39:14.845Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-14T19:39:14.847Z","user":2}
