@@ -10,6 +10,11 @@ import {
 } from "react-native";
 import userService from "../../api/userService";
 import validator from "validator";
+import styles from "../form.style";
+import BackButton from "../../components/backNavigation";
+import Mascot from "../../components/mascot";
+import Input from "../../components/input";
+import Button from "../../components/button";
 
 const ChangeEmailScreen = ({ navigation }) => {
     const [newEmail, setNewEmail] = useState("");
@@ -30,9 +35,7 @@ const ChangeEmailScreen = ({ navigation }) => {
 
         try {
             await userService.changeEmail({ newEmail });
-            Alert.alert("Succès", "Votre adresse e-mail a été modifiée.", [
-                { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            navigation.goBack();
         } catch (error) {
             console.error("Erreur changement email :", error);
 
@@ -46,24 +49,27 @@ const ChangeEmailScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView>
-            <View>
-                <Text>Changer d'adresse e-mail</Text>
-
-                <TextInput
-                    placeholder="Nouvel e-mail"
-                    value={newEmail}
-                    onChangeText={setNewEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+            <View style={styles.container}>
+                <Mascot
+                    mascot="super"
+                    text="Un nouveau point de contact pour continuer notre aventure ensemble !"
                 />
-
-                <TouchableOpacity
+                <View style={styles.formSection}>
+                    <Input
+                        placeholder="Nouvel e-mail"
+                        value={newEmail}
+                        onChangeText={setNewEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                    />
+                </View>
+                <Button
+                    title={loading ? "Chargement..." : "Valider"}
+                    disabled={loading ? true : false}
                     onPress={handleChangeEmail}
-                    disabled={loading}
-                >
-                    {loading ? <ActivityIndicator /> : <Text>Valider</Text>}
-                </TouchableOpacity>
+                />
             </View>
         </ScrollView>
     );

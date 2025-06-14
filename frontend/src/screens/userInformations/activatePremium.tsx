@@ -6,10 +6,16 @@ import {
     Alert,
     ActivityIndicator,
     StyleSheet,
+    ScrollView,
 } from "react-native";
 import { AuthContext, User } from "../../context/AuthContext";
 import userService from "../../api/userService";
 import { jwtDecode } from "jwt-decode";
+import Button from "../../components/button";
+import styles from "../form.style";
+import BackButton from "../../components/backNavigation";
+import Mascot from "../../components/mascot";
+import Feature from "../../components/feature";
 
 const ActivatePremiumScreen = ({ navigation }) => {
     const { setUser } = useContext(AuthContext);
@@ -35,55 +41,31 @@ const ActivatePremiumScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Fonctionnalités Premium</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+            <View style={styles.container}>
+                <Mascot
+                    mascot="woaw"
+                    text="Prêt à booster ton aventure ? Découvre les fonctionnalités exclusives du premium !"
+                />
 
-            <Text style={styles.benefit}>✓ Plus de limites</Text>
-
-            <TouchableOpacity
-                onPress={handleActivate}
-                disabled={loading}
-                style={styles.button}
-            >
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text style={styles.buttonText}>Activer Premium</Text>
-                )}
-            </TouchableOpacity>
-        </View>
+                <View style={styles.formSection}>
+                    <Feature feature="Plus de limites" />
+                    <Feature feature="Plus de limites" />
+                    <Feature feature="Plus de limites" />
+                    <Feature feature="Plus de limites" />
+                    <Feature feature="Plus de limites" />
+                </View>
+                <Button
+                    title={
+                        loading ? "Chargement..." : "Activer version Premium"
+                    }
+                    onPress={handleActivate}
+                    disabled={loading}
+                />
+            </View>
+        </ScrollView>
     );
 };
 
 export default ActivatePremiumScreen;
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        justifyContent: "center",
-        backgroundColor: "#fff",
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: "bold",
-        marginBottom: 20,
-        textAlign: "center",
-    },
-    benefit: {
-        fontSize: 16,
-        marginBottom: 10,
-    },
-    button: {
-        marginTop: 30,
-        backgroundColor: "#007AFF",
-        padding: 15,
-        borderRadius: 8,
-        alignItems: "center",
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
-        fontSize: 16,
-    },
-});

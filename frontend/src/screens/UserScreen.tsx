@@ -4,14 +4,19 @@ import {
     Text,
     TouchableOpacity,
     Alert,
-    StyleSheet,
     Platform,
+    ScrollView,
 } from "react-native";
 import { AuthContext, User } from "../context/AuthContext";
 import { authService } from "../api/authService";
 import userService from "../api/userService";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { jwtDecode } from "jwt-decode";
+import styles from "./useScreen.style";
+import Button from "../components/button";
+import Link from "../components/linkUserAccount";
+import TimePicker from "../components/timePicker";
+import LinkPremium from "../components/LinkPremium";
 
 const UserScreen = ({ navigation }) => {
     const { user, updateNotificationSettings } = useContext(AuthContext);
@@ -30,17 +35,27 @@ const UserScreen = ({ navigation }) => {
         }
     }, [user?.hourNotify]);
 
-    const handleLogout = async () => {
-        try {
-            await authService.logout();
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-            });
-        } catch (error) {
-            Alert.alert("Erreur", "La déconnexion a échoué");
-        }
+    const handleLogout = () => {
+        Alert.alert("Se déconnecter", "Es-tu sûr de vouloir te déconnecter ?", [
+            { text: "Annuler", style: "cancel" },
+            {
+                text: "Déconnexion",
+                style: "destructive",
+                onPress: async () => {
+                    try {
+                        await authService.logout();
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: "Login" }],
+                        });
+                    } catch (error) {
+                        Alert.alert("Erreur", "La déconnexion a échoué");
+                    }
+                },
+            },
+        ]);
     };
+
     const handleDeactivatePremium = async () => {
         try {
             const response = await userService.deactivatePremium();
@@ -57,17 +72,31 @@ const UserScreen = ({ navigation }) => {
             );
         }
     };
-    const handleDeleteUserAccount = async () => {
-        try {
-            await userService.deleteUserAccount();
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "Register" }],
-            });
-        } catch (error) {
-            Alert.alert("Erreur", "La suppression a échoué");
-        }
+    const handleDeleteUserAccount = () => {
+        Alert.alert(
+            "Supprimer le compte",
+            "Cette action est irréversible. Es-tu sûr de vouloir supprimer ton compte ?",
+            [
+                { text: "Annuler", style: "cancel" },
+                {
+                    text: "Supprimer",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await userService.deleteUserAccount();
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: "Register" }],
+                            });
+                        } catch (error) {
+                            Alert.alert("Erreur", "La suppression a échoué");
+                        }
+                    },
+                },
+            ]
+        );
     };
+
     const toggleNotifications = async () => {
         try {
             if (user?.notify) {
@@ -80,11 +109,6 @@ const UserScreen = ({ navigation }) => {
         } catch (error) {
             Alert.alert("Erreur", "Opération échouée");
         }
-    };
-
-    const handleTimeChange = (event, selectedDate) => {
-        if (Platform.OS === "android") setShowPicker(false);
-        if (selectedDate) setTime(selectedDate);
     };
 
     const saveNotificationTime = async () => {
@@ -103,200 +127,106 @@ const UserScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={{ padding: 20 }}>
-            <Text>Compte Utilisateur</Text>
-            {!user?.hasPremium ? (
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("ActivatePremium")}
-                    style={{ marginVertical: 10 }}
-                >
-                    <Text>Activer l'abonnement premium</Text>
-                </TouchableOpacity>
-            ) : (
-                <TouchableOpacity
-                    onPress={handleDeactivatePremium}
-                    style={{ marginVertical: 10 }}
-                >
-                    <Text>Désactiver l'abonnement premium</Text>
-                </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-                onPress={() => navigation.navigate("ChangeEmail")}
-                style={{ marginVertical: 10 }}
-            >
-                <Text>Changer d'email</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => navigation.navigate("ChangePassword")}
-                style={{ marginVertical: 10 }}
-            >
-                <Text>Changer de mot de passe</Text>
-            </TouchableOpacity>
-            {user?.has2FA ? (
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("Disable2FA")}
-                    style={{ marginVertical: 10 }}
-                >
-                    <Text>Désactiver la 2FA</Text>
-                </TouchableOpacity>
-            ) : (
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("Enable2FA")}
-                    style={{ marginVertical: 10 }}
-                >
-                    <Text>Activer la 2FA</Text>
-                </TouchableOpacity>
-            )}
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Notifications</Text>
-
-                <TouchableOpacity
-                    onPress={toggleNotifications}
-                    style={styles.toggleButton}
-                >
-                    <Text style={styles.toggleText}>
-                        {user?.notify ? "Désactiver" : "Activer"} les
-                        notifications
+        <ScrollView style={styles.scrollContainer}>
+            <View style={styles.container}>
+                <View style={styles.links}>
+                    <Text style={styles.titleUserScreen}>
+                        Compte Utilisateur
                     </Text>
-                </TouchableOpacity>
+                    {!user?.hasPremium ? (
+                        <LinkPremium
+                            onPress={() =>
+                                navigation.navigate("ActivatePremium")
+                            }
+                            title="Activer l'abonnement premium"
+                        />
+                    ) : (
+                        <LinkPremium
+                            onPress={handleDeactivatePremium}
+                            title="Désactiver l'abonnement premium"
+                        />
+                    )}
+                    <Link
+                        onPress={() => navigation.navigate("ChangeEmail")}
+                        title="Changer d'email"
+                    />
+                    <Link
+                        onPress={() => navigation.navigate("ChangePassword")}
+                        title="Changer de mot de passe"
+                    />
+                    {user?.has2FA ? (
+                        <Link
+                            onPress={() => navigation.navigate("Disable2FA")}
+                            title="Désactiver la 2FA"
+                        />
+                    ) : (
+                        <Link
+                            onPress={() => navigation.navigate("Enable2FA")}
+                            title="Activer la 2FA"
+                        />
+                    )}
+                    {user?.notify && (
+                        <Text style={styles.sectionTitle}>Notifications</Text>
+                    )}
+                    <Link
+                        onPress={toggleNotifications}
+                        title={
+                            (user?.notify ? "Désactiver" : "Activer") +
+                            " les notifications"
+                        }
+                    />
 
-                {user?.notify && (
-                    <>
-                        {isEditingTime ? (
-                            <View style={styles.timePickerContainer}>
-                                <TouchableOpacity
-                                    onPress={() => setShowPicker(true)}
-                                    style={styles.timeButton}
-                                >
-                                    <Text style={styles.timeText}>
-                                        Heure choisie :{" "}
-                                        {`${time
-                                            .getHours()
-                                            .toString()
-                                            .padStart(2, "0")}:${time
-                                            .getMinutes()
-                                            .toString()
-                                            .padStart(2, "0")}`}
+                    {user?.notify && (
+                        <>
+                            {isEditingTime ? (
+                                <View>
+                                    <Text style={styles.bold}>
+                                        Heure choisie :
                                     </Text>
-                                </TouchableOpacity>
 
-                                {showPicker && (
-                                    <DateTimePicker
+                                    <TimePicker
                                         value={time}
-                                        mode="time"
-                                        is24Hour={true}
-                                        display="default"
-                                        onChange={handleTimeChange}
+                                        onChange={(newTime) => setTime(newTime)}
+                                        showPicker={showPicker}
+                                        setShowPicker={setShowPicker}
                                     />
-                                )}
-
+                                    <Button
+                                        title="Enregistrer"
+                                        onPress={saveNotificationTime}
+                                    />
+                                </View>
+                            ) : (
                                 <TouchableOpacity
-                                    onPress={saveNotificationTime}
-                                    style={styles.saveButton}
+                                    style={styles.timeButton}
+                                    onPress={() => setIsEditingTime(true)}
                                 >
-                                    <Text style={styles.saveButtonText}>
-                                        Enregistrer
+                                    <Text style={styles.bold}>
+                                        Heure:{" "}
+                                        {user.hourNotify || "Non définie"}
                                     </Text>
+                                    <Text style={styles.link}>Modifier</Text>
                                 </TouchableOpacity>
-                            </View>
-                        ) : (
-                            <TouchableOpacity
-                                onPress={() => setIsEditingTime(true)}
-                                style={styles.timeButton}
-                            >
-                                <Text style={styles.timeText}>
-                                    Heure: {user.hourNotify || "Non définie"}
-                                </Text>
-                                <Text style={styles.editText}>Modifier</Text>
-                            </TouchableOpacity>
-                        )}
-                    </>
-                )}
+                            )}
+                        </>
+                    )}
+                    <Link
+                        onPress={() => navigation.navigate("PrivacyPolicy")}
+                        title="Politique de confidentialité"
+                    />
+                    <Link
+                        onPress={() => navigation.navigate("Support")}
+                        title="Contacter le support"
+                    />
+                </View>
+                <View style={styles.footer}>
+                    <Button onPress={handleLogout} title="Se déconnecter" />
+                    <TouchableOpacity onPress={handleDeleteUserAccount}>
+                        <Text style={styles.link}>Supprimer le compte</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <TouchableOpacity
-                onPress={() => navigation.navigate("PrivacyPolicy")}
-                style={{ marginVertical: 10 }}
-            >
-                <Text>Politique de confidentialité</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => navigation.navigate("Support")}
-                style={{ marginVertical: 10 }}
-            >
-                <Text>Contecter le support</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={handleLogout}
-                style={{ marginVertical: 10, marginTop: 20 }}
-            >
-                <Text style={{ color: "red" }}>Se déconnecter</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={handleDeleteUserAccount}
-                style={{ marginVertical: 10, marginTop: 20 }}
-            >
-                <Text style={{ color: "red" }}>Supprimer le compte</Text>
-            </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 };
-const styles = StyleSheet.create({
-    container: { padding: 20 },
-    section: {
-        marginTop: 20,
-        borderTopWidth: 1,
-        borderTopColor: "#eee",
-        paddingTop: 15,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    toggleButton: {
-        backgroundColor: "#f0f0f0",
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 15,
-    },
-    toggleText: {
-        textAlign: "center",
-        fontWeight: "500",
-    },
-    timeButton: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        backgroundColor: "#f0f0f0",
-        padding: 12,
-        borderRadius: 8,
-    },
-    timeText: {
-        fontWeight: "500",
-    },
-    editText: {
-        color: "#007AFF",
-        fontWeight: "500",
-    },
-    timePickerContainer: {
-        backgroundColor: "#fff",
-        borderRadius: 8,
-        padding: 15,
-        borderWidth: 1,
-        borderColor: "#ddd",
-    },
-    saveButton: {
-        backgroundColor: "#007AFF",
-        padding: 12,
-        borderRadius: 8,
-        marginTop: 15,
-    },
-    saveButtonText: {
-        color: "white",
-        textAlign: "center",
-        fontWeight: "bold",
-    },
-});
 
 export default UserScreen;

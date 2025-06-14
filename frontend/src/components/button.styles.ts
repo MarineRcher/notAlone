@@ -12,6 +12,12 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         maxWidth: 300,
     },
+    dangerButton: {
+        backgroundColor: "red",
+    },
+    dangerText: {
+        color: "white",
+    },
     baseText: {
         fontSize: 18,
         fontFamily: Fonts.quicksand.bold,

@@ -16,19 +16,31 @@ interface CustomButtonProps {
     type?: ButtonType;
     style?: ViewStyle;
     disabled?: boolean;
+    danger?: boolean;
     textStyle?: TextStyle;
 }
 
-const button: React.FC<CustomButtonProps> = ({
+const Button: React.FC<CustomButtonProps> = ({
     title,
     onPress,
     type = "primary",
     style,
     disabled = false,
     textStyle,
+    danger = false,
 }) => {
-    const buttonStyle =
-        type === "primary" ? styles.primaryButton : styles.secondaryButton;
+    const buttonStyle = danger
+        ? styles.dangerButton
+        : type === "primary"
+        ? styles.primaryButton
+        : styles.secondaryButton;
+
+    const textStyles = [
+        styles.baseText,
+        styles.textButton,
+        danger && styles.dangerText,
+        textStyle,
+    ];
 
     return (
         <TouchableOpacity
@@ -36,11 +48,9 @@ const button: React.FC<CustomButtonProps> = ({
             disabled={disabled}
             style={[styles.baseButton, buttonStyle, style]}
         >
-            <Text style={[styles.baseText, styles.textButton, textStyle]}>
-                {title}
-            </Text>
+            <Text style={textStyles}>{title}</Text>
         </TouchableOpacity>
     );
 };
 
-export default button;
+export default Button;

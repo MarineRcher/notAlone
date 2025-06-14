@@ -2,8 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import HomeScreen from "../screens/HomeScreen";
-import ChatScreen from "../screens/ChatScreen";
-import ResourcesScreen from "../screens/ResourcesScreen";
+import FollowScreen from "../screens/followScreen";
 import UserScreen from "../screens/UserScreen";
 
 import HomeIcon from "../../assets/icons/menu/home.svg";
@@ -25,6 +24,8 @@ import TabIcon from "./TabIcon";
 import colors from "../css/colors";
 import { Fonts } from "../css/font";
 import TabLabel from "./tabLabel";
+import ForestScreen from "../screens/forestScreen";
+import HelpScreen from "../screens/HelpScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -69,7 +70,7 @@ const BottomTabNavigator = () => {
             />
             <Tab.Screen
                 name="Suivi"
-                component={ChatScreen}
+                component={FollowScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
@@ -89,7 +90,7 @@ const BottomTabNavigator = () => {
             />
             <Tab.Screen
                 name="Forêt"
-                component={ResourcesScreen}
+                component={ForestScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <TabIcon
@@ -109,7 +110,7 @@ const BottomTabNavigator = () => {
             />
             <Tab.Screen
                 name="Aide"
-                component={ResourcesScreen}
+                component={HelpScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <TabIcon

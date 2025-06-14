@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-const ChatScreen = () => {
+const HelpScreen = () => {
     return (
         <View
             style={{
@@ -9,8 +9,8 @@ const ChatScreen = () => {
                 alignItems: "center",
             }}
         >
-            <Text>Chat</Text>
+            <Text>Aide</Text>
         </View>
     );
 };
-export default ChatScreen;
+export default HelpScreen;

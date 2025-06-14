@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.primary,
         fontFamily: Fonts.quicksand.bold,
+        textDecorationLine: "underline",
     },
     text: {
         fontSize: 16,
