@@ -6,6 +6,19 @@ const addictionService = {
         const response = await apiClient.get("/addictions/all");
         return response.data;
     },
+    getUserAddictions: async () => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.post(
+            "/addictions/getByUser",
+            {},
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+        return response.data;
+    },
 
     addUserAddiction: async (data: {
         addiction_id: number;

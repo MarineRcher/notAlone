@@ -27,25 +27,30 @@ export const getUserAddictions = async (
             return;
         }
 
-        const addictions = await AddictionUser.findAll({
+        const addictionUsers = await AddictionUser.findAll({
             where: { id_user: user_id },
-            include: [
-                {
-                    model: Addiction,
-                    as: "addiction",
-                    attributes: ["id", "addiction", "phoneNumber"],
-                },
-            ],
             order: [["date", "DESC"]],
+            raw: true,
         });
 
-        const formatted = addictions.map((record) => ({
-            id: record.id_addiction_user,
-            addiction: record.addiction?.addiction,
-            addictionId: record.addiction?.id,
-            phoneNumber: record.addiction?.phoneNumber,
-            date: record.date,
-        }));
+        const addictionIds = addictionUsers.map((au) => au.id_addiction);
+        const addictions = await Addiction.findAll({
+            where: { id: addictionIds },
+            raw: true,
+        });
+
+        const addictionsMap = new Map(addictions.map((a) => [a.id, a]));
+
+        const formatted = addictionUsers.map((record) => {
+            const addiction = addictionsMap.get(record.id_addiction);
+            return {
+                id: record.id_addiction_user,
+                addiction: addiction?.addiction,
+                addictionId: addiction?.id,
+                phoneNumber: addiction?.phoneNumber,
+                date: record.date,
+            };
+        });
 
         res.status(200).json(formatted);
     } catch (error) {

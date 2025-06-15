@@ -8,7 +8,6 @@ import {
     Alert,
     ActivityIndicator,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import addictionService from "../../api/addictionService";
 import Mascot from "../../components/mascot";

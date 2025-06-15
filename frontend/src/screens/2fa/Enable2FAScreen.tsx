@@ -52,10 +52,9 @@ const Enable2FAScreen = ({ navigation, route }) => {
                 token: tempToken,
                 otp,
             });
-
-            if (response.data.token) {
-                await authHelpers.saveToken(response.data.token);
-                const decoded = jwtDecode<User>(response.data.token);
+            if (response.data.newToken) {
+                await authHelpers.saveToken(response.data.newToken);
+                const decoded = jwtDecode<User>(response.data.newToken);
                 setUser(decoded);
             }
 

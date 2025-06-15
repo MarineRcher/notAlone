@@ -38,7 +38,7 @@ Addiction.init(
             allowNull: false,
             validate: {
                 notEmpty: true,
-                len: [10, 20],
+                len: [4, 20],
             },
         },
     },

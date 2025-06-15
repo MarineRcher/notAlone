@@ -1,14 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import Addiction from "../../models/Addiction";
-
 const validatePhoneNumber = (phoneNumber: string) => {
     const errors: { phoneNumber?: string } = {};
 
     const trimmed = phoneNumber?.trim() ?? "";
 
-    if (!trimmed || trimmed.length < 10 || trimmed.length > 20) {
+    if (!trimmed || trimmed.length == 4 || trimmed.length > 20) {
         errors.phoneNumber =
-            "Numéro de téléphone invalide (10 à 20 caractères)";
+            "Numéro de téléphone invalide (4 ou 20 caractères)";
     } else if (!/^[\d+\s\-().]+$/.test(trimmed)) {
         errors.phoneNumber =
             "Le numéro de téléphone contient des caractères invalides";

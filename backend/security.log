@@ -421,3 +421,43 @@
 {"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T18:40:50.047Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T18:40:50.050Z","user":1}
 {"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T18:40:51.088Z","user_id":1}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:21:03.153Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:21:03.242Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:22:08.461Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:22:08.533Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:23:26.612Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:23:26.684Z","user":2}
+{"error":{"name":"SequelizeEagerLoadingError"},"ip":"::ffff:192.168.1.48","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:24:54.439Z","user_id":2}
+{"error":{"name":"SequelizeEagerLoadingError"},"ip":"::ffff:192.168.1.48","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:25:37.318Z","user_id":2}
+{"error":{"name":"SequelizeEagerLoadingError"},"ip":"::ffff:192.168.1.48","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:25:38.901Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:26:02.825Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:26:02.896Z","user":2}
+{"error":{"name":"SequelizeEagerLoadingError"},"ip":"::ffff:192.168.1.48","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:26:04.387Z","user_id":2}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-15T19:28:59.721Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T19:28:59.742Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T19:28:59.743Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T19:28:59.745Z","user":1}
+{"error":{"name":"SequelizeConnectionError","original":{"code":"EAI_AGAIN","errno":-3001,"hostname":"db","syscall":"getaddrinfo"},"parent":{"code":"EAI_AGAIN","errno":-3001,"hostname":"db","syscall":"getaddrinfo"}},"level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:29:00.744Z","user_id":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:29:00.762Z","user_id":1}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:29:31.204Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:29:31.295Z","user":2}
+{"error":{"name":"SequelizeDatabaseError","original":{"code":"42703","file":"parse_relation.c","hint":"Perhaps you meant to reference the column \"Addiction.phonenumber\".","length":180,"line":"3723","name":"error","position":"27","routine":"errorMissingColumn","severity":"ERROR","sql":"SELECT \"id\", \"addiction\", \"phone_number\" AS \"phoneNumber\", \"created_at\" AS \"createdAt\", \"updated_at\" AS \"updatedAt\" FROM \"addictions\" AS \"Addiction\" WHERE \"Addiction\".\"id\" IN (NULL);"},"parameters":{},"parent":{"code":"42703","file":"parse_relation.c","hint":"Perhaps you meant to reference the column \"Addiction.phonenumber\".","length":180,"line":"3723","name":"error","position":"27","routine":"errorMissingColumn","severity":"ERROR","sql":"SELECT \"id\", \"addiction\", \"phone_number\" AS \"phoneNumber\", \"created_at\" AS \"createdAt\", \"updated_at\" AS \"updatedAt\" FROM \"addictions\" AS \"Addiction\" WHERE \"Addiction\".\"id\" IN (NULL);"},"sql":"SELECT \"id\", \"addiction\", \"phone_number\" AS \"phoneNumber\", \"created_at\" AS \"createdAt\", \"updated_at\" AS \"updatedAt\" FROM \"addictions\" AS \"Addiction\" WHERE \"Addiction\".\"id\" IN (NULL);"},"ip":"::ffff:192.168.1.48","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:29:32.502Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:32:50.753Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:32:50.843Z","user":2}
+{"error":{"name":"SequelizeDatabaseError","original":{"code":"42703","file":"parse_relation.c","hint":"Perhaps you meant to reference the column \"Addiction.phonenumber\".","length":180,"line":"3723","name":"error","position":"27","routine":"errorMissingColumn","severity":"ERROR","sql":"SELECT \"id\", \"addiction\", \"phone_number\" AS \"phoneNumber\", \"created_at\" AS \"createdAt\", \"updated_at\" AS \"updatedAt\" FROM \"addictions\" AS \"Addiction\" WHERE \"Addiction\".\"id\" IN (NULL);"},"parameters":{},"parent":{"code":"42703","file":"parse_relation.c","hint":"Perhaps you meant to reference the column \"Addiction.phonenumber\".","length":180,"line":"3723","name":"error","position":"27","routine":"errorMissingColumn","severity":"ERROR","sql":"SELECT \"id\", \"addiction\", \"phone_number\" AS \"phoneNumber\", \"created_at\" AS \"createdAt\", \"updated_at\" AS \"updatedAt\" FROM \"addictions\" AS \"Addiction\" WHERE \"Addiction\".\"id\" IN (NULL);"},"sql":"SELECT \"id\", \"addiction\", \"phone_number\" AS \"phoneNumber\", \"created_at\" AS \"createdAt\", \"updated_at\" AS \"updatedAt\" FROM \"addictions\" AS \"Addiction\" WHERE \"Addiction\".\"id\" IN (NULL);"},"ip":"::ffff:192.168.1.48","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T19:32:51.995Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T19:39:06.840Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T19:39:06.912Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T20:08:22.904Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T20:08:22.992Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T20:09:18.499Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T20:09:18.589Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T20:13:37.352Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T20:13:37.442Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T20:26:29.377Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T20:26:29.448Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T21:05:23.594Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T21:05:23.665Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-15T21:11:06.028Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T21:11:06.098Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-15T21:11:47.666Z","user_id":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications désactivées","timestamp":"2025-06-15T21:11:49.427Z","user_id":2}

@@ -10,13 +10,12 @@ import {
 import { AuthContext, User } from "../context/AuthContext";
 import { authService } from "../api/authService";
 import userService from "../api/userService";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { jwtDecode } from "jwt-decode";
 import styles from "./useScreen.style";
 import Button from "../components/button";
 import Link from "../components/linkUserAccount";
-import TimePicker from "../components/timePicker";
 import LinkPremium from "../components/LinkPremium";
+import TimePicker from "../components/timePicker";
 
 const UserScreen = ({ navigation }) => {
     const { user, updateNotificationSettings } = useContext(AuthContext);

@@ -78,6 +78,27 @@ const styles = StyleSheet.create({
         marginTop: 10,
         textAlign: "center",
     },
+    picker: {
+        width: 200,
+        backgroundColor: "white",
+        borderColor: colors.text,
+        borderWidth: 1,
+        fontFamily: Fonts.quicksand.regular,
+        fontSize: 14,
+        color: colors.text,
+        borderRadius: 12,
+        alignSelf: "flex-end",
+    },
+    dropdownContainer: {
+        borderColor: colors.text,
+        width: 200,
+        alignSelf: "flex-end",
+    },
+    containerPicker: {
+        marginTop: 50,
+        height: 30,
+        width: "100%",
+    },
 });
 
 export default styles;
