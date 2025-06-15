@@ -4,7 +4,7 @@ import AddictionUser from "../../../../src/models/AddictionUser";
 import Addiction from "../../../../src/models/Addiction";
 
 jest.mock("../../../../src/models/AddictionUser");
-
+jest.mock("../../../../src/models/Addiction");
 const mockRes = () => {
     const res = {} as Response;
     res.status = jest.fn().mockReturnValue(res);
@@ -38,22 +38,27 @@ describe("getUserAddictions controller", () => {
 
         (AddictionUser.findAll as jest.Mock).mockResolvedValue([
             {
-                id_addiction_user: 100, // Changed from 'id' to 'id_addiction_user'
+                id_addiction_user: 100,
                 date: new Date("2025-06-01T00:00:00.000Z"),
-                addiction: {
-                    id: 10,
-                    addiction: "Caféine",
-                    phoneNumber: "+33612345678",
-                },
+                id_addiction: 10,
             },
             {
-                id_addiction_user: 101, // Changed from 'id' to 'id_addiction_user'
+                id_addiction_user: 101,
                 date: new Date("2025-05-01T00:00:00.000Z"),
-                addiction: {
-                    id: 11,
-                    addiction: "Nicotin",
-                    phoneNumber: "+33699999999",
-                },
+                id_addiction: 11,
+            },
+        ]);
+
+        (Addiction.findAll as jest.Mock).mockResolvedValue([
+            {
+                id: 10,
+                addiction: "Caféine",
+                phoneNumber: "+33612345678",
+            },
+            {
+                id: 11,
+                addiction: "Nicotin",
+                phoneNumber: "+33699999999",
             },
         ]);
 
@@ -61,14 +66,13 @@ describe("getUserAddictions controller", () => {
 
         expect(AddictionUser.findAll).toHaveBeenCalledWith({
             where: { id_user: 1 },
-            include: [
-                {
-                    model: Addiction,
-                    as: "addiction",
-                    attributes: ["id", "addiction", "phoneNumber"],
-                },
-            ],
             order: [["date", "DESC"]],
+            raw: true,
+        });
+
+        expect(Addiction.findAll).toHaveBeenCalledWith({
+            where: { id: [10, 11] },
+            raw: true,
         });
 
         expect(res.status).toHaveBeenCalledWith(200);

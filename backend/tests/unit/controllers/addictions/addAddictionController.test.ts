@@ -138,7 +138,7 @@ describe("addAddiction controller", () => {
         expect(res.json).toHaveBeenCalledWith({
             errors: {
                 phoneNumber:
-                    "Numéro de téléphone invalide (10 à 20 caractères)",
+                    "Le numéro de téléphone contient des caractères invalides",
             },
         });
     });

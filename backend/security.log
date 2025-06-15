@@ -461,3 +461,25 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Connexion réussie","timestamp":"2025-06-15T21:11:06.098Z","user":2}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications activées","timestamp":"2025-06-15T21:11:47.666Z","user_id":2}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Notifications désactivées","timestamp":"2025-06-15T21:11:49.427Z","user_id":2}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-15T21:15:19.129Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:15:19.181Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T21:15:19.195Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:15:19.197Z","user":1}
+{"error":{"name":"SequelizeConnectionError","original":{"code":"EAI_AGAIN","errno":-3001,"hostname":"db","syscall":"getaddrinfo"},"parent":{"code":"EAI_AGAIN","errno":-3001,"hostname":"db","syscall":"getaddrinfo"}},"level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:15:22.084Z","user_id":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:15:22.108Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-15T21:17:58.344Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:17:58.367Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T21:17:58.368Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:17:58.370Z","user":1}
+{"error":{"name":"SequelizeConnectionError","original":{"code":"EAI_AGAIN","errno":-3001,"hostname":"db","syscall":"getaddrinfo"},"parent":{"code":"EAI_AGAIN","errno":-3001,"hostname":"db","syscall":"getaddrinfo"}},"level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:17:59.671Z","user_id":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:17:59.691Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-15T21:20:00.594Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:20:00.622Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T21:20:00.623Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:20:00.625Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:20:01.631Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-15T21:21:37.699Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:21:37.732Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T21:21:37.734Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:21:37.737Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:21:39.644Z","user_id":1}
