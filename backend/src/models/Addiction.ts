@@ -1,3 +1,4 @@
+// src/models/addiction.ts
 import { Model, DataTypes, Optional } from "sequelize";
 import db from "./../config/database";
 import { AddictionAttributes } from "../types/addiction";
@@ -11,6 +12,7 @@ class Addiction
 {
     declare id: number;
     declare addiction: string;
+    declare phoneNumber: string;
 
     declare readonly createdAt: Date;
     declare readonly updatedAt: Date;
@@ -29,6 +31,14 @@ Addiction.init(
             validate: {
                 notEmpty: true,
                 len: [1, 255],
+            },
+        },
+        phoneNumber: {
+            type: DataTypes.STRING(20),
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                len: [10, 20],
             },
         },
     },

@@ -1,6 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import Addiction from "../../models/Addiction";
 
+const validatePhoneNumber = (phoneNumber: string) => {
+    const errors: { phoneNumber?: string } = {};
+
+    const trimmed = phoneNumber?.trim() ?? "";
+
+    if (!trimmed || trimmed.length < 10 || trimmed.length > 20) {
+        errors.phoneNumber =
+            "Numéro de téléphone invalide (10 à 20 caractères)";
+    } else if (!/^[\d+\s\-().]+$/.test(trimmed)) {
+        errors.phoneNumber =
+            "Le numéro de téléphone contient des caractères invalides";
+    }
+
+    return {
+        isValid: Object.keys(errors).length === 0,
+        errors,
+    };
+};
+
 /**
  * Validates the input string for an addiction name.
  *
@@ -43,15 +62,25 @@ export const addAddiction = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const { addiction } = req.body;
+        const { addiction, phoneNumber } = req.body;
 
-        const { isValid, errors } = validateAddictionInput(addiction);
-        if (!isValid) {
+        const { isValid: isAddictionValid, errors: addictionErrors } =
+            validateAddictionInput(addiction);
+        const { isValid: isPhoneValid, errors: phoneErrors } =
+            validatePhoneNumber(phoneNumber);
+
+        const errors = { ...addictionErrors, ...phoneErrors };
+
+        if (!isAddictionValid || !isPhoneValid) {
             res.status(400).json({ errors });
             return;
         }
 
-        await Addiction.create({ addiction: addiction.trim() });
+        await Addiction.create({
+            addiction: addiction.trim(),
+            phoneNumber: phoneNumber.trim(),
+        });
+
         res.status(201).json({ success: true });
     } catch (error) {
         if (error instanceof Error && "name" in error) {
