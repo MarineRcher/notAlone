@@ -41,7 +41,7 @@ describe("addAddiction controller", () => {
     it("should return 400 if addiction name is missing", async () => {
         const req = {
             body: {
-                phoneNumber: "+33612345678", // ✅ Ajouté
+                phoneNumber: "+33612345678",
             },
         } as Request;
 

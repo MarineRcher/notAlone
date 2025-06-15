@@ -2,6 +2,7 @@
 import { Model, DataTypes, Optional } from "sequelize";
 import db from "../config/database";
 import { AddictionUserAttributes } from "../types/addictionUser";
+import Addiction from "./Addiction";
 
 interface AddictionUserCreationAttributes
     extends Optional<AddictionUserAttributes, "id_addiction_user"> {}
@@ -19,6 +20,7 @@ class AddictionUser
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+    declare addiction?: Addiction;
 
     static associate(models: any) {
         AddictionUser.belongsTo(models.User, {
