@@ -24,7 +24,7 @@ import TabIcon from "./TabIcon";
 import colors from "../css/colors";
 import { Fonts } from "../css/font";
 import TabLabel from "./tabLabel";
-import ForestScreen from "../screens/forestScreen";
+import ForestScreen from "../screens/ForestScreen";
 import HelpScreen from "../screens/HelpScreen";
 
 const Tab = createBottomTabNavigator();

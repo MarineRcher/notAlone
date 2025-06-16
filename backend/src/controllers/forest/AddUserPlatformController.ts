@@ -13,7 +13,7 @@ import logger from "../../config/logger";
  * @param {NextFunction} next - Express next middleware function.
  * @returns {Promise<void>} A promise that resolves when processing is complete.
  */
-export const AddUserPlatformController = async (
+export const AddUserPlatform = async (
     req: Request,
     res: Response,
     next: NextFunction

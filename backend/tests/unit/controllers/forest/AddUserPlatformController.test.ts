@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AddUserPlatformController } from "../../../../src/controllers/forest/AddUserPlatformController";
+import { AddUserPlatform } from "../../../../src/controllers/forest/AddUserPlatformController";
 import Platforms from "../../../../src/models/Platforms";
 import Forest from "../../../../src/models/Forest";
 import Nature from "../../../../src/models/Nature";
@@ -8,7 +8,7 @@ jest.mock("../../../../src/models/Platforms");
 jest.mock("../../../../src/models/Forest");
 jest.mock("../../../../src/models/Nature");
 
-describe("AddUserPlatformController", () => {
+describe("AddUserPlatform", () => {
     const mockReq = {
         user: { id: 1 },
         body: {
@@ -36,7 +36,7 @@ describe("AddUserPlatformController", () => {
     it("should return 401 if user is not authenticated", async () => {
         const req = { ...mockReq, user: null } as unknown as Request;
 
-        await AddUserPlatformController(req, mockRes, mockNext);
+        await AddUserPlatform(req, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
         expect(mockRes.json).toHaveBeenCalledWith({ message: "Non autorisé" });
@@ -48,7 +48,7 @@ describe("AddUserPlatformController", () => {
             body: { x: "bad", y: 2 },
         } as unknown as Request;
 
-        await AddUserPlatformController(req, mockRes, mockNext);
+        await AddUserPlatform(req, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(400);
         expect(mockRes.json).toHaveBeenCalledWith({
@@ -59,7 +59,7 @@ describe("AddUserPlatformController", () => {
     it("should return 409 if platform already exists", async () => {
         (Platforms.findOne as jest.Mock).mockResolvedValueOnce({});
 
-        await AddUserPlatformController(mockReq, mockRes, mockNext);
+        await AddUserPlatform(mockReq, mockRes, mockNext);
 
         expect(Platforms.findOne).toHaveBeenCalledWith({
             where: { id_user: 1, x: 2, y: 3 },
@@ -94,7 +94,7 @@ describe("AddUserPlatformController", () => {
             },
         });
 
-        await AddUserPlatformController(mockReq, mockRes, mockNext);
+        await AddUserPlatform(mockReq, mockRes, mockNext);
 
         expect(Platforms.create).toHaveBeenCalledWith({
             x: 2,

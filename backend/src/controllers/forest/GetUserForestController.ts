@@ -17,7 +17,7 @@ import Nature from "../../models/Nature";
  * @param {NextFunction} next - Express next middleware.
  * @returns {Promise<void>}
  */
-export const GetUserForestController = async (
+export const GetUserForest = async (
     req: Request,
     res: Response,
     next: NextFunction

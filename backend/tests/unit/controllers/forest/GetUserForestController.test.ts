@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { GetUserForestController } from "../../../../src/controllers/forest/GetUserForestController";
+import { GetUserForest } from "../../../../src/controllers/forest/GetUserForestController";
 import Platforms from "../../../../src/models/Platforms";
 import Forest from "../../../../src/models/Forest";
 import Nature from "../../../../src/models/Nature";
 
 jest.mock("../../../../src/models/Platforms");
 
-describe("GetUserForestController", () => {
+describe("GetUserForest", () => {
     const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
@@ -21,7 +21,7 @@ describe("GetUserForestController", () => {
     it("should return 401 if user is not authenticated", async () => {
         const req = { user: null } as unknown as Request;
 
-        await GetUserForestController(req, mockRes, mockNext);
+        await GetUserForest(req, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
         expect(mockRes.json).toHaveBeenCalledWith({ message: "Non autorisé" });
@@ -51,7 +51,7 @@ describe("GetUserForestController", () => {
 
         (Platforms.findAll as jest.Mock).mockResolvedValueOnce(mockPlatforms);
 
-        await GetUserForestController(req, mockRes, mockNext);
+        await GetUserForest(req, mockRes, mockNext);
 
         expect(Platforms.findAll).toHaveBeenCalledWith({
             where: { id_user: 1 },
@@ -81,7 +81,7 @@ describe("GetUserForestController", () => {
 
         (Platforms.findAll as jest.Mock).mockResolvedValueOnce([]);
 
-        await GetUserForestController(req, mockRes, mockNext);
+        await GetUserForest(req, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(200);
         expect(mockRes.json).toHaveBeenCalledWith({
@@ -94,7 +94,7 @@ describe("GetUserForestController", () => {
         const error = new Error("DB failure");
         (Platforms.findAll as jest.Mock).mockRejectedValueOnce(error);
 
-        await GetUserForestController(req, mockRes, mockNext);
+        await GetUserForest(req, mockRes, mockNext);
 
         expect(mockNext).toHaveBeenCalledWith(error);
     });

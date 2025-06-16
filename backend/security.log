@@ -499,3 +499,12 @@
 {"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:22:37.488Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:22:37.490Z","user":1}
 {"error":{},"level":"error","message":"Erreur lors de la récupération de la forêt utilisateur","timestamp":"2025-06-16T21:22:39.635Z","user_id":3}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-16T21:31:34.020Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:31:45.270Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:31:45.284Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-16T21:38:59.722Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:39:05.075Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:39:05.079Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-16T21:40:10.663Z","user":"athena@mail.com"}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:40:16.089Z","user":2}
+{"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:40:16.092Z","user":2}

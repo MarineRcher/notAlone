@@ -8,6 +8,7 @@ import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
 import usersRoutes from "./src/routes/userRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
+import forestRoutes from "./src/routes/forestRoutes";
 import GroupController from "./src/constrollers/GroupController";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/addictions", addictionRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/forest", forestRoutes);
 
 async function startServer() {
     try {

@@ -1,14 +1,9 @@
 import { Text, View } from "react-native";
+import colors from "../css/colors";
 
 const ForestScreen = () => {
     return (
-        <View
-            style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-        >
+        <View style={{ backgroundColor: colors.sky }}>
             <Text>Forest</Text>
         </View>
     );

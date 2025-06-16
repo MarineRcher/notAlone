@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -17,20 +17,33 @@ import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
-import colors from "../css/colors";
 
+import colors from "../css/colors";
 const Stack = createStackNavigator();
-const MyTheme = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        background: colors.background,
-    },
-};
 
 const AppNavigator = () => {
+    const [bgColor, setBgColor] = useState(colors.background);
+
+    const MyTheme = {
+        ...DefaultTheme,
+        colors: {
+            ...DefaultTheme.colors,
+            background: bgColor,
+        },
+    };
+
     return (
-        <NavigationContainer theme={MyTheme}>
+        <NavigationContainer
+            theme={MyTheme}
+            onStateChange={(state) => {
+                const currentRoute = state?.routes[state.index]?.name;
+                if (currentRoute === "Forest") {
+                    setBgColor(colors.sky);
+                } else {
+                    setBgColor(colors.background);
+                }
+            }}
+        >
             <Stack.Navigator>
                 {/* Écrans d'authentification */}
                 <Stack.Screen
