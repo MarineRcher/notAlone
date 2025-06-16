@@ -483,3 +483,19 @@
 {"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-15T21:21:37.734Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-15T21:21:37.737Z","user":1}
 {"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-15T21:21:39.644Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-16T21:17:55.790Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:17:55.830Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:17:55.831Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:17:55.838Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-16T21:17:56.923Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-16T21:21:00.933Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:21:00.976Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:21:00.977Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:21:00.980Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-16T21:21:01.430Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-16T21:22:37.456Z"}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-16T21:22:37.227Z","user_id":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:22:37.487Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:22:37.488Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:22:37.490Z","user":1}
+{"error":{},"level":"error","message":"Erreur lors de la récupération de la forêt utilisateur","timestamp":"2025-06-16T21:22:39.635Z","user_id":3}
