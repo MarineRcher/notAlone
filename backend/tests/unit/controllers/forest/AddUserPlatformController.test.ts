@@ -14,11 +14,8 @@ describe("AddUserPlatform", () => {
         body: {
             x: 2,
             y: 3,
-            element: {
-                type: "tree",
-                side: "top",
-                url: "https://cdn.com/tree.png",
-            },
+            id_nature: 7,
+            side: "top",
         },
     } as unknown as Request;
 
@@ -70,28 +67,19 @@ describe("AddUserPlatform", () => {
         });
     });
 
-    it("should create platform and forestElement with new nature", async () => {
+    it("should create platform and forestElement if nature exists", async () => {
         (Platforms.findOne as jest.Mock).mockResolvedValueOnce(null);
         (Platforms.create as jest.Mock).mockResolvedValueOnce({
             id_platform: 42,
         });
-        (Nature.findOne as jest.Mock).mockResolvedValueOnce(null);
-        (Nature.create as jest.Mock).mockResolvedValueOnce({
+        (Nature.findByPk as jest.Mock).mockResolvedValueOnce({
             id_nature: 7,
             type: "tree",
             url: "https://cdn.com/tree.png",
         });
-        (Forest.create as jest.Mock).mockResolvedValueOnce({ id_forest: 100 });
-        (Forest.findByPk as jest.Mock).mockResolvedValueOnce({
+        (Forest.create as jest.Mock).mockResolvedValueOnce({
             id_forest: 100,
             side: "top",
-            id_platform: 42,
-            id_nature: 7,
-            nature: {
-                id_nature: 7,
-                type: "tree",
-                url: "https://cdn.com/tree.png",
-            },
         });
 
         await AddUserPlatform(mockReq, mockRes, mockNext);
@@ -102,29 +90,12 @@ describe("AddUserPlatform", () => {
             id_user: 1,
         });
 
-        expect(Nature.findOne).toHaveBeenCalledWith({
-            where: { type: "tree" },
-        });
-
-        expect(Nature.create).toHaveBeenCalledWith({
-            type: "tree",
-            url: "https://cdn.com/tree.png",
-        });
+        expect(Nature.findByPk).toHaveBeenCalledWith(7);
 
         expect(Forest.create).toHaveBeenCalledWith({
             side: "top",
             id_platform: 42,
             id_nature: 7,
-        });
-
-        expect(Forest.findByPk).toHaveBeenCalledWith(100, {
-            include: [
-                {
-                    model: Nature,
-                    as: "nature",
-                    attributes: ["id_nature", "type", "url"],
-                },
-            ],
         });
 
         expect(mockRes.status).toHaveBeenCalledWith(201);
@@ -133,13 +104,6 @@ describe("AddUserPlatform", () => {
             forestElement: {
                 id_forest: 100,
                 side: "top",
-                id_platform: 42,
-                id_nature: 7,
-                nature: {
-                    id_nature: 7,
-                    type: "tree",
-                    url: "https://cdn.com/tree.png",
-                },
             },
         });
     });

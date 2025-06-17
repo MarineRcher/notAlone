@@ -26,7 +26,7 @@ export const AddUserPlatform = async (
             return;
         }
 
-        const { x, y, element } = req.body;
+        const { x, y, id_nature, side } = req.body;
 
         if (typeof x !== "number" || typeof y !== "number") {
             res.status(400).json({ message: "Coordonnées (x, y) invalides" });
@@ -52,49 +52,30 @@ export const AddUserPlatform = async (
 
         let forestElement = null;
 
-        if (element?.type && element?.side) {
-            const validTypes = ["tree", "flower"];
-            const validSides = ["top", "right", "bottom", "left"];
+        const validSides = ["top", "right", "bottom", "left"];
 
-            if (
-                validTypes.includes(element.type) &&
-                validSides.includes(element.side)
-            ) {
-                let nature = await Nature.findOne({
-                    where: { type: element.type },
+        if (typeof id_nature === "number" && validSides.includes(side)) {
+            const nature = await Nature.findByPk(id_nature);
+
+            if (!nature) {
+                res.status(400).json({
+                    message: "L'élément nature spécifié n'existe pas",
                 });
-
-                if (!nature) {
-                    nature = await Nature.create({
-                        type: element.type,
-                        url: element.url,
-                    });
-                }
-
-                forestElement = await Forest.create({
-                    side: element.side,
-                    id_platform: newPlatform.id_platform,
-                    id_nature: nature.id_nature,
-                });
-
-                forestElement = await Forest.findByPk(forestElement.id_forest, {
-                    include: [
-                        {
-                            model: Nature,
-                            as: "nature",
-                            attributes: ["id_nature", "type", "url"],
-                        },
-                    ],
-                });
-            } else {
-                logger.warn(
-                    "Type ou side invalide fourni pour l'élément forestier",
-                    {
-                        type: element.type,
-                        side: element.side,
-                    }
-                );
+                return;
             }
+
+            forestElement = await Forest.create({
+                side,
+                id_platform: newPlatform.id_platform,
+                id_nature,
+            });
+
+            forestElement = {
+                id_forest: forestElement.id_forest,
+                side: forestElement.side,
+            };
+        } else if (id_nature || side) {
+            logger.warn("id_nature ou side invalide", { id_nature, side });
         }
 
         res.status(201).json({
