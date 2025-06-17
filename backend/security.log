@@ -572,3 +572,14 @@
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T19:55:15.850Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-17T19:55:15.851Z","user":1}
 {"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T19:55:15.853Z","user":1}
+{"email":"sylvainarhkaz@gmail.com","ip":"::ffff:172.18.0.1","level":"info","login":"fjdjwj","message":"Tentative d'inscription","timestamp":"2025-06-17T20:08:43.267Z"}
+{"ip":"::ffff:172.18.0.1","level":"info","login":"fjdjwj","message":"Inscription réussie","timestamp":"2025-06-17T20:08:43.449Z","userId":1}
+{"email":"sylvainarhkaz@gmail.com","ip":"::ffff:172.18.0.1","level":"info","login":"abibibi","message":"Tentative d'inscription","timestamp":"2025-06-17T20:12:54.826Z"}
+{"ip":"::ffff:172.18.0.1","level":"info","login":"abibibi","message":"Inscription réussie","timestamp":"2025-06-17T20:12:54.997Z","userId":1}
+{"addiction":7,"ip":"::ffff:172.18.0.1","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-17T20:26:08.617Z","user":1}
+{"email":"sylvainarhkaz@gmail.com","ip":"::ffff:172.18.0.1","level":"info","login":"sylvain","message":"Tentative d'inscription","timestamp":"2025-06-17T20:27:46.773Z"}
+{"email":"sylvainarhkaz@gmail.com","ip":"::ffff:172.18.0.1","level":"warn","message":"Échec d'inscription - Email déjà utilisé","timestamp":"2025-06-17T20:27:46.882Z"}
+{"email":"sylvain@gmail.com","ip":"::ffff:172.18.0.1","level":"info","login":"sylvain","message":"Tentative d'inscription","timestamp":"2025-06-17T20:27:51.751Z"}
+{"ip":"::ffff:172.18.0.1","level":"info","login":"sylvain","message":"Inscription réussie","timestamp":"2025-06-17T20:27:51.851Z","userId":2}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-17T20:29:05.148Z","user":"sylvain"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-17T20:29:05.202Z","user":2}
