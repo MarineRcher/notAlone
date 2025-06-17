@@ -508,3 +508,28 @@
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de connexion","timestamp":"2025-06-16T21:40:10.663Z","user":"athena@mail.com"}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-16T21:40:16.089Z","user":2}
 {"ip":"::ffff:192.168.1.48","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-16T21:40:16.092Z","user":2}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-17T11:02:06.509Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:02:06.537Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-17T11:02:06.538Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:02:06.541Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-17T11:02:06.913Z","user_id":1}
+{"error":{},"level":"error","message":"Erreur lors de la récupération de la forêt utilisateur","timestamp":"2025-06-17T11:02:06.946Z","user_id":3}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-17T11:04:08.031Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:04:08.067Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-17T11:04:08.068Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:04:08.077Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-17T11:04:08.533Z","user_id":1}
+{"error":{},"level":"error","message":"Erreur lors de la récupération de la forêt utilisateur","timestamp":"2025-06-17T11:04:08.588Z","user_id":3}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-17T11:06:45.782Z","user_id":1}
+{"error":{},"level":"error","message":"Erreur lors de la récupération de la forêt utilisateur","timestamp":"2025-06-17T11:06:45.824Z","user_id":3}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-17T11:06:44.952Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:06:44.975Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-17T11:06:44.976Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:06:44.979Z","user":1}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des addictions utilisateur","timestamp":"2025-06-17T11:11:23.384Z","user_id":1}
+{"error":"Le code doit être à 6 chiffres","ip":"127.0.0.1","level":"warn","message":"Échec de validation du code","timestamp":"2025-06-17T11:11:23.505Z"}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:11:23.532Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Vérification 2FA réussie","timestamp":"2025-06-17T11:11:23.533Z","user":1}
+{"ip":"127.0.0.1","level":"info","message":"Tentative de vérification 2FA","timestamp":"2025-06-17T11:11:23.537Z","user":1}
+{"error":{},"level":"error","message":"Erreur lors de la récupération de la forêt utilisateur","timestamp":"2025-06-17T11:11:23.540Z","user_id":3}
+{"error":{},"ip":"127.0.0.1","level":"error","message":"Erreur lors de la récupération des elements de la foret","timestamp":"2025-06-17T11:11:24.849Z"}
