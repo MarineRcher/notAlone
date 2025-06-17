@@ -108,7 +108,6 @@ export const register = async (
             });
             return;
         }
-
         // Vérification de l'unicité de l'email
         const existingEmail = await User.findOne({ where: { email } });
         if (existingEmail) {

@@ -19,7 +19,7 @@ services:
             - ./backend:/app
             - ./.env:/app/.env
             - ./backend/logs:/app/logs
-
+            - /app/node_modules
     db:
         image: postgres:latest
         env_file:
@@ -53,3 +53,5 @@ volumes:
 
 networks:
     app-network:
+
+

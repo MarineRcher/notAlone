@@ -27,7 +27,7 @@ export default {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            has_2fa: {
+            has2_f_a: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
