@@ -1,6 +1,7 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { authHelpers } from "./authHelpers";
+import { apiConfig } from "../config/api";
 
 interface DecodedToken {
     exp: number;
@@ -22,8 +23,8 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 const apiClient = axios.create({
-    baseURL: "http://172.20.10.2:3000/api",
-    timeout: 10000,
+    baseURL: apiConfig.apiURL,
+    timeout: apiConfig.timeout,
     headers: {
         "Content-Type": "application/json",
     },
@@ -72,7 +73,7 @@ apiClient.interceptors.request.use(
                 try {
                     // Appel direct à l'API de refresh pour éviter la boucle
                     const response = await axios.post(
-                        "http://192.168.1.155:3000/api/auth/refresh",
+                        `${apiConfig.apiURL}/auth/refresh`,
                         {},
                         {
                             headers: {

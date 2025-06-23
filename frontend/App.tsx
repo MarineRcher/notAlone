@@ -1,5 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { registerRootComponent } from "expo";
+// Initialize crypto polyfills for React Native
+import 'react-native-get-random-values';
 import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/context/AuthContext";
 import {

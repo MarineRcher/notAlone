@@ -20,17 +20,17 @@ interface GroupMemberCreationAttributes
   extends Optional<GroupMemberAttributes, "id" | "role" | "isActive" | "lastSeenAt" | "createdAt" | "updatedAt"> {}
 
 class GroupMember extends Model<GroupMemberAttributes, GroupMemberCreationAttributes> implements GroupMemberAttributes {
-  public id!: string;
-  public groupId!: string;
-  public userId!: number;
-  public role!: 'admin' | 'member';
-  public joinedAt!: Date;
-  public isActive!: boolean;
-  public publicKey?: string;
-  public lastSeenAt?: Date;
+  declare id: string;
+  declare groupId: string;
+  declare userId: number;
+  declare role: 'admin' | 'member';
+  declare joinedAt: Date;
+  declare isActive: boolean;
+  declare publicKey?: string;
+  declare lastSeenAt?: Date;
   
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 GroupMember.init(
@@ -43,6 +43,7 @@ GroupMember.init(
     groupId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'group_id', // Map to snake_case database column
       references: {
         model: Group,
         key: 'id',
@@ -52,6 +53,7 @@ GroupMember.init(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'user_id', // Map to snake_case database column
       references: {
         model: User,
         key: 'id',
@@ -65,27 +67,33 @@ GroupMember.init(
     joinedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
+      field: 'joined_at', // Map to snake_case database column
     },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      field: 'is_active', // Map to snake_case database column
     },
     publicKey: {
       type: DataTypes.TEXT,
       allowNull: true,
+      field: 'public_key', // Map to snake_case database column
       comment: 'Base64 encoded public key for e2ee',
     },
     lastSeenAt: {
       type: DataTypes.DATE,
       allowNull: true,
+      field: 'last_seen_at', // Map to snake_case database column
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'created_at', // Map to snake_case database column
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'updated_at', // Map to snake_case database column
     },
   },
   {

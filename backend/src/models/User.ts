@@ -1,6 +1,7 @@
 import { Model, DataTypes, Optional } from "sequelize";
 import db from "./../config/database";
 import { UserAttributes } from "../types/users";
+
 interface UserCreationAttributes
     extends Optional<
         UserAttributes,
@@ -14,25 +15,23 @@ interface UserCreationAttributes
         | "failedLoginAttempts"
         | "blockedUntil"
     > {}
-class User
-    extends Model<UserAttributes, UserCreationAttributes>
-    implements UserAttributes
-{
-    public id!: number;
-    public login!: string;
-    public email!: string;
-    public password!: string;
-    public hasPremium!: boolean;
-    public has2FA!: boolean;
-    public twoFactorSecret!: string | null;
-    public isBlocked!: boolean;
-    public notify!: boolean;
-    public hourNotify!: Date | null;
-    public failedLoginAttempts!: number;
-    public blockedUntil!: Date | null;
 
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+    declare id: number;
+    declare login: string;
+    declare email: string;
+    declare password: string;
+    declare hasPremium: boolean;
+    declare has2FA: boolean;
+    declare twoFactorSecret: string | null;
+    declare isBlocked: boolean;
+    declare notify: boolean;
+    declare hourNotify: Date | null;
+    declare failedLoginAttempts: number;
+    declare blockedUntil: Date | null;
+
+    declare readonly createdAt: Date;
+    declare readonly updatedAt: Date;
 }
 
 User.init(
@@ -62,18 +61,22 @@ User.init(
         hasPremium: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+            field: 'has_premium', // Map to the correct database column name
         },
         has2FA: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+            field: 'has_2fa', // Map to the correct database column name
         },
         twoFactorSecret: {
             type: DataTypes.STRING,
             allowNull: true,
+            field: 'two_factor_secret', // Map to the correct database column name
         },
         isBlocked: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+            field: 'is_blocked', // Map to the correct database column name
         },
         notify: {
             type: DataTypes.BOOLEAN,
@@ -82,14 +85,17 @@ User.init(
         hourNotify: {
             type: DataTypes.TIME,
             allowNull: true,
+            field: 'hour_notify', // Map to the correct database column name
         },
         failedLoginAttempts: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
+            field: 'failed_login_attempts', // Map to the correct database column name
         },
         blockedUntil: {
             type: DataTypes.DATE,
             allowNull: true,
+            field: 'blocked_until', // Map to the correct database column name
         },
     },
     {

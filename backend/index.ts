@@ -6,18 +6,10 @@ import express from "express";
 import dotenv from "dotenv";
 import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
-<<<<<<< HEAD
 import usersRoutes from "./src/routes/userRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
-<<<<<<< HEAD
-import GroupController from "./src/constrollers/GroupController";
-=======
 import groupRoutes from "./src/routes/groupRoutes";
 import GroupController from "./src/controllers/GroupController";
->>>>>>> 6293628 (ADD: backend e2ee logic + tests)
-=======
-import GroupController from "./src/controllers/GroupController";
->>>>>>> 713ac27 (update migrations)
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
 
@@ -34,10 +26,8 @@ app.use(express.json());
 
 // HTTP Routes
 app.use("/api/auth", authRoutes);
-<<<<<<< HEAD
 app.use("/api/addictions", addictionRoutes);
 app.use("/api/users", usersRoutes);
-=======
 app.use("/api/groups", groupRoutes);
 // Add the e2ee compatibility routes directly
 app.use("/api", groupRoutes);
@@ -50,7 +40,6 @@ interface AuthenticatedSocket extends Socket {
         isMockUser?: boolean;
     };
 }
->>>>>>> 6293628 (ADD: backend e2ee logic + tests)
 
 // Socket.IO server configuration
 const io = new Server(server, {
@@ -117,6 +106,21 @@ io.on("connection", (socket) => {
     const groupController = new GroupController(io);
     groupController.handleConnection(socket as AuthenticatedSocket);
 });
+
+// Initialize group controller for cleanup jobs
+const groupController = new GroupController(io);
+
+// Schedule cleanup jobs every 5 minutes
+setInterval(async () => {
+    try {
+        console.log('🧹 Running scheduled cleanup...');
+        await groupController.cleanupInactiveGroups();
+        await groupController.autoSealFullGroups();
+        await groupController.cleanupEmptyGroups();
+    } catch (error) {
+        console.error('Error in scheduled cleanup:', error);
+    }
+}, 5 * 60 * 1000); // 5 minutes
 
 async function startServer() {
     let databaseConnected = false;
@@ -185,7 +189,7 @@ async function startServer() {
 
         // Start the server
         const PORT = process.env.PORT || 3000;
-        server.listen(PORT, () => {
+        server.listen(PORT as number, '0.0.0.0', () => {
             console.log(`🚀 Server is running on port ${PORT}`);
             console.log(`📡 HTTP endpoints available at http://localhost:${PORT}`);
             console.log(`🔌 Socket.IO server is ready for connections`);

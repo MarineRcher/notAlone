@@ -19,10 +19,10 @@
         "migrate:undo:all": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize db:migrate:undo:all --config /app/src/config/config.json --migrations-path /app/src/migrations --to",
         "migrate:generate": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize migration:generate --config /app/src/config/config.json --migrations-path /app/src/migrations --name",
         "seed:generate": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize seed:generate --config /app/src/config/config.json --seeders-path /app/src/seeders --name",
-        "seed:all": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize seed:all --config /app/src/config/config.json --seeders-path /app/src/seeders",
-        "seed:undo:last": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize seed:undo --config /app/src/config/config.json --seeders-path /app/src/seeders",
-        "seed:undo:all": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize seed:undo:all --config /app/src/config/config.json --seeders-path /app/src/seeders",
-        "seed:undo": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize seed:undo --config /app/src/config/config.json --seeders-path /app/src/seeders --seed"
+        "seed:all": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize db:seed:all --config /app/src/config/config.json --seeders-path /app/src/seeders",
+        "seed:undo:last": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize db:seed:undo --config /app/src/config/config.json --seeders-path /app/src/seeders",
+        "seed:undo:all": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize db:seed:undo:all --config /app/src/config/config.json --seeders-path /app/src/seeders",
+        "seed:undo": "docker compose exec api node --loader ts-node/esm --experimental-json-modules ./node_modules/.bin/sequelize db:seed:undo --config /app/src/config/config.json --seeders-path /app/src/seeders --seed"
     },
     "keywords": [],
     "author": "",

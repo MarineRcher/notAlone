@@ -163,7 +163,27 @@ export const initiateSession = async (
 };
 
 // Access to cryptoSubtle
-const cryptoSubtle = global.crypto.subtle;
+// Check if global.crypto.subtle is available, fallback to a mock implementation
+const getCryptoSubtle = () => {
+  if (typeof global !== 'undefined' && global.crypto && global.crypto.subtle) {
+    return global.crypto.subtle;
+  }
+  
+  // If crypto is not available, return a mock object that will throw descriptive errors
+  return {
+    generateKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    encrypt: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    decrypt: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    importKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    exportKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    sign: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    verify: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    deriveKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    deriveBits: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+  };
+};
+
+const cryptoSubtle = getCryptoSubtle();
 
 /**
  * Sends an encrypted message to a recipient

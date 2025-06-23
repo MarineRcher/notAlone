@@ -328,6 +328,9 @@ export const arrayBufferToUint8Array = (buffer: ArrayBuffer): Uint8Array => {
 export const generateKeyId = async (key: CryptoKey): Promise<string> => {
   try {
     // Export the key (if possible) to generate its fingerprint
+    if (typeof global === 'undefined' || !global.crypto || !global.crypto.subtle) {
+      throw new Error('Web Crypto API not available');
+    }
     const subtle = global.crypto.subtle;
     const format = key.type === 'private' ? 'pkcs8' : 'spki';
     

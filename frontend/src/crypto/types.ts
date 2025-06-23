@@ -191,6 +191,7 @@ export interface KeyPair {
     rotateGroupKey: (groupId: string) => Promise<void>;
     exportIdentity: () => Promise<{ userId: string; publicKey: string }>;
     importIdentity: (userId: string, privateKey: string) => Promise<void>;
+    createGroupSession: (groupId: string, memberIds: string[]) => Promise<void>;
   }
   
   /**

@@ -11,7 +11,7 @@ console.log('🧪 Testing basic Socket.IO connection...');
 
 const socket = io('http://localhost:3000', {
   auth: {
-    token: 'mock_jwt_token_testuser'
+    token: 'mock_jwt_token_alice'  // Use a valid test user
   },
   transports: ['polling', 'websocket'] // Try polling first
 });
