@@ -88,6 +88,7 @@ Journal.init(
         modelName: "Journal",
         tableName: "journal",
         timestamps: true,
+        createdAt: "created_at",
         hooks: {
             beforeCreate: (journal: Journal) => {
                 if (!journal.getDataValue("created_at")) {

@@ -2,13 +2,13 @@ import { Text, View } from "react-native";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 
-const AskDeviation = () => {
+const TopActivitiesScreen = () => {
     return (
         <View>
             <Mascot
                 mascot="hey"
                 text={
-                    "Il y a eu un petit écart ? Ce n’est pas grave, je suis toujours là."
+                    "Si tu devais choisir les deux moments clés de ta journée, ce serait quoi ?"
                 }
             />
 
@@ -16,4 +16,4 @@ const AskDeviation = () => {
         </View>
     );
 };
-export default AskDeviation;
+export default TopActivitiesScreen;

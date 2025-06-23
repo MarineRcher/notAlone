@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
 import usersRoutes from "./src/routes/userRoutes";
+import journalRoutes from "./src/routes/journalRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
 import GroupController from "./src/constrollers/GroupController";
 import { connectRedis } from "./src/config/redis";
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/addictions", addictionRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/journal", journalRoutes);
 
 async function startServer() {
     try {

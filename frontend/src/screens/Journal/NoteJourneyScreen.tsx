@@ -2,13 +2,13 @@ import { Text, View } from "react-native";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 
-const AskUserOk = () => {
+const NoteJourneyScreen = () => {
     return (
         <View>
             <Mascot
                 mascot="hey"
                 text={
-                    "Un petit coup de museau pour te demander : comment va ton monde intérieur aujourd’hui ?"
+                    "Prends un moment pour poser tes pensées… Raconte-moi ta journée, sans filtre, sans jugement. Tu peux tout déposer ici."
                 }
             />
 
@@ -16,4 +16,4 @@ const AskUserOk = () => {
         </View>
     );
 };
-export default AskUserOk;
+export default NoteJourneyScreen;

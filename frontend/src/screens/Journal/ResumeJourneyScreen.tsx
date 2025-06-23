@@ -2,13 +2,13 @@ import { Text, View } from "react-native";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 
-const journeyGoal = () => {
+const ResumeJourneyScreen = () => {
     return (
         <View>
             <Mascot
-                mascot="woaw"
+                mascot="hey"
                 text={
-                    "As-tu réussi à atteindre ton objectif d’hier ? Si tu veux, on peut en choisir un nouveau pour aujourd’hui."
+                    "Si ta journée était un mot, ce serait… ? J’ai hâte de le découvrir."
                 }
             />
 
@@ -16,4 +16,4 @@ const journeyGoal = () => {
         </View>
     );
 };
-export default journeyGoal;
+export default ResumeJourneyScreen;

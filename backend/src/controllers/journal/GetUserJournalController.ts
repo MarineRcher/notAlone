@@ -32,6 +32,7 @@ export const getUserJournal = async (
 
         const user_journal = await Journal.findOne({
             where: { created_at: date, id_user: user_id },
+            raw: true,
         });
 
         if (!user_journal) {
@@ -48,6 +49,7 @@ export const getUserJournal = async (
                 created_at: previousDay.toISOString().split("T")[0],
                 id_user: user_id,
             },
+            raw: true,
         });
 
         const response: any = {
@@ -59,6 +61,7 @@ export const getUserJournal = async (
 
         const user_activities = await UserActivity.findAll({
             where: { id_journal: user_journal.id_journal },
+            raw: true,
         });
 
         if (user_activities && user_activities.length > 0) {
@@ -67,6 +70,7 @@ export const getUserJournal = async (
                     where: {
                         id_activity: user_activity.id_activity,
                     },
+                    raw: true,
                 });
 
                 response.activities.push({
@@ -81,6 +85,7 @@ export const getUserJournal = async (
                 where: {
                     id_resume_journey: user_journal.id_resume_journey,
                 },
+                raw: true,
             });
             response.resume_journey = resume_journey;
         }
