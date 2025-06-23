@@ -11,6 +11,7 @@ class UserActivity
 {
     public id_activity_user!: number;
     public id_activity!: number;
+    public id_journal!: number;
     public id_user!: number;
 
     public readonly createdAt!: Date;
@@ -27,6 +28,10 @@ class UserActivity
             foreignKey: "id_activity",
             as: "activities",
         });
+        UserActivity.belongsTo(models.Activities, {
+            foreignKey: "id_journal",
+            as: "journal",
+        });
     }
 }
 
@@ -38,6 +43,10 @@ UserActivity.init(
             autoIncrement: true,
         },
         id_activity: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        id_journal: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },

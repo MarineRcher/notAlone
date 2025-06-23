@@ -12,14 +12,14 @@ class Journal
     declare id_journal: number;
     declare id_user: number;
     declare difficulty: "Facile" | "Moyen" | "Dur";
-    declare consumed: boolean;
-    declare id_resume_journey: number;
+    declare consumed?: boolean;
+    declare id_resume_journey?: number;
     declare note?: string | undefined;
     declare next_day_goal?: string | undefined;
-    declare next_day_goal_completed?: boolean | undefined;
-
-    declare readonly createdAt: Date;
+    declare actual_day_goal_completed?: boolean | undefined;
+    declare created_at: Date;
     declare readonly updatedAt: Date;
+
     static associate(models: any) {
         Journal.belongsTo(models.User, {
             foreignKey: "id_user",
@@ -51,11 +51,11 @@ Journal.init(
         },
         consumed: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false,
+            defaultValue: true,
         },
         id_resume_journey: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
         },
         note: {
             type: DataTypes.STRING,
@@ -73,9 +73,14 @@ Journal.init(
                 len: [1, 255],
             },
         },
-        next_day_goal_completed: {
+        actual_day_goal_completed: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+        },
+        created_at: {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
         },
     },
     {
@@ -83,6 +88,13 @@ Journal.init(
         modelName: "Journal",
         tableName: "journal",
         timestamps: true,
+        hooks: {
+            beforeCreate: (journal: Journal) => {
+                if (!journal.getDataValue("created_at")) {
+                    journal.setDataValue("created_at", new Date());
+                }
+            },
+        },
     }
 );
 

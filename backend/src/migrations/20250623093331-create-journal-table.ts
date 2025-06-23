@@ -50,9 +50,14 @@ export default {
                     len: [1, 255],
                 },
             },
-            next_day_goal_completed: {
+            actual_day_goal_completed: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
+            },
+            created_at: {
+                type: DataTypes.DATEONLY,
+                allowNull: false,
+                defaultValue: DataTypes.NOW,
             },
         });
     },
