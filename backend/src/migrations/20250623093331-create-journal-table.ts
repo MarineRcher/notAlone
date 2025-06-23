@@ -11,12 +11,6 @@ export default {
             id_user: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                references: {
-                    model: "users",
-                    key: "id",
-                },
-                onUpdate: "CASCADE",
-                onDelete: "CASCADE",
             },
             difficulty: {
                 type: DataTypes.ENUM("Facile", "Moyen", "Dur"),
@@ -24,15 +18,12 @@ export default {
             },
             consumed: {
                 type: DataTypes.BOOLEAN,
+                allowNull: true,
                 defaultValue: false,
             },
             id_resume_journey: {
                 type: DataTypes.INTEGER,
-                allowNull: false,
-                references: {
-                    model: "resume_journey",
-                    key: "id_resume_journey",
-                },
+                allowNull: true,
             },
             note: {
                 type: DataTypes.STRING,
@@ -52,7 +43,7 @@ export default {
             },
             actual_day_goal_completed: {
                 type: DataTypes.BOOLEAN,
-                defaultValue: false,
+                allowNull: true,
             },
             created_at: {
                 type: DataTypes.DATEONLY,

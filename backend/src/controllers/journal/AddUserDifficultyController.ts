@@ -35,8 +35,8 @@ export const addUserDifficulty = async (
         }
 
         if (
-            difficulty !== "Facile" ||
-            difficulty !== "Moyen" ||
+            difficulty !== "Facile" &&
+            difficulty !== "Moyen" &&
             difficulty !== "Dur"
         ) {
             res.status(400).json({

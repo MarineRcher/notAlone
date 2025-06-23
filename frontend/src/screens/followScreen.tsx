@@ -1,15 +1,19 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useState } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../components/mascot";
 import Button from "../components/button";
 import { CalendarList } from "react-native-calendars";
 import journalService from "../api/journalService";
+import { NavigationParams, JournalResponse } from "../types/journal";
 
-const FollowScreen = ({ navigation }) => {
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+type Props = NativeStackScreenProps<any, "Follow">;
 
-    const handleDayPress = (day) => {
+const FollowScreen = ({ navigation }: Props) => {
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const handleDayPress = (day: { dateString: string }) => {
         setSelectedDate(day.dateString);
     };
 
@@ -19,11 +23,12 @@ const FollowScreen = ({ navigation }) => {
 
         setIsLoading(true);
         try {
-            const journalData = await journalService.getJournal({
-                date: new Date(dateToUse),
-            });
+            const journalData: JournalResponse =
+                await journalService.getJournal({
+                    date: new Date(dateToUse),
+                });
 
-            const navigationParams = {
+            const navigationParams: NavigationParams = {
                 date: dateToUse,
                 journalId: journalData?.data?.journal?.id_journal,
                 existingData: journalData?.data || null,
@@ -69,4 +74,5 @@ const FollowScreen = ({ navigation }) => {
         </View>
     );
 };
+
 export default FollowScreen;

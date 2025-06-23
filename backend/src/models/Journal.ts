@@ -51,7 +51,8 @@ Journal.init(
         },
         consumed: {
             type: DataTypes.BOOLEAN,
-            defaultValue: true,
+            allowNull: true,
+            defaultValue: false,
         },
         id_resume_journey: {
             type: DataTypes.INTEGER,
@@ -75,7 +76,7 @@ Journal.init(
         },
         actual_day_goal_completed: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false,
+            allowNull: true,
         },
         created_at: {
             type: DataTypes.DATEONLY,

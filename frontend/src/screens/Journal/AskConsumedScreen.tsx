@@ -1,20 +1,27 @@
-import { Text, View } from "react-native";
+import { Text, View, TextInput } from "react-native";
 import { useState, useEffect } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import BackButton from "../../components/backNavigation";
 import journalService from "../../api/journalService";
+import { NavigationParams } from "../../types/journal";
+import styles from "../form.style";
 
-const AskConsumedScreen = ({ navigation, route }) => {
-    const [journalData, setJournalData] = useState(null);
-    const [consumed, setConsumed] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+type Props = NativeStackScreenProps<any, "Consumed">;
+
+const AskConsumedScreen = ({ navigation, route }: Props) => {
+    const [journalData, setJournalData] = useState<NavigationParams | null>(
+        null
+    );
+    const [consumed, setConsumed] = useState<boolean | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const params = route.params;
+        const params = route.params as NavigationParams;
         if (params) {
             setJournalData(params);
-            if (params.existingData?.journal?.consumed) {
+            if (typeof params.existingData?.journal?.consumed === "boolean") {
                 setConsumed(params.existingData.journal.consumed);
             }
         }
@@ -26,16 +33,16 @@ const AskConsumedScreen = ({ navigation, route }) => {
             if (consumed && journalData?.journalId) {
                 await journalService.addUserConsumed({
                     id_journal: journalData.journalId,
-                    consumed: consumed,
+                    consumed: true,
                 });
             }
 
-            const updatedData = {
-                ...journalData,
-                currentStep: "activities",
+            const updatedData: NavigationParams = {
+                ...journalData!,
+                currentStep: "resume",
             };
 
-            navigation.navigate("Activities", updatedData);
+            navigation.navigate("Resume", updatedData);
         } catch (error) {
             console.error("Erreur lors de l'enregistrement de l'écart:", error);
         } finally {
@@ -44,11 +51,13 @@ const AskConsumedScreen = ({ navigation, route }) => {
     };
 
     const handleSkip = () => {
-        const updatedData = {
+        if (!journalData) return;
+
+        const updatedData: NavigationParams = {
             ...journalData,
-            currentStep: "activities",
+            currentStep: "resume",
         };
-        navigation.navigate("AskActivities", updatedData);
+        navigation.navigate("Resume", updatedData);
     };
 
     return (
@@ -59,25 +68,14 @@ const AskConsumedScreen = ({ navigation, route }) => {
                 text="Il y a eu un petit écart ? Ce n'est pas grave, je suis toujours là."
             />
 
-            <TextInput
-                value={consumed}
-                onChangeText={setConsumed}
-                placeholder="Décris ton écart..."
-                multiline
-            />
-
-            <View
-                style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                }}
-            >
-                <Button title="Passer" onPress={handleSkip} />
+            <View style={styles.buttonRow}>
                 <Button
-                    title={isLoading ? "Enregistrement..." : "Suivant"}
-                    onPress={handleNext}
+                    type="secondary"
+                    title="Non"
+                    onPress={handleSkip}
                     disabled={isLoading}
                 />
+                <Button title="Oui" onPress={handleNext} disabled={isLoading} />
             </View>
         </View>
     );

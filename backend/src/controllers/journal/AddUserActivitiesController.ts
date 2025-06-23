@@ -28,12 +28,24 @@ export const addUserActivities = async (
             return;
         }
 
+        if (
+            !activities ||
+            !Array.isArray(activities) ||
+            activities.length === 0
+        ) {
+            res.status(400).json({
+                message: "Les activités sont requises",
+            });
+            return;
+        }
+
         const existingJournal = await Journal.findOne({
             where: {
                 id_journal: id_journal,
                 id_user: user_id,
             },
         });
+
         if (!existingJournal) {
             res.status(404).json({
                 message: "Journal non trouvé ou non autorisé",
@@ -41,22 +53,36 @@ export const addUserActivities = async (
             return;
         }
 
-        if (activities && activities.length > 0) {
-            for (const activity of activities) {
-                const activities = await UserActivity.create({
+        const createdActivities = [];
+        for (const activity of activities) {
+            try {
+                const userActivity = await UserActivity.create({
                     id_journal: id_journal,
-                    id_activity: activity.id_activity,
+                    id_activity: activity,
                     id_user: user_id,
                 });
+                createdActivities.push(userActivity);
+            } catch (createError) {
+                logger.error("Erreur lors de la création d'une activité", {
+                    error:
+                        createError instanceof Error
+                            ? createError.message
+                            : createError,
+                    activity: activity,
+                    user_id: user_id,
+                    id_journal: id_journal,
+                });
+                throw createError;
             }
         }
 
         res.status(200).json({
-            message: "Ecart enregistrée avec succès",
+            message: "Activités enregistrées avec succès",
+            created_count: createdActivities.length,
         });
     } catch (error) {
         logger.error(
-            "Erreur lors de l'enregistrement de la difficulté de l'utilisateur",
+            "Erreur lors de l'enregistrement des activités de l'utilisateur",
             {
                 error: error instanceof Error ? error.message : error,
                 stack: error instanceof Error ? error.stack : undefined,

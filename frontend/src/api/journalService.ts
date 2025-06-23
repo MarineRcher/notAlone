@@ -11,7 +11,14 @@ const journalService = {
         });
         return response;
     },
-
+    getActivities: async () => {
+        const response = await apiClient.get("/journal/getActivities");
+        return response;
+    },
+    getResumeJourney: async () => {
+        const response = await apiClient.get("/journal/getResumeJourney");
+        return response;
+    },
     addUserDifficulty: async (data: {
         id_journal?: number;
         date: Date;
@@ -26,7 +33,10 @@ const journalService = {
         return response;
     },
 
-    addUserConsumed: async (data: { id_journal: number; consumed: string }) => {
+    addUserConsumed: async (data: {
+        id_journal: number;
+        consumed: boolean;
+    }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
 
@@ -36,7 +46,6 @@ const journalService = {
         return response;
     },
 
-    // Ajoutez les autres méthodes selon vos endpoints
     addActivities: async (data: { id_journal: number; activities: any[] }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");

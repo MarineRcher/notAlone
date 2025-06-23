@@ -138,7 +138,7 @@ const AppNavigator = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="Goals"
+                    name="Goal"
                     component={JourneyGoalScreen}
                     options={{ headerShown: false }}
                 />
@@ -148,7 +148,7 @@ const AppNavigator = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="resume"
+                    name="Resume"
                     component={ResumeJourneyScreen}
                     options={{ headerShown: false }}
                 />

@@ -1,17 +1,23 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useState, useEffect } from "react";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import BackButton from "../../components/backNavigation";
 import journalService from "../../api/journalService";
+import { NavigationParams } from "../../types/journal";
 
-const AskDifficultyScreen = ({ navigation, route }) => {
-    const [journalData, setJournalData] = useState(null);
-    const [selectedDifficulty, setSelectedDifficulty] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+type Props = NativeStackScreenProps<any, "Difficulty">;
+
+const AskDifficultyScreen = ({ navigation, route }: Props) => {
+    const [journalData, setJournalData] = useState<NavigationParams | null>(
+        null
+    );
+    const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const params = route.params;
+        const params = route.params as NavigationParams;
         if (params) {
             setJournalData(params);
             if (params.existingData?.journal?.difficulty) {
@@ -31,16 +37,15 @@ const AskDifficultyScreen = ({ navigation, route }) => {
                 difficulty: selectedDifficulty,
             });
 
-            // Mettre à jour les données pour les écrans suivants
-            const updatedData = {
-                ...journalData,
+            const updatedData: NavigationParams = {
+                ...journalData!,
                 journalId:
                     response.data?.data?.id_journal || journalData?.journalId,
                 isNewJournal: false,
                 currentStep: "consumed",
             };
 
-            navigation.navigate("AskConsumed", updatedData);
+            navigation.navigate("Consumed", updatedData);
         } catch (error) {
             console.error(
                 "Erreur lors de l'enregistrement de la difficulté:",
@@ -59,7 +64,6 @@ const AskDifficultyScreen = ({ navigation, route }) => {
                 text="Un petit coup de museau pour te demander : comment va ton monde intérieur aujourd'hui ?"
             />
 
-            {/* Boutons de sélection de difficulté */}
             <View>
                 {["Facile", "Moyen", "Dur"].map((difficulty) => (
                     <Button
