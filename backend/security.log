@@ -521,3 +521,5 @@
 {"ip":"172.20.10.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-23T13:52:22.335Z","user":1001}
 {"ip":"172.20.10.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-23T14:15:29.363Z","user":"alice"}
 {"ip":"172.20.10.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-23T14:15:29.461Z","user":1001}
+{"ip":"172.20.10.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-23T14:43:55.821Z","user":"alice"}
+{"ip":"172.20.10.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-23T14:43:55.924Z","user":1001}
