@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { UserAttributes } from "../types/users";
-import { redisClient } from "../config/redis";
+import { safeRedisClient } from "../config/redis";
 import { JwtPayload } from "../types/jwt";
 
 declare global {
@@ -43,7 +43,7 @@ export const authMiddleware = async (
         }
 
         const token = authHeader.split(" ")[1];
-        const isRevoked = await redisClient.get(`blacklist:${token}`);
+        const isRevoked = await safeRedisClient.get(`blacklist:${token}`);
         if (isRevoked) {
             res.status(401).json({ message: "Token révoqué" });
             return;

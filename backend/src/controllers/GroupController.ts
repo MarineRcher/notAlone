@@ -55,33 +55,66 @@ class GroupController {
   }
 
   /**
-   * Authenticate socket using JWT token
+   * Authenticate socket using JWT token (with mock token support for testing)
    */
   private authenticateSocket(socket: AuthenticatedSocket, callback: (authenticated: boolean) => void) {
     try {
       const token = socket.handshake.auth.token;
       
       if (!token) {
-        console.log('No token provided');
+        console.log('❌ No token provided');
         callback(false);
         return;
       }
 
-      // Verify JWT token
-      const secret = process.env.JWT_SECRET || 'your-secret-key';
-      const decoded = jwt.verify(token, secret) as any;
-      
-      if (decoded && decoded.userId) {
-        socket.userId = decoded.userId;
-        socket.userLogin = decoded.login || `User${decoded.userId}`;
-        console.log(`Authenticated user: ${socket.userLogin} (${socket.userId})`);
-        callback(true);
-      } else {
-        console.log('Invalid token payload');
+      // Handle mock tokens for testing - use predefined test users
+      if (token.startsWith('mock_jwt_token_')) {
+        const loginName = token.replace('mock_jwt_token_', '');
+        
+        // Map test user logins to their predefined IDs
+        const testUsers: { [key: string]: { id: number, login: string } } = {
+          'alice': { id: 1001, login: 'alice' },
+          'bob': { id: 1002, login: 'bob' },
+          'charlie': { id: 1003, login: 'charlie' },
+          'diana': { id: 1004, login: 'diana' },
+          'eve': { id: 1005, login: 'eve' }
+        };
+
+        const testUser = testUsers[loginName];
+        if (testUser) {
+          socket.userId = testUser.id;
+          socket.userLogin = testUser.login;
+          console.log(`🧪 Test user authenticated: ${testUser.login} (ID: ${testUser.id})`);
+          callback(true);
+          return;
+        } else {
+          console.log(`❌ Unknown test user: ${loginName}. Available: ${Object.keys(testUsers).join(', ')}`);
+          callback(false);
+          return;
+        }
+      }
+
+      // Verify real JWT token for production
+      try {
+        const secret = process.env.JWT_SECRET || 'your-secret-key';
+        const decoded = jwt.verify(token, secret) as any;
+        
+        if (decoded && decoded.id) {
+          socket.userId = decoded.id;
+          socket.userLogin = decoded.login || `User${decoded.id}`;
+          console.log(`✅ Real user authenticated: ${socket.userLogin} (${socket.userId})`);
+          callback(true);
+        } else {
+          console.log('❌ Invalid token payload');
+          console.log('Decoded token:', decoded);
+          callback(false);
+        }
+      } catch (jwtError) {
+        console.error('❌ JWT verification failed:', jwtError);
         callback(false);
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('❌ Authentication error:', error);
       callback(false);
     }
   }
@@ -93,6 +126,18 @@ class GroupController {
     // Join random group
     socket.on('join_random_group', async (data: JoinGroupData, callback) => {
       try {
+        // Verify user is authenticated
+        if (!socket.userId || !socket.userLogin) {
+          console.error('❌ Unauthenticated user trying to join group');
+          callback?.({
+            success: false,
+            message: 'Authentication required. Please connect with a valid token.'
+          });
+          return;
+        }
+
+        console.log(`📍 User ${socket.userLogin} (${socket.userId}) attempting to join random group...`);
+        
         const result = await this.handleJoinRandomGroup(socket, data);
         
         if (result.success && result.group) {
@@ -114,20 +159,30 @@ class GroupController {
             timestamp: new Date()
           });
           
-          // Send group info to the user
+          console.log(`✅ User ${socket.userLogin} joined group ${result.group.id}`);
+          
+          // Send group info to the user via callback
           callback?.({
             success: true,
             group: result.group,
             message: result.message
           });
+
+          // Also emit the group_joined event for frontend listeners
+          socket.emit('group_joined', {
+            success: true,
+            group: result.group,
+            message: result.message
+          });
         } else {
+          console.error(`❌ Failed to join group for ${socket.userLogin}: ${result.message}`);
           callback?.({
             success: false,
             message: result.message || 'Failed to join group'
           });
         }
       } catch (error) {
-        console.error('Error in join_random_group:', error);
+        console.error('❌ Error in join_random_group:', error);
         callback?.({
           success: false,
           message: 'Internal server error'
@@ -211,13 +266,13 @@ class GroupController {
   }
 
   /**
-   * Handle joining a random group
+   * Handle joining a random group with waitroom support
    */
   private async handleJoinRandomGroup(
     socket: AuthenticatedSocket, 
     data: JoinGroupData
   ): Promise<JoinGroupResult> {
-    return await this.groupService.joinRandomGroup(socket.userId!, data.publicKey);
+    return await this.groupService.joinRandomGroupWithWaitroom(socket.userId!, data.publicKey, socket.userLogin);
   }
 
   /**
@@ -225,6 +280,8 @@ class GroupController {
    */
   private async handleSendMessage(socket: AuthenticatedSocket, data: SendMessageData) {
     try {
+      console.log('🔍 Message stored:', data.encryptedMessage);
+
       // Store the encrypted message in database
       const message = await this.groupService.storeMessage(
         data.groupId,
@@ -233,8 +290,8 @@ class GroupController {
         data.messageType
       );
 
-      // Broadcast the encrypted message to all group members
-      this.io.to(`group:${data.groupId}`).emit('new_message', {
+      // Broadcast the encrypted message to all OTHER group members (excluding sender)
+      socket.to(`group:${data.groupId}`).emit('new_message', {
         id: message.id,
         groupId: data.groupId,
         senderId: socket.userId,
@@ -342,6 +399,20 @@ class GroupController {
    */
   async getActiveGroups(page: number = 1, limit: number = 20) {
     return await this.groupService.getActiveGroups(page, limit);
+  }
+
+  /**
+   * Auto-seal full groups
+   */
+  async autoSealFullGroups() {
+    return await this.groupService.autoSealFullGroups();
+  }
+
+  /**
+   * Clean up empty groups and their messages
+   */
+  async cleanupEmptyGroups() {
+    return await this.groupService.cleanupEmptyGroups();
   }
 }
 

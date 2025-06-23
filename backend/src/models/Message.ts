@@ -19,16 +19,16 @@ interface MessageCreationAttributes
   extends Optional<MessageAttributes, "id" | "messageType" | "isDelivered" | "createdAt" | "updatedAt"> {}
 
 class Message extends Model<MessageAttributes, MessageCreationAttributes> implements MessageAttributes {
-  public id!: string;
-  public groupId!: string;
-  public senderId!: number;
-  public encryptedContent!: string;
-  public messageType!: 'text' | 'system' | 'key_exchange';
-  public timestamp!: Date;
-  public isDelivered!: boolean;
+  declare id: string;
+  declare groupId: string;
+  declare senderId: number;
+  declare encryptedContent: string;
+  declare messageType: 'text' | 'system' | 'key_exchange';
+  declare timestamp: Date;
+  declare isDelivered: boolean;
   
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 Message.init(
@@ -41,6 +41,7 @@ Message.init(
     groupId: {
       type: DataTypes.UUID,
       allowNull: false,
+      field: 'group_id', // Map to snake_case database column
       references: {
         model: Group,
         key: 'id',
@@ -50,6 +51,7 @@ Message.init(
     senderId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      field: 'sender_id', // Map to snake_case database column
       references: {
         model: User,
         key: 'id',
@@ -59,11 +61,13 @@ Message.init(
     encryptedContent: {
       type: DataTypes.TEXT,
       allowNull: false,
+      field: 'encrypted_content', // Map to snake_case database column
       comment: 'Serialized encrypted message from frontend',
     },
     messageType: {
       type: DataTypes.ENUM('text', 'system', 'key_exchange'),
       defaultValue: 'text',
+      field: 'message_type', // Map to snake_case database column
     },
     timestamp: {
       type: DataTypes.DATE,
@@ -72,14 +76,17 @@ Message.init(
     isDelivered: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      field: 'is_delivered', // Map to snake_case database column
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'created_at', // Map to snake_case database column
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
+      field: 'updated_at', // Map to snake_case database column
     },
   },
   {

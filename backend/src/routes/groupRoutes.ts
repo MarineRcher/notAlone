@@ -62,7 +62,7 @@ router.post('/join-random', authenticateToken, async (req: AuthenticatedRequest,
   try {
     const { publicKey } = req.body;
     
-    const result = await groupService.joinRandomGroup(req.userId!, publicKey);
+    const result = await groupService.joinRandomGroupWithWaitroom(req.userId!, publicKey, req.userLogin);
     
     if (result.success) {
       res.json({

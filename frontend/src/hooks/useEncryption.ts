@@ -5,6 +5,9 @@
  * in the application, managing keys, sessions, and encryption/decryption.
  */
 
+// Import polyfill to ensure Buffer and crypto are available
+import '../crypto/polyfill';
+
 import { useState, useEffect, useCallback } from 'react';
 import * as keyManager from '../crypto/keys';
 import * as messageManager from '../crypto/messages';
@@ -25,7 +28,27 @@ import {
 } from '../crypto/types';
 
 // For operations not available in expo-crypto, we still use the Web Crypto API
-const cryptoSubtle = global.crypto.subtle;
+// Check if global.crypto.subtle is available, fallback to a mock implementation
+const getCryptoSubtle = () => {
+  if (typeof global !== 'undefined' && global.crypto && global.crypto.subtle) {
+    return global.crypto.subtle;
+  }
+  
+  // If crypto is not available, return a mock object that will throw descriptive errors
+  return {
+    generateKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    encrypt: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    decrypt: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    importKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    exportKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    sign: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    verify: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    deriveKey: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+    deriveBits: () => Promise.reject(new Error('Web Crypto API not available. Please install expo-standard-web-crypto polyfill.')),
+  };
+};
+
+const cryptoSubtle = getCryptoSubtle();
 
 /**
  * Custom hook for managing end-to-end encryption
@@ -792,7 +815,8 @@ export const useEncryption = (): EncryptionContextValue => {
     initSession,
     rotateGroupKey,
     exportIdentity,
-    importIdentity
+    importIdentity,
+    createGroupSession
   };
 
   // Return combined state and functions

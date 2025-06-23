@@ -9,11 +9,13 @@
 
 const { io } = require('socket.io-client');
 
-// Mock user data for testing
+// Test user data - using predefined database users
 const testUsers = [
-  { id: 1, login: 'alice', token: 'mock_jwt_token_alice' },
-  { id: 2, login: 'bob', token: 'mock_jwt_token_bob' },
-  { id: 3, login: 'charlie', token: 'mock_jwt_token_charlie' }
+  { id: 1001, login: 'alice', token: 'mock_jwt_token_alice' },
+  { id: 1002, login: 'bob', token: 'mock_jwt_token_bob' },
+  { id: 1003, login: 'charlie', token: 'mock_jwt_token_charlie' },
+  { id: 1004, login: 'diana', token: 'mock_jwt_token_diana' },
+  { id: 1005, login: 'eve', token: 'mock_jwt_token_eve' }
 ];
 
 function createTestClient(user, serverUrl = 'http://localhost:3000') {
