@@ -1,0 +1,89 @@
+import { Model, DataTypes, Optional } from "sequelize";
+import db from "../config/database";
+import { JournalAttributes } from "../types/journal";
+
+interface JournalCreationAttributes
+    extends Optional<JournalAttributes, "id_journal"> {}
+
+class Journal
+    extends Model<JournalAttributes, JournalCreationAttributes>
+    implements JournalAttributes
+{
+    declare id_journal: number;
+    declare id_user: number;
+    declare difficulty: "Facile" | "Moyen" | "Dur";
+    declare consumed: boolean;
+    declare id_resume_journey: number;
+    declare note?: string | undefined;
+    declare next_day_goal?: string | undefined;
+    declare next_day_goal_completed?: boolean | undefined;
+
+    declare readonly createdAt: Date;
+    declare readonly updatedAt: Date;
+    static associate(models: any) {
+        Journal.belongsTo(models.User, {
+            foreignKey: "id_user",
+            as: "user",
+            onDelete: "CASCADE",
+        });
+
+        Journal.belongsTo(models.ResumeJourney, {
+            foreignKey: "id_resume_journey",
+            as: "resume_journey",
+        });
+    }
+}
+
+Journal.init(
+    {
+        id_journal: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        id_user: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        difficulty: {
+            type: DataTypes.ENUM("Facile", "Moyen", "Dur"),
+            allowNull: false,
+        },
+        consumed: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        id_resume_journey: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        note: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            validate: {
+                notEmpty: true,
+                len: [1, 255],
+            },
+        },
+        next_day_goal: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            validate: {
+                notEmpty: true,
+                len: [1, 255],
+            },
+        },
+        next_day_goal_completed: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+    },
+    {
+        sequelize: db,
+        modelName: "Journal",
+        tableName: "journal",
+        timestamps: true,
+    }
+);
+
+export default Journal;
