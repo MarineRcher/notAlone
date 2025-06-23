@@ -1,16 +1,16 @@
-'use strict';
+import { QueryInterface, DataTypes } from "sequelize";
 
-module.exports = {
-  async up(queryInterface, Sequelize) {
+export default {
+  async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
     await queryInterface.createTable('messages', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false
       },
       groupId: {
-        type: Sequelize.UUID,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'groups',
@@ -19,7 +19,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       senderId: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: 'users',
@@ -28,31 +28,31 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       encryptedContent: {
-        type: Sequelize.TEXT,
+        type: DataTypes.TEXT,
         allowNull: false,
         comment: 'Serialized encrypted message from frontend'
       },
       messageType: {
-        type: Sequelize.ENUM('text', 'system', 'key_exchange'),
+        type: DataTypes.ENUM('text', 'system', 'key_exchange'),
         defaultValue: 'text',
         allowNull: false
       },
       timestamp: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
         allowNull: false
       },
       isDelivered: {
-        type: Sequelize.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: false
       },
       updatedAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: false
       }
     });
@@ -63,7 +63,7 @@ module.exports = {
     await queryInterface.addIndex('messages', ['messageType']);
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('messages');
   }
 }; 

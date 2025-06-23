@@ -1,25 +1,25 @@
-'use strict';
+import { QueryInterface, DataTypes } from "sequelize";
 
-module.exports = {
-  async up(queryInterface, Sequelize) {
+export default {
+  async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
     await queryInterface.createTable('groups', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false
       },
       name: {
-        type: Sequelize.STRING,
+        type: DataTypes.STRING,
         allowNull: false
       },
       isActive: {
-        type: Sequelize.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         defaultValue: true,
         allowNull: false
       },
       maxMembers: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         defaultValue: 10,
         allowNull: false,
         validate: {
@@ -28,7 +28,7 @@ module.exports = {
         }
       },
       currentMembers: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         defaultValue: 0,
         allowNull: false,
         validate: {
@@ -36,26 +36,26 @@ module.exports = {
         }
       },
       isPublic: {
-        type: Sequelize.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         defaultValue: true,
         allowNull: false
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: false
       },
       updatedAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: false
       }
     });
 
     // Create indexes
-    await queryInterface.addIndex('groups', ['isActive', 'isPublic']);
-    await queryInterface.addIndex('groups', ['currentMembers', 'maxMembers']);
+    await queryInterface.addIndex('groups', ['is_active', 'is_public']);
+    await queryInterface.addIndex('groups', ['current_members', 'max_members']);
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('groups');
   }
 }; 

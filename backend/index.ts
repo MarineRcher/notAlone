@@ -9,11 +9,15 @@ import authRoutes from "./src/routes/authRoutes";
 <<<<<<< HEAD
 import usersRoutes from "./src/routes/userRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
+<<<<<<< HEAD
 import GroupController from "./src/constrollers/GroupController";
 =======
 import groupRoutes from "./src/routes/groupRoutes";
 import GroupController from "./src/controllers/GroupController";
 >>>>>>> 6293628 (ADD: backend e2ee logic + tests)
+=======
+import GroupController from "./src/controllers/GroupController";
+>>>>>>> 713ac27 (update migrations)
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
 

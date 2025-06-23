@@ -1,16 +1,16 @@
-'use strict';
+import { QueryInterface, DataTypes } from "sequelize";
 
-module.exports = {
-  async up(queryInterface, Sequelize) {
+export default {
+  async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
     await queryInterface.createTable('group_members', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false
       },
       groupId: {
-        type: Sequelize.UUID,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: 'groups',
@@ -19,7 +19,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       userId: {
-        type: Sequelize.INTEGER,
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
           model: 'users',
@@ -28,35 +28,35 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       role: {
-        type: Sequelize.ENUM('admin', 'member'),
+        type: DataTypes.ENUM('admin', 'member'),
         defaultValue: 'member',
         allowNull: false
       },
       joinedAt: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
         allowNull: false
       },
       isActive: {
-        type: Sequelize.BOOLEAN,
+        type: DataTypes.BOOLEAN,
         defaultValue: true,
         allowNull: false
       },
       publicKey: {
-        type: Sequelize.TEXT,
+        type: DataTypes.TEXT,
         allowNull: true,
         comment: 'Base64 encoded public key for e2ee'
       },
       lastSeenAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: true
       },
       createdAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: false
       },
       updatedAt: {
-        type: Sequelize.DATE,
+        type: DataTypes.DATE,
         allowNull: false
       }
     });
@@ -70,7 +70,7 @@ module.exports = {
     await queryInterface.addIndex('group_members', ['groupId', 'isActive']);
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable('group_members');
   }
 }; 

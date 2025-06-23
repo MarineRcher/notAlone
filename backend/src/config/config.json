@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "postgres",
+    "username": "root",
+    "password": "root",
     "database": "notalone",
-    "host": "localhost",
+    "host": "db",
     "port": 5432,
     "dialect": "postgres",
     "logging": true,
@@ -13,10 +13,10 @@
     }
   },
   "test": {
-    "username": "postgres",
-    "password": "postgres",
+    "username": "root",
+    "password": "root",
     "database": "notalone_test",
-    "host": "localhost",
+    "host": "db",
     "port": 5432,
     "dialect": "postgres",
     "logging": false,
@@ -39,3 +39,4 @@
     }
   }
 }
+ 
