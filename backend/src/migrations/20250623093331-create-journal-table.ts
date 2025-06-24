@@ -27,10 +27,6 @@ export default {
             note: {
                 type: DataTypes.STRING,
                 allowNull: true,
-                validate: {
-                    notEmpty: true,
-                    len: [1, 255],
-                },
             },
             next_day_goal: {
                 type: DataTypes.STRING,

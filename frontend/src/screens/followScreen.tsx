@@ -47,6 +47,7 @@ const FollowScreen = ({ navigation }: Props) => {
             setIsLoading(false);
         }
     };
+    const today = new Date().toISOString().split("T")[0];
 
     return (
         <View>
@@ -58,13 +59,24 @@ const FollowScreen = ({ navigation }: Props) => {
                 horizontal
                 pagingEnabled
                 pastScrollRange={12}
-                futureScrollRange={12}
+                futureScrollRange={0}
                 calendarWidth={320}
+                maxDate={today}
                 onDayPress={handleDayPress}
                 theme={{
                     selectedDayBackgroundColor: "#00adf5",
                     todayTextColor: "#00adf5",
                 }}
+                markedDates={
+                    selectedDate
+                        ? {
+                              [selectedDate]: {
+                                  selected: true,
+                                  selectedColor: "#00adf5",
+                              },
+                          }
+                        : {}
+                }
             />
             <Button
                 title={isLoading ? "Chargement..." : "Remplir le journal"}
