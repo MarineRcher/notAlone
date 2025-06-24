@@ -19,13 +19,13 @@ export const addUserGoal = async (
 ): Promise<void> => {
     try {
         const user_id = req.user?.id;
-        const { id_journal, goal, actual_day_goal_completed } = req.body;
+        const { id_journal, next_day_goal } = req.body;
 
         if (!user_id) {
             res.status(401).json({ message: "Non autorisé" });
             return;
         }
-        if (!req.user?.has2FA) {
+        if (req.user?.has2FA) {
             res.status(404).json({
                 message: "Version premium obligatoire",
             });
@@ -48,8 +48,7 @@ export const addUserGoal = async (
 
         await Journal.update(
             {
-                next_day_goal: goal,
-                actual_day_goal_completed: actual_day_goal_completed,
+                next_day_goal: next_day_goal,
             },
             {
                 where: {

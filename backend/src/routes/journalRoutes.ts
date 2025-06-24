@@ -9,6 +9,7 @@ import { addUserNote } from "../controllers/journal/AddUserNoteController";
 import { addUserGoal } from "../controllers/journal/AddUserGoalController";
 import { getResumeJourney } from "../controllers/journal/GetResumeJourneyController";
 import { getActivities } from "../controllers/journal/GetActivitiesController";
+import { addCheckGoal } from "../controllers/journal/AddCheckGoalCheckGoal";
 const router = express.Router();
 
 router.post("/getJournal", authMiddleware, getUserJournal);
@@ -18,6 +19,7 @@ router.post("/addResumeJourney", authMiddleware, addUserResumeJourney);
 router.post("/addActivities", authMiddleware, addUserActivities);
 router.post("/addNote", authMiddleware, addUserNote);
 router.post("/addGoal", authMiddleware, addUserGoal);
+router.post("/addCheckedGoal", authMiddleware, addCheckGoal);
 router.get("/getActivities", authMiddleware, getActivities);
 router.get("/getResumeJourney", authMiddleware, getResumeJourney);
 

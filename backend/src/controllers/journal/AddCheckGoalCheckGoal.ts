@@ -3,32 +3,27 @@ import logger from "../../config/logger";
 import Journal from "../../models/Journal";
 
 /**
- * Express controller for add note to a user.
+ * Express controller for checking goal to a user.
  *
  * Requires authentication (via req.user).
- * Update a journal entry with notes
+ * Update a journal entry with consumed
  *
  * @param {Request} req - Express request with user context.
  * @param {Response} res - Express response.
  * @param {NextFunction} next - Express next middleware.
  * @returns {Promise<void>}
  */
-export const addUserNote = async (
+export const addCheckGoal = async (
     req: Request,
     res: Response,
     next: NextFunction
 ): Promise<void> => {
     try {
         const user_id = req.user?.id;
-        const { id_journal, note } = req.body;
+        const { id_journal, actual_day_goal_completed } = req.body;
+
         if (!user_id) {
             res.status(401).json({ message: "Non autorisé" });
-            return;
-        }
-        if (req.user?.has2FA) {
-            res.status(404).json({
-                message: "Version premium obligatoire",
-            });
             return;
         }
 
@@ -38,7 +33,6 @@ export const addUserNote = async (
                 id_user: user_id,
             },
         });
-
         if (!existingJournal) {
             res.status(404).json({
                 message: "Journal non trouvé ou non autorisé",
@@ -48,7 +42,7 @@ export const addUserNote = async (
 
         await Journal.update(
             {
-                note: note,
+                actual_day_goal_completed: actual_day_goal_completed,
             },
             {
                 where: {
@@ -59,11 +53,11 @@ export const addUserNote = async (
         );
 
         res.status(200).json({
-            message: "Notes de la journée enregistrée avec succès",
+            message: "Objectif remplit / non remplit enregistré avec succès",
         });
     } catch (error) {
         logger.error(
-            "Erreur lors de l'enregistrement des notes de la journée de l'utilisateur",
+            "Erreur lors de l'enregistrement de l'etat de l'objectif de l'utilisateur",
             {
                 error: error instanceof Error ? error.message : error,
                 stack: error instanceof Error ? error.stack : undefined,

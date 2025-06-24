@@ -25,6 +25,7 @@ import journeyGoalScreen from "../screens/Journal/journeyGoalScreen";
 import TopActivitiesScreen from "../screens/Journal/TopActivitiesScreen";
 import ResumeJourneyScreen from "../screens/Journal/ResumeJourneyScreen";
 import JourneyGoalScreen from "../screens/Journal/journeyGoalScreen";
+import FollowScreen from "../screens/followScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -122,6 +123,7 @@ const AppNavigator = () => {
                 />
 
                 {/* journal */}
+
                 <Stack.Screen
                     name="Difficulty"
                     component={AskDifficultyScreen}

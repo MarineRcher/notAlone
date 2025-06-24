@@ -16,6 +16,14 @@ export default {
                     len: [1, 255],
                 },
             },
+            created_at: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+            updated_at: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
         });
 
         await queryInterface.addIndex("resume_journey", ["resume_journey"]);

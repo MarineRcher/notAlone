@@ -5,6 +5,7 @@ import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import journalService from "../../api/journalService";
 import { NavigationParams, ResumeJourneyWord } from "../../types/journal";
+import BackButton from "../../components/backNavigation";
 
 type Props = NativeStackScreenProps<any, "Resume">;
 
@@ -28,6 +29,20 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
             try {
                 const response = await journalService.getResumeJourney();
                 setWords(response.data.resumeJourney);
+
+                if (
+                    params?.existingData?.resume_journey &&
+                    response.data.resumeJourney
+                ) {
+                    const existingWord = response.data.resumeJourney.find(
+                        (word: ResumeJourneyWord) =>
+                            word.id_resume_journey ===
+                            params.existingData.resume_journey.id_resume_journey
+                    );
+                    if (existingWord) {
+                        setSelectedWord(existingWord);
+                    }
+                }
             } catch (err) {
                 console.error("Erreur lors de la récupération des mots:", err);
             }
@@ -36,9 +51,12 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
         fetchWords();
     }, [route.params]);
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (!selectedWord || !journalData) return;
-
+        await journalService.addResumeJourney({
+            id_journal: journalData.journalId,
+            id_resume_journey: selectedWord.id_resume_journey,
+        });
         const updatedData: NavigationParams = {
             ...journalData,
             currentStep: "activities",
@@ -56,9 +74,10 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
 
     return (
         <View>
+            <BackButton />
             <Mascot
                 mascot="hey"
-                text="Si ta journée était un mot, ce serait… ? J’ai hâte de le découvrir."
+                text="Si ta journée était un mot, ce serait… ? J'ai hâte de le découvrir."
             />
 
             {words.length === 0 ? (
@@ -110,11 +129,7 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
                 </View>
             )}
 
-            <Button
-                title="Suivant"
-                onPress={handleNext}
-                disabled={!selectedWord}
-            />
+            <Button title="Suivant" onPress={handleNext} />
         </View>
     );
 };

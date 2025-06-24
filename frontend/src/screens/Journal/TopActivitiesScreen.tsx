@@ -1,14 +1,17 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import journalService from "../../api/journalService";
 import { NavigationParams, Activity } from "../../types/journal";
+import BackButton from "../../components/backNavigation";
+import { AuthContext } from "../../context/AuthContext";
 
 type Props = NativeStackScreenProps<any, "Activities">;
 
 const TopActivitiesScreen = ({ navigation, route }: Props) => {
+    const { user } = useContext(AuthContext);
     const [activities, setActivities] = useState<Activity[]>([]);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +21,25 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
 
     useEffect(() => {
         const params = route.params as NavigationParams;
-        if (params) setJournalData(params);
+        if (params) {
+            setJournalData(params);
+
+            if (
+                selectedIds.length === 0 &&
+                params.existingData?.activities &&
+                params.existingData.activities.length > 0
+            ) {
+                const existingActivityIds = [
+                    ...new Set(
+                        params.existingData.activities.map(
+                            (activityGroup: any) =>
+                                activityGroup.user_activity.id_activity
+                        )
+                    ),
+                ];
+                setSelectedIds(existingActivityIds);
+            }
+        }
 
         const fetchActivities = async () => {
             try {
@@ -50,12 +71,15 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
                 activities: selectedIds,
             });
 
-            const updatedData: NavigationParams = {
-                ...journalData,
-                currentStep: "goal",
-            };
-
-            navigation.navigate("Goal", updatedData);
+            if (user?.hasPremium) {
+                const updatedData: NavigationParams = {
+                    ...journalData,
+                    currentStep: "goal",
+                };
+                navigation.navigate("Goal", updatedData);
+            } else {
+                navigation.navigate("Main", { screen: "Follow" });
+            }
         } catch (error) {
             console.error(
                 "Erreur lors de l'enregistrement des activités:",
@@ -68,6 +92,7 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
 
     return (
         <View>
+            <BackButton />
             <Mascot
                 mascot="hey"
                 text="Si tu devais choisir les deux moments clés de ta journée, ce serait quoi ?"
@@ -127,7 +152,7 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
             <Button
                 title={isLoading ? "Enregistrement..." : "Suivant"}
                 onPress={handleNext}
-                disabled={selectedIds.length === 0 || isLoading}
+                disabled={isLoading}
             />
         </View>
     );

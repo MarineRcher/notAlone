@@ -76,7 +76,7 @@ Journal.init(
         },
         actual_day_goal_completed: {
             type: DataTypes.BOOLEAN,
-            allowNull: true,
+            defaultValue: false,
         },
         created_at: {
             type: DataTypes.DATEONLY,

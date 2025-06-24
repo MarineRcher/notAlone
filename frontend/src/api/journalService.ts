@@ -58,7 +58,7 @@ const journalService = {
 
     addResumeJourney: async (data: {
         id_journal: number;
-        resume_journey: string;
+        id_resume_journey: number;
     }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
@@ -83,11 +83,23 @@ const journalService = {
         return response;
     },
 
-    addNotes: async (data: { id_journal: number; notes: string }) => {
+    addNotes: async (data: { id_journal: number; note: string }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
 
-        const response = await apiClient.post("/journal/addNotes", data, {
+        const response = await apiClient.post("/journal/addNote", data, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response;
+    },
+    addCheckedGoal: async (data: {
+        id_journal: number;
+        actual_day_goal_completed: boolean;
+    }) => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.post("/journal/addCheckedGoal", data, {
             headers: { Authorization: `Bearer ${token}` },
         });
         return response;

@@ -22,6 +22,7 @@ export const addUserActivities = async (
     try {
         const user_id = req.user?.id;
         const { id_journal, activities } = req.body;
+        console.log(activities);
 
         if (!user_id) {
             res.status(401).json({ message: "Non autorisé" });
@@ -53,7 +54,19 @@ export const addUserActivities = async (
             return;
         }
 
+        const user_activities = await UserActivity.findAll({
+            where: { id_journal: existingJournal.id_journal, id_user: user_id },
+        });
+        if (user_activities) {
+            await UserActivity.destroy({
+                where: {
+                    id_user: user_id,
+                    id_journal: existingJournal.id_journal,
+                },
+            });
+        }
         const createdActivities = [];
+        console.log(activities);
         for (const activity of activities) {
             try {
                 const userActivity = await UserActivity.create({

@@ -18,15 +18,33 @@ export default {
                 onUpdate: "CASCADE",
                 onDelete: "CASCADE",
             },
-            id_addiction: {
+            id_journal: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
-                    model: "addictions",
-                    key: "id",
+                    model: "journal",
+                    key: "id_journal",
                 },
                 onUpdate: "CASCADE",
                 onDelete: "CASCADE",
+            },
+            id_activity: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                references: {
+                    model: "activities",
+                    key: "id_activity",
+                },
+                onUpdate: "CASCADE",
+                onDelete: "CASCADE",
+            },
+            created_at: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+            updated_at: {
+                type: DataTypes.DATE,
+                allowNull: false,
             },
         });
     },

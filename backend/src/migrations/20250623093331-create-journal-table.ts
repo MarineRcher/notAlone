@@ -18,7 +18,6 @@ export default {
             },
             consumed: {
                 type: DataTypes.BOOLEAN,
-                allowNull: true,
                 defaultValue: false,
             },
             id_resume_journey: {
@@ -49,6 +48,10 @@ export default {
                 type: DataTypes.DATEONLY,
                 allowNull: false,
                 defaultValue: DataTypes.NOW,
+            },
+            updated_at: {
+                type: DataTypes.DATE,
+                allowNull: false,
             },
         });
     },

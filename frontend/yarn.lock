@@ -3782,6 +3782,11 @@ expo-asset@~11.1.5:
     "@expo/image-utils" "^0.7.4"
     expo-constants "~17.1.5"
 
+expo-checkbox@~4.1.4:
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/expo-checkbox/-/expo-checkbox-4.1.4.tgz#ad5de0d346af26027c939f943d87ac4c68283d00"
+  integrity sha512-sahBTVble5/6EnHgLyGvX6fAytkZ7vmllHUbX5ko1kTQ59qTdiVmCznxqaT5DNWfxRZ0gdQVlao46dGQ3hbmeQ==
+
 expo-clipboard@~7.1.4:
   version "7.1.4"
   resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-7.1.4.tgz#f2cda0d3cbfd2d307aa85dd7ba6843d6bbaf4227"
