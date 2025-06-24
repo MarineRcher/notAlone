@@ -2,14 +2,17 @@
 export const ENCRYPTION_CONFIG = {
 	// Key generation parameters
 	KEY_GENERATION: {
-		// RSA key pair for asymmetric encryption (public/private key encryption)
+		// RSA key pair for asymmetric encryption
+		// (public/private key encryption)
 		RSA: {
 			modulusLength: 2048, // Key size in bits
-			publicExponent: 0x10001, // 65537 - standard RSA public exponent
+			// 65537 - standard RSA public exponent
+			publicExponent: 0x10001,
 		},
 		// For ECDH (Elliptic Curve Diffie-Hellman) key exchange
 		ECDH: {
-			namedCurve: "P-256", // NIST P-256 curve (also known as secp256r1)
+			// NIST P-256 curve (also known as secp256r1)
+			namedCurve: "P-256",
 		},
 	},
 
@@ -22,13 +25,15 @@ export const ENCRYPTION_CONFIG = {
 
 	// Asymmetric encryption parameters (for key exchange)
 	ASYMMETRIC: {
-		algorithm: "RSA-OAEP", // RSA with Optimal Asymmetric Encryption Padding
+		// RSA with Optimal Asymmetric Encryption Padding
+		algorithm: "RSA-OAEP",
 		hashAlgorithm: "SHA-256", // Hash algorithm for OAEP
 	},
 
 	// Digital signature parameters
 	SIGNATURE: {
-		algorithm: "RSASSA-PKCS1-v1_5", // RSA Signature Scheme with PKCS #1 v1.5
+		// RSA Signature Scheme with PKCS #1 v1.5
+		algorithm: "RSASSA-PKCS1-v1_5",
 		hashAlgorithm: "SHA-256", // Hash algorithm for signature
 	},
 
@@ -43,7 +48,8 @@ export const ENCRYPTION_CONFIG = {
 	// Storage configuration
 	STORAGE: {
 		keyPrefix: "e2ee_", // Prefix for keys stored in secure storage
-		// These represent the keys used to store different encryption items
+		// These represent the keys used to store different encryption
+		// items
 		keys: {
 			privateKey: "e2ee_private_key",
 			publicKey: "e2ee_public_key",
@@ -79,22 +85,28 @@ export const ENV_CONFIG = {
 };
 
 // Get the current environment
-export const getEnvironment = (): "development" | "production" | "test" => 
-{
-	// In a real app, you would get this from environment variables or build config
-	// For simplicity, defaulting to 'development'
-	return __DEV__ ? "development" : "production";
-};
+export function getEnvironment(): "development" | "production" | "test" {
+	// In a real app, you would get this from environment variables or
+	// build config. For simplicity, defaulting to 'development'
+	const isDev =
+		typeof (globalThis as unknown as { __DEV__?: boolean }).__DEV__ !== "undefined"
+			? (globalThis as unknown as { __DEV__?: boolean }).__DEV__
+			: true;
+
+	return isDev ? "development" : "production";
+}
 
 // Helper to get the current configuration based on environment
-export const getCurrentConfig = () => 
-{
+export function getCurrentConfig(): typeof ENCRYPTION_CONFIG & {
+	keyStorage: string;
+	debugLogging: boolean;
+} {
 	const env = getEnvironment();
 
 	return {
 		...ENCRYPTION_CONFIG,
 		...ENV_CONFIG[env],
 	};
-};
+}
 
 export default getCurrentConfig();

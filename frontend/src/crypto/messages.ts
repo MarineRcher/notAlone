@@ -21,43 +21,37 @@ import {
 } from "./types";
 
 // Simple base64 encode/decode functions that work in React Native
-const base64Encode = (bytes: Uint8Array): string => 
-{
+function base64Encode(bytes: Uint8Array): string {
 	let binary = "";
 
-	for (let i = 0; i < bytes.length; i++)
-{
+	for (let i = 0; i < bytes.length; i++) {
 		binary += String.fromCharCode(bytes[i]);
 	}
 	return btoa(binary);
-};
+}
 
-const base64Decode = (base64: string): Uint8Array => 
-{
+function base64Decode(base64: string): Uint8Array {
 	const binary = atob(base64);
 	const bytes = new Uint8Array(binary.length);
 
-	for (let i = 0; i < binary.length; i++)
-{
+	for (let i = 0; i < binary.length; i++) {
 		bytes[i] = binary.charCodeAt(i);
 	}
 	return bytes;
-};
+}
 
 /**
  * Encrypts a message for a specific recipient using their session key
  * SIMPLIFIED implementation for React Native compatibility
  */
-export const encryptMessage = async (
+export async function encryptMessage(
 	plaintext: string,
 	recipientId: string,
 	senderId: string,
 	sessionKey: CryptoKey,
 	groupId?: string
-): Promise<EncryptedMessage> => 
-{
-	try 
-{
+): Promise<EncryptedMessage> {
+	try {
 		// Generate a unique message ID
 		const messageId = await generateMessageId();
 
@@ -109,8 +103,7 @@ export const encryptMessage = async (
 		};
 
 		// Add group ID if provided
-		if (groupId) 
-{
+		if (groupId) {
 			encryptedMessage.groupId = groupId;
 		}
 
@@ -122,19 +115,17 @@ export const encryptMessage = async (
 			EncryptionErrorType.UNKNOWN_ERROR
 		);
 	}
-};
+}
 
 /**
  * Decrypts an encrypted message using the appropriate session key
  */
-export const decryptMessage = async (
+export async function decryptMessage(
 	encryptedMessage: EncryptedMessage,
 	sessionKey: CryptoKey,
 	senderPublicKey: CryptoKey
-): Promise<DecryptedMessage> => 
-{
-	try 
-{
+): Promise<DecryptedMessage> {
+	try {
 		const { header, ciphertext, signature } = encryptedMessage;
 
 		// Verify the signature first
@@ -150,8 +141,7 @@ export const decryptMessage = async (
 			senderPublicKey
 		);
 
-		if (!isSignatureValid) 
-{
+		if (!isSignatureValid) {
 			console.warn("Message signature verification failed");
 			// For demo purposes, continue anyway
 		}
@@ -183,8 +173,7 @@ export const decryptMessage = async (
 		};
 	} catch (error) {
 		console.error("Error decrypting message:", error);
-		if (error instanceof EncryptionError) 
-{
+		if (error instanceof EncryptionError) {
 			throw error;
 		}
 		throw new EncryptionError(
@@ -192,20 +181,18 @@ export const decryptMessage = async (
 			EncryptionErrorType.DECRYPTION_FAILED
 		);
 	}
-};
+}
 
 /**
  * Encrypts a message for a group
  */
-export const encryptGroupMessage = async (
+export async function encryptGroupMessage(
 	plaintext: string,
 	groupId: string,
 	senderId: string,
 	groupKey: CryptoKey
-): Promise<EncryptedMessage> => 
-{
-	try 
-{
+): Promise<EncryptedMessage> {
+	try {
 		// Group messages use an empty string for recipientId
 		return await encryptMessage(plaintext, "", senderId, groupKey, groupId);
 	} catch (error) {
@@ -215,32 +202,20 @@ export const encryptGroupMessage = async (
 			EncryptionErrorType.UNKNOWN_ERROR
 		);
 	}
-};
+}
 
 /**
- * Creates an encrypted message with an embedded key for initial key exchange
+ * Encrypts a message with key exchange for first-time communication
  */
-export const encryptMessageWithKeyExchange = async (
+export async function encryptMessageWithKeyExchange(
 	plaintext: string,
 	recipientId: string,
 	senderId: string,
 	symmetricKey: CryptoKey,
 	recipientPublicKey: CryptoKey
-): Promise<EncryptedMessage> => 
-{
-	try 
-{
-		// Export the symmetric key as raw bytes
-		const rawKey = await keyManager.mockCryptoOperations.exportKey(
-			"raw",
-			symmetricKey
-		);
-
-		// "Encrypt" the symmetric key with the recipient's public key (simplified)
-		const keyData = (symmetricKey as any).__keyData;
-		const encryptedKey = keyData; // Simplified - no actual encryption
-
-		// Encrypt the message normally
+): Promise<EncryptedMessage> {
+	try {
+		// First, encrypt the message normally
 		const encryptedMessage = await encryptMessage(
 			plaintext,
 			recipientId,
@@ -248,8 +223,22 @@ export const encryptMessageWithKeyExchange = async (
 			symmetricKey
 		);
 
-		// Add the encrypted key to the header
-		encryptedMessage.header.encryptedKey = encryptedKey;
+		// Export the symmetric key and encrypt it with recipient's public key
+		const keyData = await keyManager.mockCryptoOperations.exportKey(
+			"raw",
+			symmetricKey
+		);
+
+		const encryptedKey = await keyManager.mockCryptoOperations.encrypt(
+			{ name: "RSA-OAEP" },
+			recipientPublicKey,
+			keyData
+		);
+
+		// Add the encrypted key to the message header
+		encryptedMessage.header.encryptedKey = base64Encode(
+			new Uint8Array(encryptedKey)
+		);
 		encryptedMessage.header.keyExchangeMode = KeyExchangeMode.DIRECT;
 
 		return encryptedMessage;
@@ -260,54 +249,55 @@ export const encryptMessageWithKeyExchange = async (
 			EncryptionErrorType.UNKNOWN_ERROR
 		);
 	}
-};
+}
 
 /**
- * Decrypts a message that contains an embedded encrypted symmetric key
+ * Decrypts a message that includes an embedded encrypted session key
  */
-export const decryptMessageWithEmbeddedKey = async (
+export async function decryptMessageWithEmbeddedKey(
 	encryptedMessage: EncryptedMessage,
 	privateKey: CryptoKey,
 	senderPublicKey: CryptoKey
-): Promise<{ message: DecryptedMessage; sessionKey: CryptoKey }> => 
-{
-	try 
-{
-		const { header } = encryptedMessage;
-
-		if (!header.encryptedKey) 
-{
+): Promise<{ message: DecryptedMessage; sessionKey: CryptoKey }> {
+	try {
+		if (!encryptedMessage.header.encryptedKey) {
 			throw new EncryptionError(
-				"No encrypted key found in message",
+				"Message does not contain embedded key",
 				EncryptionErrorType.DECRYPTION_FAILED
 			);
 		}
 
-		// "Decrypt" the embedded symmetric key (simplified)
-		const keyData = header.encryptedKey;
+		// Decrypt the session key using our private key
+		const encryptedKeyBytes = base64Decode(
+			encryptedMessage.header.encryptedKey
+		);
 
-		// Import the symmetric key
-		const keyBytes = base64Decode(keyData);
+		const decryptedKeyData = await keyManager.mockCryptoOperations.decrypt(
+			{ name: "RSA-OAEP" },
+			privateKey,
+			encryptedKeyBytes.buffer as ArrayBuffer
+		);
+
+		// Import the session key
 		const sessionKey = await keyManager.mockCryptoOperations.importKey(
 			"raw",
-			keyBytes.buffer as ArrayBuffer,
+			decryptedKeyData,
 			{ name: ENCRYPTION_CONFIG.SYMMETRIC.algorithm },
-			true,
+			false,
 			["encrypt", "decrypt"]
 		);
 
-		// Decrypt the message with the recovered session key
-		const decryptedMessage = await decryptMessage(
+		// Now decrypt the message using the recovered session key
+		const message = await decryptMessage(
 			encryptedMessage,
 			sessionKey,
 			senderPublicKey
 		);
 
-		return { message: decryptedMessage, sessionKey };
+		return { message, sessionKey };
 	} catch (error) {
 		console.error("Error decrypting message with embedded key:", error);
-		if (error instanceof EncryptionError) 
-{
+		if (error instanceof EncryptionError) {
 			throw error;
 		}
 		throw new EncryptionError(
@@ -315,53 +305,48 @@ export const decryptMessageWithEmbeddedKey = async (
 			EncryptionErrorType.DECRYPTION_FAILED
 		);
 	}
-};
+}
 
 /**
  * Generates a unique message ID
  */
-export const generateMessageId = async (): Promise<string> => 
-{
-	try 
-{
-		// Generate a UUID using crypto
-		const uuid = crypto.randomUUID();
-
-		return uuid;
+export async function generateMessageId(): Promise<string> {
+	try {
+		// Use crypto.randomUUID if available
+		return await crypto.randomUUID();
 	} catch (error) {
-		// Fallback to timestamp-based ID if UUID generation fails
-		return `msg-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+		// Fallback to timestamp + random bytes
+		const timestamp = Date.now().toString(36);
+		const random = base64Encode(crypto.getRandomBytes(8)).substring(0, 8);
+
+		return `msg-${timestamp}-${random}`;
 	}
-};
+}
 
 /**
- * Checks if a message has key exchange data
+ * Checks if a message contains a key exchange
  */
-export const hasKeyExchange = (message: EncryptedMessage): boolean => 
-{
-	return !!(message.header.encryptedKey && message.header.keyExchangeMode);
-};
+export function hasKeyExchange(message: EncryptedMessage): boolean {
+	return !!message.header.encryptedKey;
+}
 
 /**
- * Checks if a message is for a group
+ * Checks if a message is a group message
  */
-export const isGroupMessage = (message: EncryptedMessage): boolean => 
-{
+export function isGroupMessage(message: EncryptedMessage): boolean {
 	return !!message.groupId;
-};
+}
 
 /**
- * Serializes an encrypted message to a string
+ * Serializes an encrypted message to a JSON string
  */
-export const serializeMessage = (message: EncryptedMessage): string => 
-{
+export function serializeMessage(message: EncryptedMessage): string {
 	return JSON.stringify(message);
-};
+}
 
 /**
- * Deserializes a string to an encrypted message
+ * Deserializes a JSON string to an encrypted message
  */
-export const deserializeMessage = (serialized: string): EncryptedMessage => 
-{
+export function deserializeMessage(serialized: string): EncryptedMessage {
 	return JSON.parse(serialized) as EncryptedMessage;
-};
+}

@@ -30,49 +30,66 @@ export interface KeyPair {
 	privateKey: string;
 }
 
-class CryptoEngine 
-{
+class CryptoEngine {
 	private initialized = false;
 	private userKeyPair: KeyPair | null = null;
 	private groupKeys: Map<string, string> = new Map();
 
 	/**
+	 * Loads existing key pair from secure storage
+	 */
+	private async loadExistingKeyPair(userId: string): Promise<KeyPair | null> {
+		const existingPrivateKey = await SecureStore.getItemAsync(
+			`private_key_${userId}`
+		);
+		const existingPublicKey = await SecureStore.getItemAsync(
+			`public_key_${userId}`
+		);
+
+		if (existingPrivateKey && existingPublicKey) {
+			return {
+				privateKey: existingPrivateKey,
+				publicKey: existingPublicKey,
+			};
+		}
+
+		return null;
+	}
+
+	/**
+	 * Generates and stores new key pair
+	 */
+	private async generateAndStoreKeyPair(userId: string): Promise<KeyPair> {
+		const keyPair = await this.generateKeyPair();
+
+		await SecureStore.setItemAsync(
+			`private_key_${userId}`,
+			keyPair.privateKey
+		);
+		await SecureStore.setItemAsync(
+			`public_key_${userId}`,
+			keyPair.publicKey
+		);
+
+		return keyPair;
+	}
+
+	/**
 	 * Initialize the crypto engine for a user
 	 */
-	async initialize(userId: string): Promise<void> 
-{
-		try 
-{
+	async initialize(userId: string): Promise<void> {
+		try {
 			console.log("🔐 Initializing crypto engine for user:", userId);
 
 			// Try to load existing key pair
-			const existingPrivateKey = await SecureStore.getItemAsync(
-				`private_key_${userId}`
-			);
-			const existingPublicKey = await SecureStore.getItemAsync(
-				`public_key_${userId}`
-			);
+			const existingKeyPair = await this.loadExistingKeyPair(userId);
 
-			if (existingPrivateKey && existingPublicKey) 
-{
-				this.userKeyPair = {
-					privateKey: existingPrivateKey,
-					publicKey: existingPublicKey,
-				};
+			if (existingKeyPair) {
+				this.userKeyPair = existingKeyPair;
 				console.log("✅ Loaded existing key pair");
 			} else {
 				// Generate new key pair
-				this.userKeyPair = await this.generateKeyPair();
-
-				// Store the key pair securely
-				await SecureStore.setItemAsync(
-					`private_key_${userId}`,
-					this.userKeyPair.privateKey
-				);
-				await SecureStore.setItemAsync(
-					`public_key_${userId}`,
-					this.userKeyPair.publicKey
-				);
+				this.userKeyPair = await this.generateAndStoreKeyPair(userId);
 				console.log("✅ Generated and stored new key pair");
 			}
 
@@ -87,10 +104,8 @@ class CryptoEngine
 	/**
 	 * Generate a new asymmetric key pair using RSA
 	 */
-	private async generateKeyPair(): Promise<KeyPair> 
-{
-		try 
-{
+	private async generateKeyPair(): Promise<KeyPair> {
+		try {
 			const keyPair = QuickCrypto.generateKeyPairSync("rsa", {
 				modulusLength: 2048,
 				publicKeyEncoding: {
@@ -116,35 +131,24 @@ class CryptoEngine
 	/**
 	 * Generate a symmetric key for group encryption (AES-256)
 	 */
-	private generateGroupKey(): string 
-{
+	private generateGroupKey(): string {
 		const key = QuickCrypto.randomBytes(32); // 256 bits
 
 		return key.toString("base64");
 	}
 
 	/**
-	 * Create or join a group session
+	 * Gets or creates group key
 	 */
-	async createGroupSession(
-		groupId: string,
-		memberIds: string[]
-	): Promise<void> 
-{
-		try 
-{
-			if (!this.initialized) 
-{
-				throw new Error("Crypto engine not initialized");
-			}
+	private async getOrCreateGroupKey(groupId: string): Promise<string> {
+		let groupKey = this.groupKeys.get(groupId);
 
-			console.log("🔐 Creating group session for group:", groupId);
-
-			// Check if we already have a key for this group
-			let groupKey = this.groupKeys.get(groupId);
-
-			if (!groupKey) 
-{
+		if (!groupKey) {
+			// Check storage first
+			groupKey = await SecureStore.getItemAsync(`group_key_${groupId}`);
+			if (groupKey) {
+				this.groupKeys.set(groupId, groupKey);
+			} else {
 				// Generate new group key
 				groupKey = this.generateGroupKey();
 				this.groupKeys.set(groupId, groupKey);
@@ -154,14 +158,70 @@ class CryptoEngine
 					`group_key_${groupId}`,
 					groupKey
 				);
-				console.log("✅ Generated new group key for group:", groupId);
-			} else {
-				console.log("✅ Using existing group key for group:", groupId);
 			}
+		}
+
+		return groupKey;
+	}
+
+	/**
+	 * Create or join a group session
+	 */
+	async createGroupSession(
+		groupId: string,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		memberIds: string[]
+	): Promise<void> {
+		try {
+			if (!this.initialized) {
+				throw new Error("Crypto engine not initialized");
+			}
+
+			console.log("🔐 Creating group session for group:", groupId);
+
+			await this.getOrCreateGroupKey(groupId);
+			console.log("✅ Group session created for group:", groupId);
 		} catch (error) {
 			console.error("❌ Failed to create group session:", error);
 			throw new Error("Group session creation failed");
 		}
+	}
+
+	/**
+	 * Gets group key for encryption
+	 */
+	private async getGroupKeyForEncryption(groupId: string): Promise<string> {
+		let groupKey = this.groupKeys.get(groupId);
+
+		if (!groupKey) {
+			// Try to load from secure storage
+			groupKey = await SecureStore.getItemAsync(`group_key_${groupId}`);
+			if (groupKey) {
+				this.groupKeys.set(groupId, groupKey);
+			} else {
+				throw new Error(`No group key found for group: ${groupId}`);
+			}
+		}
+
+		return groupKey;
+	}
+
+	/**
+	 * Creates cipher for encryption
+	 */
+	private createEncryptionCipher(
+		keyBuffer: Buffer,
+		senderId: string
+	): { cipher: any; iv: Buffer } {
+		// Generate random IV (12 bytes for AES-GCM)
+		const iv = QuickCrypto.randomBytes(12);
+
+		// Create cipher
+		const cipher = QuickCrypto.createCipherGCM("aes-256-gcm", keyBuffer);
+
+		cipher.setAAD(Buffer.from(senderId));
+
+		return { cipher, iv };
 	}
 
 	/**
@@ -171,47 +231,25 @@ class CryptoEngine
 		message: string,
 		groupId: string,
 		senderId: string
-	): Promise<EncryptedMessage> 
-{
-		try 
-{
-			if (!this.initialized) 
-{
+	): Promise<EncryptedMessage> {
+		try {
+			if (!this.initialized) {
 				throw new Error("Crypto engine not initialized");
 			}
 
 			console.log("🔐 Encrypting message for group:", groupId);
 
 			// Get group key
-			let groupKey = this.groupKeys.get(groupId);
-
-			if (!groupKey)
-{
-				// Try to load from secure storage
-				groupKey = await SecureStore.getItemAsync(
-					`group_key_${groupId}`
-				);
-				if (groupKey) 
-{
-					this.groupKeys.set(groupId, groupKey);
-				} else {
-					throw new Error(`No group key found for group: ${groupId}`);
-				}
-			}
+			const groupKey = await this.getGroupKeyForEncryption(groupId);
 
 			// Convert base64 key to buffer
 			const keyBuffer = Buffer.from(groupKey, "base64");
 
-			// Generate random IV (12 bytes for AES-GCM)
-			const iv = QuickCrypto.randomBytes(12);
-
-			// Create cipher
-			const cipher = QuickCrypto.createCipherGCM(
-				"aes-256-gcm",
-				keyBuffer
+			// Create cipher and IV
+			const { cipher, iv } = this.createEncryptionCipher(
+				keyBuffer,
+				senderId
 			);
-
-			cipher.setAAD(Buffer.from(senderId)); // Additional authenticated data
 
 			// Encrypt the message
 			let ciphertext = cipher.update(message, "utf8", "base64");
@@ -239,45 +277,66 @@ class CryptoEngine
 	}
 
 	/**
+	 * Gets group key for decryption
+	 */
+	private async getGroupKeyForDecryption(groupId: string): Promise<string> {
+		let groupKey = this.groupKeys.get(groupId);
+
+		if (!groupKey) {
+			// Try to load from secure storage
+			groupKey = await SecureStore.getItemAsync(`group_key_${groupId}`);
+			if (groupKey) {
+				this.groupKeys.set(groupId, groupKey);
+			} else {
+				throw new Error(`No group key found for group: ${groupId}`);
+			}
+		}
+
+		return groupKey;
+	}
+
+	/**
+	 * Creates decipher for decryption
+	 */
+	private createDecryptionDecipher(
+		keyBuffer: Buffer,
+		iv: Buffer,
+		tag: Buffer,
+		senderId: string
+	): any {
+		const decipher = QuickCrypto.createDecipherGCM(
+			"aes-256-gcm",
+			keyBuffer
+		);
+
+		decipher.setAAD(Buffer.from(senderId));
+		decipher.setAuthTag(tag);
+
+		return decipher;
+	}
+
+	/**
 	 * Decrypt a group message
 	 */
 	async decryptGroupMessage(
 		encryptedMessage: EncryptedMessage
-	): Promise<DecryptedMessage> 
-{
-		try 
-{
-			if (!this.initialized) 
-{
+	): Promise<DecryptedMessage> {
+		try {
+			if (!this.initialized) {
 				throw new Error("Crypto engine not initialized");
 			}
 
-			const { iv, ciphertext, tag, senderId, timestamp, groupId }
-				= encryptedMessage;
+			const { iv, ciphertext, tag, senderId, timestamp, groupId } =
+				encryptedMessage;
 
-			if (!groupId) 
-{
-				throw new Error("Group ID missing from encrypted message");
+			if (!groupId) {
+				throw new Error("Group ID is required for group message");
 			}
 
-			console.log("🔓 Decrypting message for group:", groupId);
+			console.log("🔐 Decrypting message for group:", groupId);
 
 			// Get group key
-			let groupKey = this.groupKeys.get(groupId);
-
-			if (!groupKey)
-{
-				// Try to load from secure storage
-				groupKey = await SecureStore.getItemAsync(
-					`group_key_${groupId}`
-				);
-				if (groupKey) 
-{
-					this.groupKeys.set(groupId, groupKey);
-				} else {
-					throw new Error(`No group key found for group: ${groupId}`);
-				}
-			}
+			const groupKey = await this.getGroupKeyForDecryption(groupId);
 
 			// Convert base64 data to buffers
 			const keyBuffer = Buffer.from(groupKey, "base64");
@@ -285,28 +344,27 @@ class CryptoEngine
 			const tagBuffer = Buffer.from(tag, "base64");
 
 			// Create decipher
-			const decipher = QuickCrypto.createDecipherGCM(
-				"aes-256-gcm",
-				keyBuffer
+			const decipher = this.createDecryptionDecipher(
+				keyBuffer,
+				ivBuffer,
+				tagBuffer,
+				senderId
 			);
 
-			decipher.setAAD(Buffer.from(senderId)); // Additional authenticated data
-			decipher.setAuthTag(tagBuffer);
-
 			// Decrypt the message
-			let plaintext = decipher.update(ciphertext, "base64", "utf8");
+			let decrypted = decipher.update(ciphertext, "base64", "utf8");
 
-			plaintext += decipher.final("utf8");
+			decrypted += decipher.final("utf8");
 
-			const decrypted: DecryptedMessage = {
-				content: plaintext,
+			const result: DecryptedMessage = {
+				content: decrypted,
 				senderId,
 				timestamp,
 				groupId,
 			};
 
 			console.log("✅ Message decrypted successfully");
-			return decrypted;
+			return result;
 		} catch (error) {
 			console.error("❌ Failed to decrypt message:", error);
 			throw new Error("Message decryption failed");
@@ -314,57 +372,40 @@ class CryptoEngine
 	}
 
 	/**
-	 * Get public key for sharing with other users
+	 * Get user's public key
 	 */
-	getPublicKey(): string | null 
-{
-		return this.userKeyPair?.publicKey || null;
+	getPublicKey(): string | null {
+		return this.userKeyPair ? this.userKeyPair.publicKey : null;
 	}
 
 	/**
-	 * Check if crypto engine is ready
+	 * Check if crypto engine is initialized
 	 */
-	isInitialized(): boolean 
-{
+	isInitialized(): boolean {
 		return this.initialized;
 	}
 
 	/**
-	 * Clear all stored keys (logout)
+	 * Clear all keys for a user
 	 */
-	async clearKeys(userId: string): Promise<void> 
-{
-		try 
-{
-			console.log("🧹 Clearing crypto keys for user:", userId);
+	async clearKeys(userId: string): Promise<void> {
+		try {
+			// Clear stored keys
+			await SecureStore.deleteItemAsync(`private_key_${userId}`);
+			await SecureStore.deleteItemAsync(`public_key_${userId}`);
 
-			// Clear from memory
+			// Clear in-memory keys
 			this.userKeyPair = null;
 			this.groupKeys.clear();
 			this.initialized = false;
 
-			// Clear from secure storage
-			await SecureStore.deleteItemAsync(`private_key_${userId}`);
-			await SecureStore.deleteItemAsync(`public_key_${userId}`);
-
-			// Clear group keys
-			const keys = await SecureStore.getAllKeysAsync();
-
-			for (const key of keys)
-{
-				if (key.startsWith("group_key_")) 
-{
-					await SecureStore.deleteItemAsync(key);
-				}
-			}
-
-			console.log("✅ Crypto keys cleared successfully");
+			console.log("✅ Keys cleared successfully");
 		} catch (error) {
-			console.error("❌ Failed to clear crypto keys:", error);
+			console.error("❌ Failed to clear keys:", error);
+			throw new Error("Failed to clear keys");
 		}
 	}
 }
 
-// Export singleton instance
-export const cryptoEngine = new CryptoEngine();
-export default cryptoEngine;
+// Export a singleton instance
+export default new CryptoEngine();

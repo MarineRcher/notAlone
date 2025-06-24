@@ -44,8 +44,7 @@ export interface KeyExchangeMessage {
 	action: "join" | "leave" | "refresh";
 }
 
-class ExpoCompatibleCrypto 
-{
+class ExpoCompatibleCrypto {
 	private initialized = false;
 	private userKeyPair: KeyPair | null = null;
 	private groupStates: Map<string, GroupKeyState> = new Map(); // groupId -> state
@@ -53,12 +52,10 @@ class ExpoCompatibleCrypto
 	/**
 	 * Generate a random base64 key
 	 */
-	private generateRandomKey(): string 
-{
+	private generateRandomKey(): string {
 		const array = new Uint8Array(32);
 
-		for (let i = 0; i < array.length; i++)
-{
+		for (let i = 0; i < array.length; i++) {
 			array[i] = Math.floor(Math.random() * 256);
 		}
 		return btoa(String.fromCharCode.apply(null, Array.from(array)));
@@ -71,8 +68,7 @@ class ExpoCompatibleCrypto
 		memberPublicKeys: Map<string, string>,
 		groupId: string,
 		keyVersion: number
-	): string 
-{
+	): string {
 		console.log(
 			"🔐 [DEBUG] Generating group key from member public keys..."
 		);
@@ -117,10 +113,8 @@ class ExpoCompatibleCrypto
 	/**
 	 * Initialize crypto system for a user
 	 */
-	async initialize(userId: string): Promise<void> 
-{
-		try 
-{
+	async initialize(userId: string): Promise<void> {
+		try {
 			console.log("🔐 [DEBUG] Initializing crypto for user:", userId);
 
 			// Try to load existing key pair
@@ -131,8 +125,7 @@ class ExpoCompatibleCrypto
 				`expo_public_key_${userId}`
 			);
 
-			if (privateKey && publicKey) 
-{
+			if (privateKey && publicKey) {
 				this.userKeyPair = { privateKey, publicKey };
 				console.log("✅ Loaded existing key pair");
 			} else {
@@ -172,20 +165,16 @@ class ExpoCompatibleCrypto
 	/**
 	 * Load existing group states from storage
 	 */
-	private async loadGroupStates(userId: string): Promise<void> 
-{
-		try 
-{
+	private async loadGroupStates(userId: string): Promise<void> {
+		try {
 			const statesJson = await SecureStore.getItemAsync(
 				`expo_group_states_${userId}`
 			);
 
-			if (statesJson)
-{
+			if (statesJson) {
 				const statesData = JSON.parse(statesJson);
 
-				for (const [groupId, stateData] of Object.entries(statesData))
-{
+				for (const [groupId, stateData] of Object.entries(statesData)) {
 					const state = stateData as any;
 
 					this.groupStates.set(groupId, {
@@ -209,14 +198,11 @@ class ExpoCompatibleCrypto
 	/**
 	 * Save group states to storage
 	 */
-	private async saveGroupStates(userId: string): Promise<void> 
-{
-		try 
-{
+	private async saveGroupStates(userId: string): Promise<void> {
+		try {
 			const statesData: any = {};
 
-			for (const [groupId, state] of this.groupStates.entries())
-{
+			for (const [groupId, state] of this.groupStates.entries()) {
 				statesData[groupId] = {
 					groupKey: state.groupKey,
 					memberKeys: Object.fromEntries(state.memberKeys),
@@ -237,8 +223,7 @@ class ExpoCompatibleCrypto
 	/**
 	 * Generate a personal key for a specific group
 	 */
-	generatePersonalGroupKey(): string 
-{
+	generatePersonalGroupKey(): string {
 		return this.generateRandomKey();
 	}
 
@@ -247,10 +232,8 @@ class ExpoCompatibleCrypto
 	 */
 	private async fetchGroupMemberPublicKeys(
 		groupId: string
-	): Promise<Map<string, string>> 
-{
-		try 
-{
+	): Promise<Map<string, string>> {
+		try {
 			console.log(
 				"🔐 [DEBUG] Fetching group member public keys for:",
 				groupId
@@ -282,23 +265,19 @@ class ExpoCompatibleCrypto
 		groupId: string,
 		memberIds: string[],
 		userId: string
-	): Promise<KeyExchangeMessage> 
-{
-		try 
-{
+	): Promise<KeyExchangeMessage> {
+		try {
 			console.log("🔐 [DEBUG] Joining group:", groupId);
 			console.log("🔐 [DEBUG] Current members:", memberIds);
 
-			if (!this.initialized) 
-{
+			if (!this.initialized) {
 				throw new Error("Crypto not initialized");
 			}
 
 			// Initialize or update group state
 			let groupState = this.groupStates.get(groupId);
 
-			if (!groupState)
-{
+			if (!groupState) {
 				groupState = {
 					groupKey: "",
 					memberKeys: new Map(),
@@ -309,8 +288,8 @@ class ExpoCompatibleCrypto
 			}
 
 			// Fetch existing member public keys from backend
-			const backendMemberKeys
-				= await this.fetchGroupMemberPublicKeys(groupId);
+			const backendMemberKeys =
+				await this.fetchGroupMemberPublicKeys(groupId);
 
 			// Add our public key to the group
 			const ourPublicKey = this.userKeyPair?.publicKey || userId;
@@ -318,19 +297,15 @@ class ExpoCompatibleCrypto
 			groupState.memberKeys.set(userId, ourPublicKey);
 
 			// Add other members' public keys from backend
-			for (const [memberId, publicKey] of backendMemberKeys.entries()) 
-{
-				if (memberId !== userId) 
-{
+			for (const [memberId, publicKey] of backendMemberKeys.entries()) {
+				if (memberId !== userId) {
 					groupState.memberKeys.set(memberId, publicKey);
 				}
 			}
 
 			// For members not yet fetched, use memberIds as fallback
-			for (const memberId of memberIds) 
-{
-				if (!groupState.memberKeys.has(memberId)) 
-{
+			for (const memberId of memberIds) {
+				if (!groupState.memberKeys.has(memberId)) {
 					groupState.memberKeys.set(memberId, memberId);
 				}
 			}
@@ -339,8 +314,7 @@ class ExpoCompatibleCrypto
 			groupState.lastUpdated = Date.now();
 
 			// Generate group key from all member public keys
-			if (groupState.memberKeys.size > 0) 
-{
+			if (groupState.memberKeys.size > 0) {
 				groupState.groupKey = this.generateGroupKey(
 					groupState.memberKeys,
 					groupId,
@@ -380,18 +354,15 @@ class ExpoCompatibleCrypto
 	async processKeyExchange(
 		message: KeyExchangeMessage,
 		currentUserId: string
-	): Promise<void> 
-{
-		try 
-{
+	): Promise<void> {
+		try {
 			console.log("🔐 [DEBUG] Processing key exchange:", message);
 
 			const { userId, groupId, userKey, keyVersion, action } = message;
 
 			let groupState = this.groupStates.get(groupId);
 
-			if (!groupState)
-{
+			if (!groupState) {
 				groupState = {
 					groupKey: "",
 					memberKeys: new Map(),
@@ -402,8 +373,7 @@ class ExpoCompatibleCrypto
 			}
 
 			// Update member public key
-			if (action === "leave") 
-{
+			if (action === "leave") {
 				groupState.memberKeys.delete(userId);
 				console.log("🔐 [DEBUG] Removed public key for user:", userId);
 			} else {
@@ -416,20 +386,18 @@ class ExpoCompatibleCrypto
 			}
 
 			// Update version if newer
-			if (keyVersion > groupState.keyVersion) 
-{
+			if (keyVersion > groupState.keyVersion) {
 				groupState.keyVersion = keyVersion;
 			}
 
 			// Only regenerate group key if we don't already have one or if membership changed significantly
-			const needsKeyRegeneration
-				= !groupState.groupKey
-				|| action === "leave"
-				|| action === "refresh"
-				|| (action === "join" && groupState.memberKeys.size === 1);
+			const needsKeyRegeneration =
+				!groupState.groupKey ||
+				action === "leave" ||
+				action === "refresh" ||
+				(action === "join" && groupState.memberKeys.size === 1);
 
-			if (needsKeyRegeneration && groupState.memberKeys.size > 0) 
-{
+			if (needsKeyRegeneration && groupState.memberKeys.size > 0) {
 				const previousGroupKey = groupState.groupKey;
 
 				groupState.groupKey = this.generateGroupKey(
@@ -467,8 +435,7 @@ class ExpoCompatibleCrypto
 				);
 			}
 
-			if (groupState.memberKeys.size === 0) 
-{
+			if (groupState.memberKeys.size === 0) {
 				// If no members left, clear the group key
 				groupState.groupKey = "";
 				const storageKey = `expo_group_key_${groupId}`;
@@ -497,16 +464,13 @@ class ExpoCompatibleCrypto
 	async leaveGroup(
 		groupId: string,
 		userId: string
-	): Promise<KeyExchangeMessage> 
-{
-		try 
-{
+	): Promise<KeyExchangeMessage> {
+		try {
 			console.log("🔐 [DEBUG] Leaving group:", groupId);
 
 			const groupState = this.groupStates.get(groupId);
 
-			if (!groupState)
-{
+			if (!groupState) {
 				throw new Error("Group state not found");
 			}
 
@@ -539,16 +503,13 @@ class ExpoCompatibleCrypto
 	async createGroupSession(
 		groupId: string,
 		memberIds: string[]
-	): Promise<void> 
-{
-		try 
-{
+	): Promise<void> {
+		try {
 			console.log("🔐 [DEBUG] Creating group session...");
 			console.log("🔐 [DEBUG] Group ID:", groupId);
 			console.log("🔐 [DEBUG] Member IDs:", memberIds);
 
-			if (!this.initialized) 
-{
+			if (!this.initialized) {
 				console.error(
 					"❌ [DEBUG] Crypto not initialized for group session creation"
 				);
@@ -565,8 +526,7 @@ class ExpoCompatibleCrypto
 				groupKey ? "[EXISTS]" : "[NOT FOUND]"
 			);
 
-			if (!groupKey) 
-{
+			if (!groupKey) {
 				// Try to load from secure storage first
 				const storageKey = `expo_group_key_${groupId}`;
 
@@ -574,16 +534,15 @@ class ExpoCompatibleCrypto
 					"🔐 [DEBUG] Checking storage for existing key:",
 					storageKey
 				);
-				const storedGroupKey
-					= await SecureStore.getItemAsync(storageKey);
+				const storedGroupKey =
+					await SecureStore.getItemAsync(storageKey);
 
 				console.log(
 					"🔐 [DEBUG] Key found in storage:",
 					storedGroupKey ? "[EXISTS]" : "[NOT FOUND]"
 				);
 
-				if (storedGroupKey) 
-{
+				if (storedGroupKey) {
 					// Use existing key from storage
 					groupKey = storedGroupKey;
 					this.groupStates.set(groupId, {
@@ -604,8 +563,8 @@ class ExpoCompatibleCrypto
 					console.log(
 						"🔐 [DEBUG] Generating deterministic group key..."
 					);
-					groupKey
-						= await this.generateDeterministicGroupKey(groupId);
+					groupKey =
+						await this.generateDeterministicGroupKey(groupId);
 					console.log(
 						"🔐 [DEBUG] Generated deterministic key length:",
 						groupKey.length
@@ -630,8 +589,8 @@ class ExpoCompatibleCrypto
 					await SecureStore.setItemAsync(storageKey, groupKey);
 
 					// Verify storage
-					const verifyStored
-						= await SecureStore.getItemAsync(storageKey);
+					const verifyStored =
+						await SecureStore.getItemAsync(storageKey);
 
 					console.log(
 						"🔐 [DEBUG] Storage verification:",
@@ -678,10 +637,8 @@ class ExpoCompatibleCrypto
 	 */
 	private async generateDeterministicGroupKey(
 		groupId: string
-	): Promise<string> 
-{
-		try 
-{
+	): Promise<string> {
+		try {
 			console.log(
 				"🔐 [DEBUG] Creating deterministic key for group:",
 				groupId
@@ -733,8 +690,7 @@ class ExpoCompatibleCrypto
 		timestamp: number,
 		groupKey: string,
 		senderKey: string
-	): Promise<string> 
-{
+	): Promise<string> {
 		// Combine message metadata, group key, and sender key
 		const keyInput = `${messageLength}_${timestamp}_${groupKey}_${senderKey}`;
 
@@ -765,10 +721,8 @@ class ExpoCompatibleCrypto
 		iv: string;
 		messageKeyHash: string;
 		timestamp: number;
-	}> 
-{
-		try 
-{
+	}> {
+		try {
 			// Generate random IV
 			const ivBytes = Crypto.getRandomBytes(16);
 			const iv = this.bytesToBase64(ivBytes);
@@ -788,11 +742,10 @@ class ExpoCompatibleCrypto
 			// XOR encryption with message-specific key
 			const ciphertextBytes = new Uint8Array(plaintextBytes.length);
 
-			for (let i = 0; i < plaintextBytes.length; i++)
-{
-				ciphertextBytes[i]
-					= plaintextBytes[i]
-					^ messageKeyBytes[i % messageKeyBytes.length];
+			for (let i = 0; i < plaintextBytes.length; i++) {
+				ciphertextBytes[i] =
+					plaintextBytes[i] ^
+					messageKeyBytes[i % messageKeyBytes.length];
 			}
 
 			return {
@@ -817,10 +770,8 @@ class ExpoCompatibleCrypto
 		iv: string,
 		messageLength: number,
 		timestamp: number
-	): Promise<string> 
-{
-		try 
-{
+	): Promise<string> {
+		try {
 			// Convert inputs to bytes
 			const ciphertextBytes = this.base64ToBytes(ciphertext);
 
@@ -836,11 +787,10 @@ class ExpoCompatibleCrypto
 			// Decrypt using XOR with message-specific key
 			const plaintextBytes = new Uint8Array(ciphertextBytes.length);
 
-			for (let i = 0; i < ciphertextBytes.length; i++)
-{
-				plaintextBytes[i]
-					= ciphertextBytes[i]
-					^ messageKeyBytes[i % messageKeyBytes.length];
+			for (let i = 0; i < ciphertextBytes.length; i++) {
+				plaintextBytes[i] =
+					ciphertextBytes[i] ^
+					messageKeyBytes[i % messageKeyBytes.length];
 			}
 
 			return new TextDecoder().decode(plaintextBytes);
@@ -857,16 +807,13 @@ class ExpoCompatibleCrypto
 		message: string,
 		groupId: string,
 		senderId: string
-	): Promise<EncryptedMessage> 
-{
-		try 
-{
+	): Promise<EncryptedMessage> {
+		try {
 			console.log("🔐 [DEBUG] Starting encryption for group:", groupId);
 			console.log("🔐 [DEBUG] Message to encrypt:", message);
 			console.log("🔐 [DEBUG] Sender ID:", senderId);
 
-			if (!this.initialized) 
-{
+			if (!this.initialized) {
 				console.error(
 					"❌ [DEBUG] Crypto not initialized for encryption"
 				);
@@ -883,8 +830,7 @@ class ExpoCompatibleCrypto
 				groupKey ? "[EXISTS]" : "[NOT FOUND]"
 			);
 
-			if (!groupKey) 
-{
+			if (!groupKey) {
 				// Try to load from secure storage
 				const storedKey = await SecureStore.getItemAsync(
 					`expo_group_key_${groupId}`
@@ -895,14 +841,12 @@ class ExpoCompatibleCrypto
 					storedKey ? "[EXISTS]" : "[NOT FOUND]"
 				);
 
-				if (storedKey) 
-{
+				if (storedKey) {
 					groupKey = storedKey;
 					// Update memory cache but don't change the group state structure
 					const groupState = this.groupStates.get(groupId);
 
-					if (groupState)
-{
+					if (groupState) {
 						groupState.groupKey = storedKey;
 					} else {
 						// Create minimal group state if not exists
@@ -994,10 +938,8 @@ class ExpoCompatibleCrypto
 	 */
 	async decryptGroupMessage(
 		encryptedMessage: EncryptedMessage
-	): Promise<DecryptedMessage> 
-{
-		try 
-{
+	): Promise<DecryptedMessage> {
+		try {
 			console.log("🔓 [DEBUG] Starting decryption...");
 			console.log("🔓 [DEBUG] Encrypted message structure:", {
 				hasIv: !!encryptedMessage.iv,
@@ -1008,19 +950,17 @@ class ExpoCompatibleCrypto
 				timestamp: encryptedMessage.timestamp,
 			});
 
-			if (!this.initialized) 
-{
+			if (!this.initialized) {
 				console.error(
 					"❌ [DEBUG] Crypto not initialized for decryption"
 				);
 				throw new Error("Crypto not initialized");
 			}
 
-			const { iv, ciphertext, senderId, timestamp, groupId, keyHash }
-				= encryptedMessage;
+			const { iv, ciphertext, senderId, timestamp, groupId, keyHash } =
+				encryptedMessage;
 
-			if (!groupId) 
-{
+			if (!groupId) {
 				console.error(
 					"❌ [DEBUG] Group ID missing from encrypted message"
 				);
@@ -1040,8 +980,7 @@ class ExpoCompatibleCrypto
 				groupKey ? "[EXISTS]" : "[NOT FOUND]"
 			);
 
-			if (!groupKey) 
-{
+			if (!groupKey) {
 				// Try to load from secure storage
 				const storedKey = await SecureStore.getItemAsync(
 					`expo_group_key_${groupId}`
@@ -1052,8 +991,7 @@ class ExpoCompatibleCrypto
 					storedKey ? "[EXISTS]" : "[NOT FOUND]"
 				);
 
-				if (storedKey) 
-{
+				if (storedKey) {
 					groupKey = storedKey;
 					this.groupStates.set(groupId, {
 						groupKey,
@@ -1102,8 +1040,7 @@ class ExpoCompatibleCrypto
 				expectedKeyHash.substring(0, 16) === keyHash
 			);
 
-			if (expectedKeyHash.substring(0, 16) !== keyHash) 
-{
+			if (expectedKeyHash.substring(0, 16) !== keyHash) {
 				console.warn(
 					"⚠️ Key hash mismatch - message may be corrupted or from wrong key"
 				);
@@ -1116,10 +1053,10 @@ class ExpoCompatibleCrypto
 
 			// Get sender's actual public key from group state
 			const groupState = this.groupStates.get(groupId!);
-			const senderPublicKey
-				= groupState?.memberKeys.get(senderId)
-				|| this.userKeyPair?.publicKey
-				|| senderId;
+			const senderPublicKey =
+				groupState?.memberKeys.get(senderId) ||
+				this.userKeyPair?.publicKey ||
+				senderId;
 			const messageLength = this.base64ToBytes(ciphertext).length; // Calculate from ciphertext
 
 			console.log(
@@ -1170,35 +1107,29 @@ class ExpoCompatibleCrypto
 	/**
 	 * Utility functions
 	 */
-	private bytesToBase64(bytes: Uint8Array): string 
-{
+	private bytesToBase64(bytes: Uint8Array): string {
 		let binary = "";
 
-		for (let i = 0; i < bytes.length; i++)
-{
+		for (let i = 0; i < bytes.length; i++) {
 			binary += String.fromCharCode(bytes[i]);
 		}
 		return btoa(binary);
 	}
 
-	private base64ToBytes(base64: string): Uint8Array 
-{
+	private base64ToBytes(base64: string): Uint8Array {
 		const binary = atob(base64);
 		const bytes = new Uint8Array(binary.length);
 
-		for (let i = 0; i < binary.length; i++)
-{
+		for (let i = 0; i < binary.length; i++) {
 			bytes[i] = binary.charCodeAt(i);
 		}
 		return bytes;
 	}
 
-	private hexToBytes(hex: string): Uint8Array 
-{
+	private hexToBytes(hex: string): Uint8Array {
 		const bytes = new Uint8Array(hex.length / 2);
 
-		for (let i = 0; i < hex.length; i += 2)
-{
+		for (let i = 0; i < hex.length; i += 2) {
 			bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
 		}
 		return bytes;
@@ -1207,26 +1138,22 @@ class ExpoCompatibleCrypto
 	/**
 	 * Get public key for sharing with other users
 	 */
-	getPublicKey(): string | null 
-{
+	getPublicKey(): string | null {
 		return this.userKeyPair?.publicKey || null;
 	}
 
 	/**
 	 * Check if crypto engine is ready
 	 */
-	isInitialized(): boolean 
-{
+	isInitialized(): boolean {
 		return this.initialized;
 	}
 
 	/**
 	 * Clear all stored keys (logout)
 	 */
-	async clearKeys(userId: string): Promise<void> 
-{
-		try 
-{
+	async clearKeys(userId: string): Promise<void> {
+		try {
 			console.log("🧹 Clearing crypto keys for user:", userId);
 
 			// Clear from memory
@@ -1241,8 +1168,7 @@ class ExpoCompatibleCrypto
 			// Also clear any group keys (for testing purposes)
 			// In production, you might want to keep these
 			console.log("🧹 [DEBUG] Clearing group keys from storage...");
-			try 
-{
+			try {
 				// Get all keys and delete group keys
 				// Note: SecureStore doesn't have a way to list all keys, so this is a simplified approach
 				// In a real app, you'd track group keys separately
@@ -1259,10 +1185,8 @@ class ExpoCompatibleCrypto
 	/**
 	 * Clear a specific group key (for testing)
 	 */
-	async clearGroupKey(groupId: string): Promise<void> 
-{
-		try 
-{
+	async clearGroupKey(groupId: string): Promise<void> {
+		try {
 			console.log("🧹 [DEBUG] Clearing group key for:", groupId);
 
 			// Clear from memory
@@ -1285,21 +1209,17 @@ class ExpoCompatibleCrypto
 	async refreshGroupKeys(
 		groupId: string,
 		userId: string
-	): Promise<KeyExchangeMessage> 
-{
-		try 
-{
+	): Promise<KeyExchangeMessage> {
+		try {
 			console.log("🔄 [DEBUG] Refreshing keys for group:", groupId);
 
-			if (!this.initialized) 
-{
+			if (!this.initialized) {
 				throw new Error("Crypto not initialized");
 			}
 
 			const groupState = this.groupStates.get(groupId);
 
-			if (!groupState)
-{
+			if (!groupState) {
 				throw new Error("Group state not found");
 			}
 
@@ -1317,8 +1237,7 @@ class ExpoCompatibleCrypto
 			groupState.lastUpdated = Date.now();
 
 			// Regenerate group key with the new key set
-			if (groupState.memberKeys.size > 0) 
-{
+			if (groupState.memberKeys.size > 0) {
 				groupState.groupKey = this.generateGroupKey(
 					groupState.memberKeys,
 					groupId,

@@ -229,15 +229,13 @@ export enum EncryptionErrorType {
 /**
  * Custom error class for encryption errors
  */
-export class EncryptionError extends Error 
-{
+export class EncryptionError extends Error {
 	type: EncryptionErrorType;
 
 	constructor(
 		message: string,
 		type: EncryptionErrorType = EncryptionErrorType.UNKNOWN_ERROR
-	) 
-{
+	) {
 		super(message);
 		this.name = "EncryptionError";
 		this.type = type;

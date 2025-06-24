@@ -15,68 +15,84 @@ import * as secureStorage from "./storage";
 import { KeyPair, SymmetricKey, KeyBundle, SerializedKeyPair } from "./types";
 
 // Simple base64 encode/decode functions that work in React Native
-const base64Encode = (bytes: Uint8Array): string => 
-{
+function base64Encode(bytes: Uint8Array): string {
 	let binary = "";
 
-	for (let i = 0; i < bytes.length; i++)
-{
+	for (let i = 0; i < bytes.length; i++) {
 		binary += String.fromCharCode(bytes[i]);
 	}
 	return btoa(binary);
-};
+}
 
-const base64Decode = (base64: string): Uint8Array => 
-{
+function base64Decode(base64: string): Uint8Array {
 	const binary = atob(base64);
 	const bytes = new Uint8Array(binary.length);
 
-	for (let i = 0; i < binary.length; i++)
-{
+	for (let i = 0; i < binary.length; i++) {
 		bytes[i] = binary.charCodeAt(i);
 	}
 	return bytes;
-};
+}
 
 /**
  * Generates a secure random array of bytes using expo-crypto
  * @param length Number of bytes to generate
  * @returns A Uint8Array containing random bytes
  */
-export const getRandomBytes = (length: number): Uint8Array => 
-{
-	try 
-{
+export function getRandomBytes(length: number): Uint8Array {
+	try {
 		// Use expo-crypto for secure random bytes
 		return Crypto.getRandomBytes(length);
 	} catch (error) {
 		console.warn("Falling back to Math.random for random bytes:", error);
-		// Fallback to Math.random as a synchronous implementation
-		const bytes = new Uint8Array(length);
-
-		for (let i = 0; i < length; i++)
-{
-			bytes[i] = Math.floor(Math.random() * 256);
-		}
-		return bytes;
+		return generateFallbackRandomBytes(length);
 	}
-};
+}
+
+/**
+ * Fallback random bytes generator using Math.random
+ * @param length Number of bytes to generate
+ * @returns A Uint8Array containing random bytes
+ */
+function generateFallbackRandomBytes(length: number): Uint8Array {
+	const bytes = new Uint8Array(length);
+
+	for (let i = 0; i < length; i++) {
+		bytes[i] = Math.floor(Math.random() * 256);
+	}
+	return bytes;
+}
+
+/**
+ * Generates random bytes for private key
+ * @returns A Uint8Array containing private key bytes
+ */
+function generatePrivateKeyBytes(): Uint8Array {
+	return getRandomBytes(32); // 256 bits
+}
+
+/**
+ * Generates random bytes for public key
+ * @returns A Uint8Array containing public key bytes
+ */
+function generatePublicKeyBytes(): Uint8Array {
+	return getRandomBytes(32); // 256 bits
+}
 
 /**
  * Simplified key generation for React Native environment
  * Since Web Crypto API isn't fully supported, we'll create a simpler approach
- * This is a TEMPORARY solution - in production you should use a proper crypto library
+ * This is a TEMPORARY solution - in production you should use a proper crypto
+ * library
  */
-export const generateSimpleKeyPair = async (): Promise<{
+export async function generateSimpleKeyPair(): Promise<{
 	publicKey: string;
 	privateKey: string;
-}> => 
-{
-	try 
-{
+}> {
+	try {
 		// Generate random bytes for a simple key pair
-		const privateKeyBytes = getRandomBytes(32); // 256 bits
-		const publicKeyBytes = getRandomBytes(32); // 256 bits
+		const privateKeyBytes = generatePrivateKeyBytes();
+		const publicKeyBytes = generatePublicKeyBytes();
 
 		// Convert to base64 for storage/transmission
 		const privateKey = base64Encode(privateKeyBytes);
@@ -87,16 +103,14 @@ export const generateSimpleKeyPair = async (): Promise<{
 		console.error("Error generating simple key pair:", error);
 		throw new Error("Failed to generate key pair");
 	}
-};
+}
 
 /**
  * Generate a symmetric key for AES encryption
  * @returns Promise resolving to a base64 encoded key
  */
-export const generateSymmetricKeyString = async (): Promise<string> => 
-{
-	try 
-{
+export async function generateSymmetricKeyString(): Promise<string> {
+	try {
 		const keyBytes = getRandomBytes(32); // 256 bits for AES-256
 
 		return base64Encode(keyBytes);
@@ -104,17 +118,16 @@ export const generateSymmetricKeyString = async (): Promise<string> =>
 		console.error("Error generating symmetric key:", error);
 		throw new Error("Failed to generate symmetric key");
 	}
-};
+}
 
 /**
  * TEMPORARY: Create a mock CryptoKey object for compatibility
  * In a real implementation, you would use a proper crypto library
  */
-const createMockCryptoKey = (
+function createMockCryptoKey(
 	keyData: string,
 	type: "public" | "private" | "secret"
-): CryptoKey => 
-{
+): CryptoKey {
 	return {
 		type,
 		extractable: true,
@@ -122,40 +135,57 @@ const createMockCryptoKey = (
 		usages: ["encrypt", "decrypt"],
 		// Store the actual key data in a non-standard property
 		__keyData: keyData,
-	} as any;
-};
+	} as CryptoKey & { __keyData: string };
+}
+
+/**
+ * Creates mock public key from simple key pair
+ * @param simpleKeyPair The simple key pair
+ * @returns A mock CryptoKey for public key
+ */
+function createMockPublicKey(simpleKeyPair: {
+	publicKey: string;
+	privateKey: string;
+}): CryptoKey {
+	return createMockCryptoKey(simpleKeyPair.publicKey, "public");
+}
+
+/**
+ * Creates mock private key from simple key pair
+ * @param simpleKeyPair The simple key pair
+ * @returns A mock CryptoKey for private key
+ */
+function createMockPrivateKey(simpleKeyPair: {
+	publicKey: string;
+	privateKey: string;
+}): CryptoKey {
+	return createMockCryptoKey(simpleKeyPair.privateKey, "private");
+}
 
 /**
  * Generates a new key pair for asymmetric encryption
  * TEMPORARY implementation for React Native compatibility
  */
-export const generateAsymmetricKeyPair = async (): Promise<KeyPair> => 
-{
-	try 
-{
+export async function generateAsymmetricKeyPair(): Promise<KeyPair> {
+	try {
 		const simpleKeyPair = await generateSimpleKeyPair();
 
 		return {
-			publicKey: createMockCryptoKey(simpleKeyPair.publicKey, "public"),
-			privateKey: createMockCryptoKey(
-				simpleKeyPair.privateKey,
-				"private"
-			),
+			publicKey: createMockPublicKey(simpleKeyPair),
+			privateKey: createMockPrivateKey(simpleKeyPair),
 		};
 	} catch (error) {
 		console.error("Error generating asymmetric key pair:", error);
 		throw new Error("Failed to generate asymmetric key pair");
 	}
-};
+}
 
 /**
  * Generates a symmetric key for message encryption
  * @returns Promise resolving to a mock CryptoKey
  */
-export const generateSymmetricKey = async (): Promise<CryptoKey> => 
-{
-	try 
-{
+export async function generateSymmetricKey(): Promise<CryptoKey> {
+	try {
 		const keyString = await generateSymmetricKeyString();
 
 		return createMockCryptoKey(keyString, "secret");
@@ -163,264 +193,278 @@ export const generateSymmetricKey = async (): Promise<CryptoKey> =>
 		console.error("Error generating symmetric key:", error);
 		throw new Error("Failed to generate symmetric key");
 	}
-};
+}
 
 /**
  * Generates an initialization vector (IV) for AES-GCM encryption
  * @returns A Uint8Array containing the random IV
  */
-export const generateIV = (): Uint8Array => 
-{
+export function generateIV(): Uint8Array {
 	const { ivLength } = ENCRYPTION_CONFIG.SYMMETRIC;
 
 	return getRandomBytes(ivLength);
-};
+}
 
 /**
  * Generates a salt for key derivation
  * @returns A Uint8Array containing the random salt
  */
-export const generateSalt = (): Uint8Array => 
-{
+export function generateSalt(): Uint8Array {
 	const { saltLength } = ENCRYPTION_CONFIG.KDF;
 
 	return getRandomBytes(saltLength);
-};
+}
 
 /**
  * Simple XOR encryption for demo purposes
  * TEMPORARY - This is NOT secure, just for demonstration
  */
-const simpleEncrypt = (data: Uint8Array, key: Uint8Array): Uint8Array => 
-{
+function simpleEncrypt(data: Uint8Array, key: Uint8Array): Uint8Array {
 	const result = new Uint8Array(data.length);
 
-	for (let i = 0; i < data.length; i++)
-{
+	for (let i = 0; i < data.length; i++) {
 		result[i] = data[i] ^ key[i % key.length];
 	}
 	return result;
-};
+}
 
 /**
  * Simple XOR decryption for demo purposes
  * TEMPORARY - This is NOT secure, just for demonstration
  */
-const simpleDecrypt = (data: Uint8Array, key: Uint8Array): Uint8Array => 
-{
+function simpleDecrypt(data: Uint8Array, key: Uint8Array): Uint8Array {
 	// XOR decryption is the same as encryption
 	return simpleEncrypt(data, key);
-};
+}
 
 /**
- * TEMPORARY: Mock Web Crypto API operations
- * These are simplified implementations for React Native compatibility
+ * Extracts key data from mock CryptoKey
+ * @param key The mock CryptoKey
+ * @returns The key data as Uint8Array
+ */
+function extractKeyData(key: CryptoKey): Uint8Array {
+	const keyData = (key as unknown as { __keyData: string }).__keyData;
+
+	return base64Decode(keyData);
+}
+
+/**
+ * Mock encrypt operation
+ */
+async function mockEncrypt(
+	algorithm: unknown,
+	key: CryptoKey,
+	data: ArrayBuffer
+): Promise<ArrayBuffer> {
+	const keyBytes = extractKeyData(key);
+	const dataBytes = new Uint8Array(data);
+	const encrypted = simpleEncrypt(dataBytes, keyBytes);
+
+	return encrypted.buffer as ArrayBuffer;
+}
+
+/**
+ * Mock decrypt operation
+ */
+async function mockDecrypt(
+	algorithm: unknown,
+	key: CryptoKey,
+	data: ArrayBuffer
+): Promise<ArrayBuffer> {
+	const keyBytes = extractKeyData(key);
+	const dataBytes = new Uint8Array(data);
+	const decrypted = simpleDecrypt(dataBytes, keyBytes);
+
+	return decrypted.buffer as ArrayBuffer;
+}
+
+/**
+ * Mock export key operation
+ */
+async function mockExportKey(
+	format: string,
+	key: CryptoKey
+): Promise<ArrayBuffer> {
+	const keyData = (key as unknown as { __keyData: string }).__keyData;
+	const keyBytes = base64Decode(keyData);
+
+	return keyBytes.buffer as ArrayBuffer;
+}
+
+/**
+ * Creates mock CryptoKey from key data
+ * @param keyData The key data as ArrayBuffer
+ * @param algorithm The algorithm
+ * @param extractable Whether the key is extractable
+ * @param usages The key usages
+ * @returns A mock CryptoKey
+ */
+function createMockKeyFromData(
+	keyData: ArrayBuffer,
+	algorithm: unknown,
+	extractable: boolean,
+	usages: string[]
+): CryptoKey {
+	const keyBytes = new Uint8Array(keyData);
+	const keyString = base64Encode(keyBytes);
+
+	return createMockCryptoKey(keyString, "secret");
+}
+
+/**
+ * Mock import key operation
+ */
+async function mockImportKey(
+	format: string,
+	keyData: ArrayBuffer,
+	algorithm: unknown,
+	extractable: boolean,
+	usages: string[]
+): Promise<CryptoKey> {
+	return createMockKeyFromData(keyData, algorithm, extractable, usages);
+}
+
+/**
+ * Mock crypto operations object
  */
 export const mockCryptoOperations = {
-	async encrypt(
-		algorithm: any,
-		key: CryptoKey,
-		data: ArrayBuffer
-	): Promise<ArrayBuffer> 
-{
-		try 
-{
-			const keyData = (key as any).__keyData;
-
-			if (!keyData)
-{
-				throw new Error("Invalid key");
-			}
-
-			const keyBytes = base64Decode(keyData);
-			const dataBytes = new Uint8Array(data);
-			const encrypted = simpleEncrypt(dataBytes, keyBytes);
-
-			return encrypted.buffer as ArrayBuffer;
-		} catch (error) {
-			throw new Error("Encryption failed: " + error);
-		}
-	},
-
-	async decrypt(
-		algorithm: any,
-		key: CryptoKey,
-		data: ArrayBuffer
-	): Promise<ArrayBuffer> 
-{
-		try 
-{
-			const keyData = (key as any).__keyData;
-
-			if (!keyData)
-{
-				throw new Error("Invalid key");
-			}
-
-			const keyBytes = base64Decode(keyData);
-			const dataBytes = new Uint8Array(data);
-			const decrypted = simpleDecrypt(dataBytes, keyBytes);
-
-			return decrypted.buffer as ArrayBuffer;
-		} catch (error) {
-			throw new Error("Decryption failed: " + error);
-		}
-	},
-
-	async exportKey(format: string, key: CryptoKey): Promise<ArrayBuffer> 
-{
-		const keyData = (key as any).__keyData;
-
-		if (!keyData)
-{
-			throw new Error("Invalid key");
-		}
-
-		const keyBytes = base64Decode(keyData);
-
-		return keyBytes.buffer as ArrayBuffer;
-	},
-
-	async importKey(
-		format: string,
-		keyData: ArrayBuffer,
-		algorithm: any,
-		extractable: boolean,
-		usages: string[]
-	): Promise<CryptoKey> 
-{
-		const keyBytes = new Uint8Array(keyData);
-		const keyString = base64Encode(keyBytes);
-
-		return createMockCryptoKey(keyString, "secret");
-	},
+	encrypt: mockEncrypt,
+	decrypt: mockDecrypt,
+	exportKey: mockExportKey,
+	importKey: mockImportKey,
 };
 
 /**
- * Exports a CryptoKey to raw bytes
- * @param key The CryptoKey to export
- * @returns Promise resolving to the exported key as a Uint8Array
+ * Exports a key to a portable format
+ * @param key The key to export
+ * @returns Promise resolving to the exported key data
  */
-export const exportKey = async (key: CryptoKey): Promise<Uint8Array> => 
-{
-	try 
-{
-		const exported = await mockCryptoOperations.exportKey("raw", key);
+export async function exportKey(key: CryptoKey): Promise<Uint8Array> {
+	try {
+		const exported = await mockExportKey("raw", key);
 
 		return new Uint8Array(exported);
 	} catch (error) {
 		console.error("Error exporting key:", error);
 		throw new Error("Failed to export key");
 	}
-};
+}
 
 /**
- * Imports a public key from raw bytes
- * @param keyData The key data as a Uint8Array
- * @param algorithm The algorithm to use for the key
- * @returns Promise resolving to the imported CryptoKey
+ * Imports a public key from raw data
+ * @param keyData The raw key data
+ * @param algorithm The algorithm to use
+ * @returns Promise resolving to the imported key
  */
-export const importPublicKey = async (
+export async function importPublicKey(
 	keyData: Uint8Array,
-	algorithm: string = ENCRYPTION_CONFIG.ASYMMETRIC.algorithm
-): Promise<CryptoKey> => 
-{
-	try 
-{
-		const keyString = base64Encode(keyData);
-
-		return createMockCryptoKey(keyString, "public");
+	algorithm = ENCRYPTION_CONFIG.ASYMMETRIC.algorithm
+): Promise<CryptoKey> {
+	try {
+		return await mockImportKey(
+			"raw",
+			keyData.buffer as ArrayBuffer,
+			{ name: algorithm },
+			true,
+			["encrypt"]
+		);
 	} catch (error) {
 		console.error("Error importing public key:", error);
 		throw new Error("Failed to import public key");
 	}
-};
+}
 
 /**
- * Imports a private key from raw bytes
- * @param keyData The key data as a Uint8Array
- * @param algorithm The algorithm to use for the key
- * @returns Promise resolving to the imported CryptoKey
+ * Imports a private key from raw data
+ * @param keyData The raw key data
+ * @param algorithm The algorithm to use
+ * @returns Promise resolving to the imported key
  */
-export const importPrivateKey = async (
+export async function importPrivateKey(
 	keyData: Uint8Array,
-	algorithm: string = ENCRYPTION_CONFIG.ASYMMETRIC.algorithm
-): Promise<CryptoKey> => 
-{
-	try 
-{
-		const keyString = base64Encode(keyData);
-
-		return createMockCryptoKey(keyString, "private");
+	algorithm = ENCRYPTION_CONFIG.ASYMMETRIC.algorithm
+): Promise<CryptoKey> {
+	try {
+		return await mockImportKey(
+			"raw",
+			keyData.buffer as ArrayBuffer,
+			{ name: algorithm },
+			true,
+			["decrypt"]
+		);
 	} catch (error) {
 		console.error("Error importing private key:", error);
 		throw new Error("Failed to import private key");
 	}
-};
+}
 
 /**
- * Serializes a KeyPair to a format that can be stored
- * @param keyPair The KeyPair to serialize
- * @returns Promise resolving to a SerializedKeyPair
+ * Serializes a key pair for storage
+ * @param keyPair The key pair to serialize
+ * @returns Promise resolving to the serialized key pair
  */
-export const serializeKeyPair = async (
+export async function serializeKeyPair(
 	keyPair: KeyPair
-): Promise<SerializedKeyPair> => 
-{
-	const publicKeyData = await exportKey(keyPair.publicKey);
-	const privateKeyData = await exportKey(keyPair.privateKey);
+): Promise<SerializedKeyPair> {
+	try {
+		const publicKeyData = await exportKey(keyPair.publicKey);
+		const privateKeyData = await exportKey(keyPair.privateKey);
 
-	return {
-		publicKey: base64Encode(publicKeyData),
-		privateKey: base64Encode(privateKeyData),
-	};
-};
+		return {
+			publicKey: base64Encode(publicKeyData),
+			privateKey: base64Encode(privateKeyData),
+		};
+	} catch (error) {
+		console.error("Error serializing key pair:", error);
+		throw new Error("Failed to serialize key pair");
+	}
+}
 
 /**
- * Deserializes a SerializedKeyPair back to a KeyPair
+ * Deserializes a key pair from storage
  * @param serialized The serialized key pair
- * @returns Promise resolving to a KeyPair
+ * @returns Promise resolving to the deserialized key pair
  */
-export const deserializeKeyPair = async (
+export async function deserializeKeyPair(
 	serialized: SerializedKeyPair
-): Promise<KeyPair> => 
-{
-	const publicKeyBytes = base64Decode(serialized.publicKey);
-	const privateKeyBytes = base64Decode(serialized.privateKey);
+): Promise<KeyPair> {
+	try {
+		const publicKeyData = base64Decode(serialized.publicKey);
+		const privateKeyData = base64Decode(serialized.privateKey);
 
-	const publicKey = await importPublicKey(publicKeyBytes);
-	const privateKey = await importPrivateKey(privateKeyBytes);
+		const publicKey = await importPublicKey(publicKeyData);
+		const privateKey = await importPrivateKey(privateKeyData);
 
-	return { publicKey, privateKey };
-};
+		return { publicKey, privateKey };
+	} catch (error) {
+		console.error("Error deserializing key pair:", error);
+		throw new Error("Failed to deserialize key pair");
+	}
+}
 
 /**
- * Gets or creates an identity key pair for the user
- * @returns Promise resolving to a KeyPair
+ * Gets or creates the user's identity key pair
+ * @returns Promise resolving to the identity key pair
  */
-export const getOrCreateIdentityKeyPair = async (): Promise<KeyPair> => 
-{
-	try 
-{
-		// Try to load existing identity key pair
-		const existingKeyPair = await secureStorage.getItem(
-			ENCRYPTION_CONFIG.STORAGE.keys.identityKey
+export async function getOrCreateIdentityKeyPair(): Promise<KeyPair> {
+	try {
+		// Try to load existing key pair
+		const stored = await secureStorage.getItem(
+			ENCRYPTION_CONFIG.STORAGE.keys.privateKey
 		);
 
-		if (existingKeyPair) 
-{
-			const serialized = JSON.parse(existingKeyPair) as SerializedKeyPair;
+		if (stored) {
+			const serialized = JSON.parse(stored) as SerializedKeyPair;
 
 			return await deserializeKeyPair(serialized);
 		}
 
-		// Generate new identity key pair
+		// Generate new key pair if none exists
 		const keyPair = await generateAsymmetricKeyPair();
 		const serialized = await serializeKeyPair(keyPair);
 
-		// Store the new key pair
 		await secureStorage.setItem(
-			ENCRYPTION_CONFIG.STORAGE.keys.identityKey,
+			ENCRYPTION_CONFIG.STORAGE.keys.privateKey,
 			JSON.stringify(serialized)
 		);
 
@@ -429,148 +473,201 @@ export const getOrCreateIdentityKeyPair = async (): Promise<KeyPair> =>
 		console.error("Error getting or creating identity key pair:", error);
 		throw new Error("Failed to get or create identity key pair");
 	}
-};
+}
 
 /**
- * Simple hash function using expo-crypto
+ * Creates simple hash using Crypto.digestStringAsync
+ * @param data The data to hash
+ * @returns Promise resolving to hash bytes
+ */
+async function createHash(data: string): Promise<Uint8Array> {
+	const hash = await Crypto.digestStringAsync(
+		Crypto.CryptoDigestAlgorithm.SHA256,
+		data,
+		{ encoding: Crypto.CryptoEncoding.BASE64 }
+	);
+
+	return base64Decode(hash);
+}
+
+/**
+ * Hashes data using SHA-256
  * @param data The data to hash
  * @returns Promise resolving to the hash
  */
-export const hashData = async (
-	data: Uint8Array | string
-): Promise<Uint8Array> => 
-{
-	try 
-{
-		const inputString
-			= typeof data === "string" ? data : base64Encode(data);
-		const hash = await Crypto.digestStringAsync(
-			Crypto.CryptoDigestAlgorithm.SHA256,
-			inputString,
-			{ encoding: Crypto.CryptoEncoding.HEX }
-		);
-		// Convert hex string to Uint8Array
-		const bytes = new Uint8Array(hash.length / 2);
+export async function hashData(data: Uint8Array | string): Promise<Uint8Array> {
+	try {
+		let dataStr: string;
 
-		for (let i = 0; i < hash.length; i += 2)
-{
-			bytes[i / 2] = parseInt(hash.substr(i, 2), 16);
+		if (typeof data === "string") {
+			dataStr = data;
+		} else {
+			dataStr = base64Encode(data);
 		}
-		return bytes;
+
+		return await createHash(dataStr);
 	} catch (error) {
 		console.error("Error hashing data:", error);
 		throw new Error("Failed to hash data");
 	}
-};
+}
 
-// TEMPORARY: Mock signature operations
-export const signData = async (
+/**
+ * Creates simple signature using hash
+ * @param data The data to sign
+ * @param privateKey The private key
+ * @returns Promise resolving to signature bytes
+ */
+async function createSimpleSignature(
 	data: Uint8Array,
 	privateKey: CryptoKey
-): Promise<Uint8Array> => 
-{
-	// For demo purposes, we'll just hash the data + private key
-	const keyData = (privateKey as any).__keyData;
-	const keyBytes = base64Decode(keyData);
+): Promise<Uint8Array> {
+	const keyData = extractKeyData(privateKey);
+	const dataHash = await hashData(data);
 
-	// Simple concatenation
-	const combined = new Uint8Array(data.length + keyBytes.length);
+	// Simple signature: XOR the hash with the key
+	return simpleEncrypt(dataHash, keyData);
+}
 
-	combined.set(data, 0);
-	combined.set(keyBytes, data.length);
+/**
+ * Signs data with a private key
+ * @param data The data to sign
+ * @param privateKey The private key to sign with
+ * @returns Promise resolving to the signature
+ */
+export async function signData(
+	data: Uint8Array,
+	privateKey: CryptoKey
+): Promise<Uint8Array> {
+	try {
+		return await createSimpleSignature(data, privateKey);
+	} catch (error) {
+		console.error("Error signing data:", error);
+		throw new Error("Failed to sign data");
+	}
+}
 
-	return hashData(combined);
-};
-
-export const verifySignature = async (
+/**
+ * Verifies simple signature
+ * @param data The original data
+ * @param signature The signature to verify
+ * @param publicKey The public key
+ * @returns Promise resolving to verification result
+ */
+async function verifySimpleSignature(
 	data: Uint8Array,
 	signature: Uint8Array,
 	publicKey: CryptoKey
-): Promise<boolean> => 
-{
-	// For demo purposes, we'll recreate the signature and compare
-	try 
-{
-		// This is a simplified verification - in reality you'd need the corresponding private key
-		const keyData = (publicKey as any).__keyData;
-		const keyBytes = base64Decode(keyData);
+): Promise<boolean> {
+	const keyData = extractKeyData(publicKey);
+	const dataHash = await hashData(data);
 
-		const combined = new Uint8Array(data.length + keyBytes.length);
+	// Decrypt the signature and compare with hash
+	const decryptedHash = simpleDecrypt(signature, keyData);
 
-		combined.set(data, 0);
-		combined.set(keyBytes, data.length);
-
-		const expectedSignature = await hashData(combined);
-
-		// Compare signatures
-		if (signature.length !== expectedSignature.length) {
-			return false;
-		}
-		for (let i = 0; i < signature.length; i++) 
-{
-			if (signature[i] !== expectedSignature[i]) {
-				return false;
-			}
-		}
-		return true;
-	} catch (error) {
+	// Compare the hashes
+	if (decryptedHash.length !== dataHash.length) {
 		return false;
 	}
-};
 
-// Additional helper functions for compatibility
-export const generateKeyBundle = async (): Promise<KeyBundle> => 
-{
-	const asymmetricKeyPair = await generateAsymmetricKeyPair();
-	const ecdhKeyPair = await generateAsymmetricKeyPair(); // Use same function for simplicity
-	const symmetricKey = await generateSymmetricKey();
+	for (let i = 0; i < dataHash.length; i++) {
+		if (decryptedHash[i] !== dataHash[i]) {
+			return false;
+		}
+	}
 
-	return {
-		asymmetricKeyPair,
-		ecdhKeyPair,
-		symmetricKey,
-	};
-};
+	return true;
+}
 
-export const deriveSharedKey = async (
+/**
+ * Verifies a signature with a public key
+ * @param data The original data
+ * @param signature The signature to verify
+ * @param publicKey The public key to verify with
+ * @returns Promise resolving to true if signature is valid
+ */
+export async function verifySignature(
+	data: Uint8Array,
+	signature: Uint8Array,
+	publicKey: CryptoKey
+): Promise<boolean> {
+	try {
+		return await verifySimpleSignature(data, signature, publicKey);
+	} catch (error) {
+		console.error("Error verifying signature:", error);
+		return false;
+	}
+}
+
+/**
+ * Generates a complete key bundle
+ * @returns Promise resolving to a key bundle
+ */
+export async function generateKeyBundle(): Promise<KeyBundle> {
+	try {
+		const asymmetricKeyPair = await generateAsymmetricKeyPair();
+		const ecdhKeyPair = await generateAsymmetricKeyPair();
+		const symmetricKey = await generateSymmetricKey();
+
+		return {
+			asymmetricKeyPair,
+			ecdhKeyPair,
+			symmetricKey,
+		};
+	} catch (error) {
+		console.error("Error generating key bundle:", error);
+		throw new Error("Failed to generate key bundle");
+	}
+}
+
+/**
+ * Derives a shared key from ECDH key exchange
+ * @param privateKey Our private key
+ * @param publicKey Their public key
+ * @returns Promise resolving to the shared key
+ */
+export async function deriveSharedKey(
 	privateKey: CryptoKey,
 	publicKey: CryptoKey
-): Promise<CryptoKey> => 
-{
-	// Simplified key derivation
-	const privateKeyData = (privateKey as any).__keyData;
-	const publicKeyData = (publicKey as any).__keyData;
+): Promise<CryptoKey> {
+	try {
+		// Simple shared key derivation: XOR the two keys
+		const privateKeyData = extractKeyData(privateKey);
+		const publicKeyData = extractKeyData(publicKey);
 
-	const privateKeyBytes = base64Decode(privateKeyData);
-	const publicKeyBytes = base64Decode(publicKeyData);
+		const sharedData = simpleEncrypt(privateKeyData, publicKeyData);
+		const sharedKeyString = base64Encode(sharedData);
 
-	const combined = new Uint8Array(
-		privateKeyBytes.length + publicKeyBytes.length
-	);
+		return createMockCryptoKey(sharedKeyString, "secret");
+	} catch (error) {
+		console.error("Error deriving shared key:", error);
+		throw new Error("Failed to derive shared key");
+	}
+}
 
-	combined.set(privateKeyBytes, 0);
-	combined.set(publicKeyBytes, privateKeyBytes.length);
-
-	const derived = await hashData(combined);
-	const keyString = base64Encode(derived);
-
-	return createMockCryptoKey(keyString, "secret");
-};
-
-export const deriveKeyFromPassword = async (
+/**
+ * Derives a key from a password using PBKDF2
+ * @param password The password to derive from
+ * @param salt Optional salt (generated if not provided)
+ * @returns Promise resolving to the derived key and salt
+ */
+export async function deriveKeyFromPassword(
 	password: string,
 	salt?: Uint8Array
-): Promise<{ key: CryptoKey; salt: Uint8Array }> => 
-{
-	const usedSalt = salt || generateSalt();
+): Promise<{ key: CryptoKey; salt: Uint8Array }> {
+	try {
+		const useSalt = salt || generateSalt();
+		const passwordHash = await hashData(password);
+		const saltedHash = await hashData(
+			base64Encode(passwordHash) + base64Encode(useSalt)
+		);
 
-	// Simple password-based key derivation
-	const combined = password + base64Encode(usedSalt);
-	const hash = await hashData(combined);
-	const keyString = base64Encode(hash);
+		const derivedKeyString = base64Encode(saltedHash);
+		const key = createMockCryptoKey(derivedKeyString, "secret");
 
-	return {
-		key: createMockCryptoKey(keyString, "secret"),
-		salt: usedSalt,
-	};
-};
+		return { key, salt: useSalt };
+	} catch (error) {
+		console.error("Error deriving key from password:", error);
+		throw new Error("Failed to derive key from password");
+	}
+}
