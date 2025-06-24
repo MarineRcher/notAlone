@@ -35,7 +35,7 @@ export const addUserConsumed = async (
         });
         if (!existingJournal) {
             res.status(404).json({
-                message: "Journal non trouvé ou non autorisé",
+                message: "Journal non trouvé",
             });
             return;
         }
@@ -57,7 +57,7 @@ export const addUserConsumed = async (
         });
     } catch (error) {
         logger.error(
-            "Erreur lors de l'enregistrement de la difficulté de l'utilisateur",
+            "Erreur lors de l'enregistrement des ecarts de l'utilisateur",
             {
                 error: error instanceof Error ? error.message : error,
                 stack: error instanceof Error ? error.stack : undefined,

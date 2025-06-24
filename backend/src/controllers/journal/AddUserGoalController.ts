@@ -41,7 +41,7 @@ export const addUserGoal = async (
 
         if (!existingJournal) {
             res.status(404).json({
-                message: "Journal non trouvé ou non autorisé",
+                message: "Journal non trouvé",
             });
             return;
         }
@@ -59,11 +59,11 @@ export const addUserGoal = async (
         );
 
         res.status(200).json({
-            message: "Notes de la journée enregistrée avec succès",
+            message: "Objectif de la journée enregistrée avec succès",
         });
     } catch (error) {
         logger.error(
-            "Erreur lors de l'enregistrement des notes de la journée de l'utilisateur",
+            "Erreur lors de l'enregistrement de l'Objectif de la journée de l'utilisateur",
             {
                 error: error instanceof Error ? error.message : error,
                 stack: error instanceof Error ? error.stack : undefined,

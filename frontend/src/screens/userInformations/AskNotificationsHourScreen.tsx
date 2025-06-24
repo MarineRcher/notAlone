@@ -18,8 +18,10 @@ import BackButton from "../../components/backNavigation";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import TimePicker from "../../components/timePicker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const AskNotificationsHourScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const AskNotificationsHourScreen = ({ navigation }: Props) => {
     const { setUser } = useContext(AuthContext);
     const [hour, setHour] = useState("");
     const [showPicker, setShowPicker] = useState(false);

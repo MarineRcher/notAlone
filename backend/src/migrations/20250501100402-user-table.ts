@@ -55,6 +55,10 @@ export default {
                 type: DataTypes.DATE,
                 allowNull: true,
             },
+            points: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0,
+            },
             created_at: {
                 type: DataTypes.DATE,
                 allowNull: false,

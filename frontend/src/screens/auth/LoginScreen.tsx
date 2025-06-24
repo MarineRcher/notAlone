@@ -15,7 +15,8 @@ import Mascot from "../../components/mascot";
 import Input from "../../components/input";
 import Button from "../../components/button";
 
-const LoginScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const LoginScreen = ({ navigation }: Props) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +84,7 @@ const LoginScreen = ({ navigation }) => {
             }
         } catch (error) {
             let errorMessage = "Une erreur est survenue lors de la connexion";
-            console.log(error);
+
             if (error.response) {
                 errorMessage = error.response.data.message || errorMessage;
             }

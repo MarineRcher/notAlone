@@ -49,7 +49,7 @@ export const addUserActivities = async (
 
         if (!existingJournal) {
             res.status(404).json({
-                message: "Journal non trouvé ou non autorisé",
+                message: "Journal non trouvé.",
             });
             return;
         }

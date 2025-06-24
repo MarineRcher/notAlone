@@ -3,9 +3,12 @@ import { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../components/mascot";
 import Button from "../components/button";
-import { CalendarList } from "react-native-calendars";
+import { Calendar, CalendarList } from "react-native-calendars";
 import journalService from "../api/journalService";
 import { NavigationParams, JournalResponse } from "../types/journal";
+import colors from "../css/colors";
+import { Fonts } from "../css/font";
+import styles from "./followScreen.style";
 
 type Props = NativeStackScreenProps<any, "Follow">;
 
@@ -55,34 +58,41 @@ const FollowScreen = ({ navigation }: Props) => {
                 mascot="hey"
                 text="Ton journal t'attend ! Quelques lignes et hop, des points pour nourrir ta forêt."
             />
-            <CalendarList
-                horizontal
-                pagingEnabled
-                pastScrollRange={12}
-                futureScrollRange={0}
-                calendarWidth={320}
-                maxDate={today}
-                onDayPress={handleDayPress}
-                theme={{
-                    selectedDayBackgroundColor: "#00adf5",
-                    todayTextColor: "#00adf5",
-                }}
-                markedDates={
-                    selectedDate
-                        ? {
-                              [selectedDate]: {
-                                  selected: true,
-                                  selectedColor: "#00adf5",
-                              },
-                          }
-                        : {}
-                }
-            />
-            <Button
-                title={isLoading ? "Chargement..." : "Remplir le journal"}
-                onPress={handleFillJournal}
-                disabled={isLoading}
-            />
+            <View style={styles.containerCalendar}>
+                <CalendarList
+                    style={styles.calendar}
+                    horizontal
+                    pagingEnabled
+                    pastScrollRange={12}
+                    futureScrollRange={0}
+                    calendarWidth={300}
+                    maxDate={today}
+                    onDayPress={handleDayPress}
+                    theme={{
+                        selectedDayBackgroundColor: colors.primary,
+                        todayTextColor: colors.primary,
+                        calendarBackground: colors.background,
+                        textMonthFontFamily: Fonts.quicksand.regular,
+                        textDayHeaderFontFamily: Fonts.quicksand.regular,
+                        dayTextColor: colors.text,
+                    }}
+                    markedDates={
+                        selectedDate
+                            ? {
+                                  [selectedDate]: {
+                                      selected: true,
+                                      selectedColor: colors.primary,
+                                  },
+                              }
+                            : {}
+                    }
+                />
+                <Button
+                    title={isLoading ? "Chargement..." : "Remplir le journal"}
+                    onPress={handleFillJournal}
+                    disabled={isLoading}
+                />
+            </View>
         </View>
     );
 };

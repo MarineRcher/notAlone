@@ -7,7 +7,14 @@ export type Journal = {
 export type JournalResponse = {
     data: {
         journal?: Journal;
-        activities?: Activity[]; // Ajout pour les activités existantes
+        activities?: Array<{
+            user_activity: {
+                id_activity: number;
+                id_journal: number;
+                [key: string]: any;
+            };
+            activity_details: Activity[];
+        }>;
         [key: string]: any;
     };
 };

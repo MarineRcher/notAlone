@@ -33,7 +33,9 @@ const AskDifficultyScreen = ({ navigation, route }: Props) => {
         try {
             const response = await journalService.addUserDifficulty({
                 id_journal: journalData?.journalId,
-                date: new Date(journalData?.date),
+                date: new Date(
+                    journalData?.date ?? new Date().toISOString().split("T")[0]
+                ),
                 difficulty: selectedDifficulty,
             });
 

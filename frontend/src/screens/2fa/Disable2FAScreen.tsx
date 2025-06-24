@@ -17,8 +17,12 @@ import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import Input from "../../components/input";
 import BackButton from "../../components/backNavigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { ApiError } from "../../types/auth";
 
-const Disable2FAScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+
+const Disable2FAScreen = ({ navigation }: Props) => {
     const [otp, setOtp] = useState("");
     const [userId, setUserId] = useState<number | null>(null);
     const { setUser } = useContext(AuthContext);
@@ -66,9 +70,10 @@ const Disable2FAScreen = ({ navigation }) => {
             Alert.alert("Succès", "2FA désactivée");
             navigation.goBack();
         } catch (error) {
+            const apiError = error as ApiError;
             Alert.alert(
                 "Erreur",
-                error?.response?.data?.message || "Échec de la désactivation"
+                apiError?.response?.data?.message || "Échec de la désactivation"
             );
         }
     };

@@ -35,7 +35,7 @@ export const addCheckGoal = async (
         });
         if (!existingJournal) {
             res.status(404).json({
-                message: "Journal non trouvé ou non autorisé",
+                message: "Journal non trouvé",
             });
             return;
         }
@@ -53,11 +53,12 @@ export const addCheckGoal = async (
         );
 
         res.status(200).json({
-            message: "Objectif remplit / non remplit enregistré avec succès",
+            message:
+                "Objectif état de l'objectif remplit / non remplit enregistré avec succès",
         });
     } catch (error) {
         logger.error(
-            "Erreur lors de l'enregistrement de l'etat de l'objectif de l'utilisateur",
+            "Erreur lors de l'enregistrement de l'état de l'objectif de l'utilisateur",
             {
                 error: error instanceof Error ? error.message : error,
                 stack: error instanceof Error ? error.stack : undefined,

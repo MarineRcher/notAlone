@@ -14,7 +14,6 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
     const [selectedWord, setSelectedWord] = useState<ResumeJourneyWord | null>(
         null
     );
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [journalData, setJournalData] = useState<NavigationParams | null>(
         null
     );
@@ -30,6 +29,7 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
                 const response = await journalService.getResumeJourney();
                 setWords(response.data.resumeJourney);
 
+                // Fixed: Added proper null/undefined checks
                 if (
                     params?.existingData?.resume_journey &&
                     response.data.resumeJourney
@@ -37,7 +37,8 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
                     const existingWord = response.data.resumeJourney.find(
                         (word: ResumeJourneyWord) =>
                             word.id_resume_journey ===
-                            params.existingData.resume_journey.id_resume_journey
+                            params.existingData?.resume_journey
+                                ?.id_resume_journey
                     );
                     if (existingWord) {
                         setSelectedWord(existingWord);
@@ -52,24 +53,36 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
     }, [route.params]);
 
     const handleNext = async () => {
-        if (!selectedWord || !journalData) return;
-        await journalService.addResumeJourney({
-            id_journal: journalData.journalId,
-            id_resume_journey: selectedWord.id_resume_journey,
-        });
-        const updatedData: NavigationParams = {
-            ...journalData,
-            currentStep: "activities",
-            existingData: {
-                ...journalData.existingData,
-                journal: {
-                    ...journalData.existingData?.journal,
-                    resume: selectedWord.resume_journey,
-                },
-            },
-        };
+        // Fixed: Added proper validation for required fields
+        if (!selectedWord || !journalData || !journalData.journalId) {
+            console.error("Missing required data for journal update");
+            return;
+        }
 
-        navigation.navigate("Activities", updatedData);
+        try {
+            await journalService.addResumeJourney({
+                id_journal: journalData.journalId, // Now guaranteed to be a number
+                id_resume_journey: selectedWord.id_resume_journey,
+            });
+
+            const updatedData: NavigationParams = {
+                ...journalData,
+                currentStep: "activities",
+                existingData: {
+                    ...journalData.existingData,
+                    journal: {
+                        // Fixed: Ensure id_journal is always present and is a number
+                        id_journal: journalData.journalId,
+                        ...journalData.existingData?.journal,
+                        resume: selectedWord.resume_journey,
+                    },
+                },
+            };
+
+            navigation.navigate("Activities", updatedData);
+        } catch (error) {
+            console.error("Error updating journal:", error);
+        }
     };
 
     return (
@@ -129,7 +142,11 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
                 </View>
             )}
 
-            <Button title="Suivant" onPress={handleNext} />
+            <Button
+                title="Suivant"
+                onPress={handleNext}
+                disabled={!selectedWord || !journalData?.journalId}
+            />
         </View>
     );
 };

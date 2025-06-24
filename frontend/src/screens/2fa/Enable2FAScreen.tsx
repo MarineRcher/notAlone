@@ -19,8 +19,10 @@ import styles from "../form.style";
 import Button from "../../components/button";
 import Input from "../../components/input";
 import BackButton from "../../components/backNavigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const Enable2FAScreen = ({ navigation, route }) => {
+type Props = NativeStackScreenProps<any, any>;
+const Enable2FAScreen = ({ navigation, route }: Props) => {
     const isFromRegistration = route?.params?.isFromRegistration || false;
 
     const [qrCodeUrl, setQrCodeUrl] = useState("");

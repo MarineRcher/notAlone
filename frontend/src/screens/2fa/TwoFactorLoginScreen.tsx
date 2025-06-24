@@ -10,8 +10,26 @@ import Button from "../../components/button";
 import styles from "../form.style";
 import BackButton from "../../components/backNavigation";
 import Input from "../../components/input";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const TwoFactorLoginScreen = ({ route, navigation }) => {
+type ApiError = {
+    response?: {
+        data?: {
+            message?: string;
+        };
+    };
+};
+
+type TwoFactorLoginParams = {
+    tempToken: string;
+};
+
+type Props = NativeStackScreenProps<any, "TwoFactorLogin"> & {
+    route: {
+        params: TwoFactorLoginParams;
+    };
+};
+const TwoFactorLoginScreen = ({ route, navigation }: Props) => {
     const { setUser } = useContext(AuthContext);
     const [otp, setOtp] = useState("");
     const { tempToken } = route.params;
@@ -31,9 +49,11 @@ const TwoFactorLoginScreen = ({ route, navigation }) => {
             setUser(decoded);
             navigation.navigate("Main");
         } catch (error) {
+            const apiError = error as ApiError;
+
             Alert.alert(
                 "Erreur",
-                error.response?.data?.message || "Code invalide"
+                apiError.response?.data?.message || "Code invalide"
             );
         }
     };

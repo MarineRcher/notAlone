@@ -11,6 +11,7 @@ export interface UserAttributes {
     hourNotify: Date | null;
     failedLoginAttempts: number;
     blockedUntil: Date | null;
+    points: number;
 
     createdAt?: Date;
     updatedAt?: Date;

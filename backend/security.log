@@ -621,3 +621,53 @@
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:18:26.900Z","user":"circe@mail.com"}
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:18:27.019Z","user":1}
 {"body":{"id_journal":3,"note":""},"error":"Validation error: Validation notEmpty on note failed,\nValidation error: Validation len on note failed","ip":"::ffff:172.18.0.1","level":"error","message":"Erreur lors de l'enregistrement des notes de la journée de l'utilisateur","stack":"SequelizeValidationError: Validation error: Validation notEmpty on note failed,\nValidation error: Validation len on note failed\n    at InstanceValidator._validate (/app/node_modules/sequelize/src/instance-validator.js:78:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async InstanceValidator._validateAndRunHooks (/app/node_modules/sequelize/src/instance-validator.js:111:7)\n    at async InstanceValidator.validate (/app/node_modules/sequelize/src/instance-validator.js:93:12)\n    at async Function.update (/app/node_modules/sequelize/src/model.js:3253:26)\n    at async addUserNote (/app/src/controllers/journal/AddUserNoteController.ts:49:9)","timestamp":"2025-06-24T12:18:59.513Z","user_id":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:26:27.371Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:26:27.550Z","user":1}
+{"ip":"::ffff:172.20.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:37:52.656Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.20.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:37:52.876Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:46:29.979Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:46:30.174Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:48:27.733Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:48:27.918Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:49:04.156Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:49:04.269Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:49:57.233Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:49:57.354Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:51:48.121Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:51:48.255Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:52:29.220Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:52:29.327Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:54:23.432Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:54:23.579Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:56:13.428Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:56:13.582Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T12:57:45.991Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T12:57:46.103Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:02:55.285Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:02:55.455Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:04:03.562Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:04:03.686Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:05:27.881Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:05:28.008Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:05:50.636Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:05:50.820Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:06:27.217Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:06:27.379Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:06:58.389Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:06:58.532Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:07:20.911Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:07:21.030Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:07:37.428Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:07:37.558Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:08:10.717Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:08:10.842Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:09:17.624Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:09:17.757Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:09:51.667Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:09:51.804Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:10:10.338Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:10:10.468Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:11:00.581Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:11:00.689Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:15:24.452Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:15:24.564Z","user":1}
