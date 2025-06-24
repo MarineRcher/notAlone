@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+coverage/
+*.log
+.env
+.env.local
+.env.production
+.env.test
+*.d.ts
+babel.config.js
+metro.config.js
+jest.config.ts
+yarn.lock
+package-lock.json 

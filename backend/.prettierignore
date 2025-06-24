@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+logs/
+*.log
+.env
+.env.local
+.env.production
+.env.test
+migrations/
+seeders/
+*.d.ts
+jest.config.js
+yarn.lock
+package-lock.json 
