@@ -51,6 +51,26 @@ export interface GroupCryptoManager {
 		leavingUserId: string,
 		remainingMembers: GroupMember[]
 	) => Promise<GroupKeyInfo | null>;
+	handleSynchronizedKeyExchange: (
+		groupId: string,
+		allMembers: GroupMember[]
+	) => Promise<GroupKeyInfo>;
+	joinGroup: (
+		groupId: string,
+		currentUserMember: GroupMember,
+		existingMembers: GroupMember[]
+	) => Promise<void>;
+	handleNewMemberJoin: (
+		groupId: string,
+		newMember: GroupMember,
+		existingMembers: GroupMember[]
+	) => Promise<void>;
+	handleMemberLeave: (
+		groupId: string,
+		leavingUserId: string,
+		remainingMembers: GroupMember[]
+	) => Promise<void>;
+	handleKeyExchange: (keyExchangeData: any) => Promise<void>;
 	encryptMessage: (
 		groupId: string,
 		message: string
@@ -60,4 +80,6 @@ export interface GroupCryptoManager {
 		encryptedMessage: EncryptedMessage
 	) => Promise<string>;
 	getGroupKey: (groupId: string) => Promise<GroupKeyInfo | null>;
+	getUserKeyPair: () => Promise<UserKeyPair | null>;
+	cleanupExpiredExchanges: () => void;
 }

@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingVertical: 15,
+		paddingTop: 70,
+        paddingBottom: 10,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.secondary,
 		marginBottom: 10,
@@ -210,6 +211,54 @@ const styles = StyleSheet.create({
 	cancelButton: {
 		backgroundColor: colors.secondary,
 		minWidth: 120,
+	},
+
+	// System message styles
+	systemMessageContainer: {
+		alignItems: 'center',
+		backgroundColor: colors.sky + '20',
+		borderRadius: 12,
+		marginVertical: 4,
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+	},
+
+	systemMessageText: {
+		color: colors.secondary,
+		fontSize: 14,
+		fontStyle: 'italic',
+		textAlign: 'center',
+	},
+
+	// Message sender styles
+	currentUserMessage: {
+		alignSelf: 'flex-end',
+		backgroundColor: colors.primary,
+	},
+
+	otherUserMessage: {
+		alignSelf: 'flex-start',
+		backgroundColor: colors.secondaryBackeground,
+	},
+
+	senderName: {
+		fontSize: 12,
+		color: colors.secondary,
+		marginBottom: 2,
+		fontWeight: '600',
+	},
+
+	sentIndicator: {
+		fontSize: 10,
+		color: colors.background,
+		marginBottom: 2,
+		fontWeight: '600',
+		textAlign: 'right',
+	},
+
+	encryptedMessageText: {
+		fontStyle: 'italic',
+		color: colors.error,
 	},
 });
 

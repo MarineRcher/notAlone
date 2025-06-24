@@ -21,6 +21,7 @@ interface ChatMessage {
 	id: string;
 	content: string;
 	senderId: string;
+	senderUsername: string;
 	timestamp: Date;
 	isDecrypted: boolean;
 }
@@ -50,17 +51,22 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 	const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
 	const flatListRef = useRef<FlatList>(null);
 	const currentGroupIdRef = useRef<string | null>(null);
+	const lastKeyExchangeTime = useRef<number>(0);
+	const KEY_EXCHANGE_DEBOUNCE = 500; // Reduced to 500ms to allow faster responses
 
-	useEffect(() => 
-{
-		if (user) 
-{
+	useEffect(() => {
+		if (user) {
 			initializeCrypto();
 			setupSocketConnection();
 		}
 
-		return () => 
-{
+		// Set up periodic cleanup of expired key exchanges
+		const cleanupInterval = setInterval(() => {
+			groupChatCrypto.cleanupExpiredExchanges();
+		}, 5000); // Check every 5 seconds
+
+		return () => {
+			clearInterval(cleanupInterval);
 			// Clean up socket listeners
 			socket.off("group_message");
 			socket.off("user_joined_group");
@@ -71,8 +77,7 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 			socket.off("group_joined");
 			socket.off("crypto_key_exchange");
 			
-			if (socket.connected) 
-{
+			if (socket.connected) {
 				socket.disconnect();
 			}
 		};
@@ -131,17 +136,76 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 	};
 
 	const setupSocketListeners = () => 
-{
-		socket.on("group_message", handleIncomingMessage);
-		socket.on("user_joined_group", handleUserJoinedGroup);
-		socket.on("user_left_group", handleUserLeftGroup);
-		socket.on("user_left", handleUserLeft);
-		socket.on("group_users_list", handleGroupUsersList);
-		socket.on("joined_random_group", handleJoinedRandomGroup);
-		socket.on("joined_waitroom", handleJoinedWaitroom);
-		socket.on("waitroom_cleared", handleWaitroomCleared);
-		socket.on("group_joined", handleGroupJoined);
-		socket.on("crypto_key_exchange", handleKeyExchange);
+	{
+		console.log("🔧 Setting up socket listeners...");
+		
+		socket.on("group_message", (data) => {
+			console.log("📨 group_message event received:", data);
+			handleIncomingMessage(data);
+		});
+		
+		socket.on("user_joined_group", (data) => {
+			console.log("👤 user_joined_group event received:", data);
+			handleUserJoinedGroup(data);
+		});
+		
+		socket.on("user_left_group", (data) => {
+			console.log("👋 user_left_group event received:", data);
+			handleUserLeftGroup(data);
+		});
+		
+		socket.on("user_left", (data) => {
+			console.log("🚪 user_left event received:", data);
+			handleUserLeft(data);
+		});
+		
+		socket.on("group_users_list", (data) => {
+			console.log("👥 group_users_list event received:", data);
+			handleGroupUsersList(data);
+		});
+		
+		socket.on("joined_random_group", (data) => {
+			console.log("🎉 joined_random_group event received:", data);
+			handleJoinedRandomGroup(data);
+		});
+		
+		socket.on("joined_existing_group", (data) => {
+			console.log("➕ joined_existing_group event received:", data);
+			handleJoinedExistingGroup(data);
+		});
+		
+		socket.on("joined_waitroom", (data) => {
+			console.log("⏳ joined_waitroom event received:", data);
+			handleJoinedWaitroom(data);
+		});
+		
+		socket.on("waitroom_cleared", () => {
+			console.log("🧹 waitroom_cleared event received");
+			handleWaitroomCleared();
+		});
+		
+		socket.on("group_joined", (data) => {
+			console.log("🎯 group_joined event received:", data);
+			handleGroupJoined(data);
+		});
+		
+		socket.on("crypto_key_exchange", (data) => {
+			console.log("🔐 crypto_key_exchange event received:", data);
+			handleKeyExchange(data);
+		});
+		
+		socket.on("request_key_exchange", (data) => {
+			console.log("🔄 request_key_exchange event received:", data);
+			handleRequestKeyExchange(data);
+		});
+		
+		// Add error event listener
+		socket.on("error", (error) => {
+			console.error("❌ Socket error received:", error);
+			Alert.alert("Erreur de connexion", error.message || "Erreur inconnue");
+		});
+		
+		console.log("✅ Socket listeners set up successfully");
 	};
 
 	const handleIncomingMessage = async (data: {
@@ -150,51 +214,98 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 		groupId: string;
 		senderUsername: string;
 	}) => 
-{
-		try 
-{
-			if (!currentGroupId || data.groupId !== currentGroupId) 
-{
-				return;
-			}
+	{
+		console.log("📨 Processing incoming message:", {
+			messageId: data.messageId,
+			groupId: data.groupId,
+			senderUsername: data.senderUsername,
+			encryptedMessage: typeof data.encryptedMessage
+		});
 
-			// Parse the encrypted message if it's a string
-			const encryptedMessage = typeof data.encryptedMessage === 'string' 
+		// Parse encrypted message if it's a string
+		let encryptedMessage: EncryptedMessage;
+		try {
+			encryptedMessage = typeof data.encryptedMessage === 'string' 
 				? JSON.parse(data.encryptedMessage) as EncryptedMessage
 				: data.encryptedMessage;
-
-			const decryptedContent = await groupChatCrypto.decryptMessage(
-				data.groupId,
-				encryptedMessage
-			);
-
-			const newMessage: ChatMessage = {
-				id: data.messageId,
-				content: decryptedContent,
-				senderId: encryptedMessage.senderId,
-				timestamp: new Date(encryptedMessage.timestamp),
-				isDecrypted: true,
-			};
-
-			setMessages(prev => [...prev, newMessage]);
-		} catch (error) {
-			console.error("Failed to decrypt message:", error);
-
-			// Parse the encrypted message for error case too
-			const encryptedMessageForError = typeof data.encryptedMessage === 'string' 
-				? JSON.parse(data.encryptedMessage) as EncryptedMessage
-				: data.encryptedMessage;
-
+		} catch (parseError) {
+			console.error("❌ Failed to parse encrypted message:", parseError);
 			const errorMessage: ChatMessage = {
 				id: data.messageId,
-				content: "[Message non déchiffrable]",
-				senderId: encryptedMessageForError.senderId,
-				timestamp: new Date(encryptedMessageForError.timestamp),
+				content: "❌ Message corrompu (erreur de format)",
+				senderId: 'unknown',
+				senderUsername: data.senderUsername,
+				timestamp: new Date(),
 				isDecrypted: false,
 			};
-
 			setMessages(prev => [...prev, errorMessage]);
+			return;
 		}
+
+		console.log("🔍 Encrypted message details:", {
+			keyVersion: encryptedMessage.keyVersion,
+			senderId: encryptedMessage.senderId,
+			timestamp: encryptedMessage.timestamp,
+			contentLength: encryptedMessage.content?.length
+		});
+
+		// Skip our own messages to prevent duplicates
+		if (user?.id?.toString() === encryptedMessage.senderId) {
+			console.log("⏭️ Skipping own message to prevent duplicate");
+			return;
+		}
+
+		let decryptedContent: string;
+		let isDecrypted = true;
+
+		try {
+			// Attempt to decrypt the message
+			decryptedContent = await groupChatCrypto.decryptMessage(data.groupId, encryptedMessage);
+			console.log("✅ Message decrypted successfully");
+		} catch (decryptError) {
+			console.error("❌ Failed to decrypt message:", decryptError);
+			
+			// Handle different types of decryption errors
+			const errorMessage = decryptError instanceof Error ? decryptError.message : String(decryptError);
+			
+			if (errorMessage.includes("key exchange needed") || errorMessage.includes("newer key version")) {
+				decryptedContent = "🔄 Message en attente de synchronisation des clés...";
+				console.log("🔄 Message requires key exchange - will retry after sync");
+			} else if (errorMessage.includes("Group key not found")) {
+				decryptedContent = "⚠️ Clés de groupe manquantes - échange de clés requis";
+			} else {
+				decryptedContent = "❌ Impossible de déchiffrer ce message";
+			}
+			
+			isDecrypted = false;
+		}
+
+		const messageToAdd: ChatMessage = {
+			id: data.messageId,
+			content: decryptedContent,
+			senderId: encryptedMessage.senderId,
+			senderUsername: data.senderUsername,
+			timestamp: new Date(encryptedMessage.timestamp),
+			isDecrypted: isDecrypted,
+		};
+
+		setMessages(prev => {
+			// Check if message already exists to prevent duplicates
+			const exists = prev.some(msg => msg.id === data.messageId);
+			if (exists) {
+				console.log("⏭️ Message already exists, skipping");
+				return prev;
+			}
+			
+			const newMessages = [...prev, messageToAdd];
+			console.log(`📝 Added message to chat (total: ${newMessages.length})`);
+			return newMessages;
+		});
+
+		// Scroll to bottom after adding message
+		setTimeout(() => {
+			flatListRef.current?.scrollToEnd({ animated: true });
+		}, 100);
 	};
 
 	const handleUserJoinedGroup = async (data: {
@@ -202,18 +313,44 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 		groupId: string;
 		members: GroupMember[];
 	}) => 
-{
-		if (!currentGroupId || data.groupId !== currentGroupId) 
-{
+	{
+		const currentGroup = currentGroupIdRef.current;
+		if (!currentGroup || data.groupId !== currentGroup) 
+		{
+			console.log(`🚫 User joined event ignored - wrong group. Current: ${currentGroup}, Event: ${data.groupId}`);
 			return;
 		}
 
-		setGroupUsers(prev => [...prev, data.user]);
+		console.log(`👤 User ${data.user.userId} joined group ${data.groupId}, updating member count`);
+		
+		// Add a system message about the user joining
+		const joinMessage: ChatMessage = {
+			id: `join_${Date.now()}`,
+			content: `${data.user.username} a rejoint le groupe`,
+			senderId: 'system',
+			senderUsername: 'Système',
+			timestamp: new Date(),
+			isDecrypted: true,
+		};
+
+		setMessages(prev => [...prev, joinMessage]);
+		
+		// Update group users based on the members list from the server
+		// This ensures we have the correct count and avoid duplicates
+		const activeMembers = data.members.filter(member => member.isActive);
+		const groupUsers: GroupChatUser[] = activeMembers.map(member => ({
+			userId: member.userId,
+			username: member.userId, // Use userId as username since we don't have usernames from this event
+			isOnline: member.isActive,
+		}));
+		
+		setGroupUsers(groupUsers);
+		console.log(`👥 Group users updated: ${groupUsers.length} active members (total: ${data.members.length})`);
 
 		try 
-{
+		{
 			if (user?.id) 
-{
+			{
 				const newMember: GroupMember = {
 					userId: data.user.userId,
 					publicKey: "", // Will be exchanged via crypto
@@ -236,16 +373,37 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 		groupId: string;
 		remainingMembers: GroupMember[];
 	}) => 
-{
-		if (!currentGroupId || data.groupId !== currentGroupId) 
-{
+	{
+		const currentGroup = currentGroupIdRef.current;
+		if (!currentGroup || data.groupId !== currentGroup) 
+		{
 			return;
 		}
 
-		setGroupUsers(prev => prev.filter(u => u.userId !== data.userId));
+		// Find the username of the user who left
+		const leavingUser = groupUsers.find(u => u.userId === data.userId);
+		const leavingUsername = leavingUser?.username || data.userId;
+
+		// Add a system message about the user leaving
+		const leaveMessage: ChatMessage = {
+			id: `leave_${Date.now()}`,
+			content: `${leavingUsername} a quitté le groupe`,
+			senderId: 'system',
+			senderUsername: 'Système',
+			timestamp: new Date(),
+			isDecrypted: true,
+		};
+
+		setMessages(prev => [...prev, leaveMessage]);
+
+		setGroupUsers(prev => {
+			const updatedUsers = prev.filter(u => u.userId !== data.userId);
+			console.log(`👥 Group users updated: ${updatedUsers.length} active members remaining`);
+			return updatedUsers;
+		});
 
 		try 
-{
+		{
 			await groupChatCrypto.handleMemberLeave(
 				data.groupId,
 				data.userId,
@@ -283,16 +441,30 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 		groupId: string;
 		members: GroupMember[];
 	}) => 
-{
+	{
 		console.log("🎉 Group created! Joining group:", data.groupId);
+		
+		// Set the group ID immediately and also update the ref
 		setCurrentGroupId(data.groupId);
+		currentGroupIdRef.current = data.groupId; // Update ref immediately
+		
 		setIsJoiningGroup(false);
 		setWaitroomStatus(null); // Clear waitroom status
 
+		// Set group users for display with member count (only active members)
+		const activeMembers = data.members.filter(member => member.isActive);
+		const groupUsers: GroupChatUser[] = activeMembers.map(member => ({
+			userId: member.userId,
+			username: member.userId, // Use userId as username since we don't have usernames from this event
+			isOnline: member.isActive,
+		}));
+		setGroupUsers(groupUsers);
+		console.log(`👥 Set group users: ${groupUsers.length} active members (total: ${data.members.length})`);
+
 		try 
-{
+		{
 			if (user?.id) 
-{
+			{
 				const currentUserMember: GroupMember = {
 					userId: user.id.toString(),
 					publicKey: "", // Will be set by crypto manager
@@ -304,9 +476,60 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 					currentUserMember,
 					data.members
 				);
+				console.log(`🔐 Crypto initialized for group ${data.groupId}`);
+				
+				// Key exchange will be triggered by the backend automatically
 			}
 		} catch (error) {
-			console.error("Failed to setup group encryption:", error);
+			console.error("Failed to initialize crypto for group:", error);
+		}
+	};
+
+	const handleJoinedExistingGroup = async (data: {
+		groupId: string;
+		members: GroupMember[];
+	}) => 
+	{
+		console.log("➕ Joining existing group:", data.groupId);
+		
+		// Set the group ID immediately and also update the ref
+		setCurrentGroupId(data.groupId);
+		currentGroupIdRef.current = data.groupId; // Update ref immediately
+		
+		setIsJoiningGroup(false);
+		setWaitroomStatus(null); // Clear waitroom status
+
+		// Set group users for display with member count (only active members)
+		const activeMembers = data.members.filter(member => member.isActive);
+		const groupUsers: GroupChatUser[] = activeMembers.map(member => ({
+			userId: member.userId,
+			username: member.userId, // Use userId as username since we don't have usernames from this event
+			isOnline: member.isActive,
+		}));
+		setGroupUsers(groupUsers);
+		console.log(`👥 Set group users: ${groupUsers.length} active members (total: ${data.members.length})`);
+
+		try 
+		{
+			if (user?.id) 
+			{
+				const currentUserMember: GroupMember = {
+					userId: user.id.toString(),
+					publicKey: "", // Will be set by crypto manager
+					isActive: true,
+				};
+
+				await groupChatCrypto.joinGroup(
+					data.groupId,
+					currentUserMember,
+					data.members
+				);
+				console.log(`🔐 Crypto initialized for existing group ${data.groupId}`);
+				
+				// Key exchange will be triggered by the backend automatically
+			}
+		} catch (error) {
+			console.error("Failed to initialize crypto for existing group:", error);
 		}
 	};
 
@@ -398,6 +621,112 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 		}
 	};
 
+	const handleRequestKeyExchange = async (data: {
+		type: "NEW_MEMBER" | "MEMBER_LEFT";
+		groupId: string;
+		remainingMembers?: GroupMember[];
+		allMembers?: GroupMember[];
+	}) => 
+	{
+		console.log(`🔄 Key exchange requested for ${data.type} in group ${data.groupId}`);
+		
+		// Use group-specific debouncing to allow concurrent exchanges for different groups
+		const debounceKey = `${data.groupId}_${data.type}`;
+		const now = Date.now();
+		if (now - lastKeyExchangeTime.current < KEY_EXCHANGE_DEBOUNCE) {
+			console.log(`⏱️ Key exchange debounced for group ${data.groupId} (last: ${now - lastKeyExchangeTime.current}ms ago)`);
+			return;
+		}
+		lastKeyExchangeTime.current = now;
+		
+		// Add a system message about the key exchange
+		const keyExchangeMessage: ChatMessage = {
+			id: `key_exchange_${Date.now()}`,
+			content: data.type === "NEW_MEMBER" 
+				? "🔄 Échange de clés en cours pour le nouveau membre..." 
+				: "🔄 Échange de clés en cours suite au départ d'un membre...",
+			senderId: 'system',
+			senderUsername: 'Système',
+			timestamp: new Date(),
+			isDecrypted: true,
+		};
+		
+		setMessages(prev => [...prev, keyExchangeMessage]);
+		
+		try 
+		{
+			// Get the current user's key pair
+			const userKeyPair = await groupChatCrypto.getUserKeyPair();
+			
+			if (!userKeyPair) 
+			{
+				console.error("❌ No user key pair found for key exchange");
+				throw new Error("User key pair not found");
+			}
+
+			// Use member list from the backend if provided
+			const membersToUse = data.remainingMembers || data.allMembers;
+			if (membersToUse && membersToUse.length > 0) {
+				console.log(`🔍 Using ${membersToUse.length} members from backend: ${membersToUse.map(m => m.userId).join(', ')}`);
+				
+				// Find current user in the member list or create entry
+				const currentUserMember = membersToUse.find(m => m.userId === userKeyPair.userId) || {
+					userId: userKeyPair.userId,
+					publicKey: userKeyPair.publicKey,
+					isActive: true
+				};
+				
+				// Initialize the key exchange with the provided member list
+				if (data.type === "NEW_MEMBER") {
+					const existingMembers = membersToUse.filter(m => m.userId !== userKeyPair.userId);
+					await groupChatCrypto.handleNewMemberJoin(
+						data.groupId,
+						currentUserMember,
+						existingMembers
+					);
+				} else {
+					await groupChatCrypto.handleMemberLeave(
+						data.groupId,
+						userKeyPair.userId,
+						membersToUse
+					);
+				}
+			} else {
+				console.log(`⚠️ No member list provided, proceeding with basic key exchange`);
+			}
+
+			// Create key exchange message
+			const keyExchangeMessageData = {
+				type: data.type,
+				userId: userKeyPair.userId,
+				publicKey: userKeyPair.publicKey,
+				groupId: data.groupId,
+				timestamp: new Date()
+			};
+
+			console.log(`📤 Sending key exchange message:`, keyExchangeMessageData);
+			
+			// Send the key exchange message to the server
+			socket.emit("crypto_key_exchange", keyExchangeMessageData);
+			
+			console.log(`✅ Key exchange message sent for ${data.type}`);
+		} catch (error) {
+			console.error("❌ Failed to handle key exchange:", error);
+			
+			// Add error message to chat
+			const errorMessage: ChatMessage = {
+				id: `key_exchange_error_${Date.now()}`,
+				content: "❌ Erreur lors de l'échange de clés. Certains messages peuvent ne pas être déchiffrables.",
+				senderId: 'system',
+				senderUsername: 'Système',
+				timestamp: new Date(),
+				isDecrypted: true,
+			};
+			
+			setMessages(prev => [...prev, errorMessage]);
+		}
+	};
+
 	const joinRandomGroup = async () => 
 {
 		console.log("🎯 joinRandomGroup called");
@@ -441,13 +770,15 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 	};
 
 	const leaveGroup = () => 
-{
-		if (currentGroupId) 
-{
-			socket.emit("leave_group", { groupId: currentGroupId }, (response: any) => {
+	{
+		const currentGroup = currentGroupIdRef.current;
+		if (currentGroup) 
+		{
+			socket.emit("leave_group", { groupId: currentGroup }, (response: any) => {
 				if (response && response.success) {
 					console.log("Successfully left group:", response.message);
 					setCurrentGroupId(null);
+					currentGroupIdRef.current = null; // Clear ref too
 					setMessages([]);
 					setGroupUsers([]);
 				} else {
@@ -459,21 +790,22 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 	};
 
 	const sendMessage = async () => 
-{
-		if (!newMessage.trim() || !currentGroupId || !user?.id) 
-{
+	{
+		const currentGroup = currentGroupIdRef.current;
+		if (!newMessage.trim() || !currentGroup || !user?.id) 
+		{
 			return;
 		}
 
 		try 
-{
+		{
 			const encryptedMessage = await groupChatCrypto.encryptMessage(
-				currentGroupId,
+				currentGroup,
 				newMessage.trim()
 			);
 
 			socket.emit("send_group_message", {
-				groupId: currentGroupId,
+				groupId: currentGroup,
 				encryptedMessage: JSON.stringify(encryptedMessage),
 			});
 
@@ -481,6 +813,7 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 				id: `local_${Date.now()}`,
 				content: newMessage.trim(),
 				senderId: user.id.toString(),
+				senderUsername: user.login,
 				timestamp: new Date(),
 				isDecrypted: true,
 			};
@@ -494,20 +827,36 @@ const GroupChatScreen = ({ navigation }: GroupChatScreenProps) =>
 	};
 
 	const renderMessage = ({ item }: { item: ChatMessage }) => 
-{
-		const isOwnMessage = item.senderId === user?.id?.toString();
+	{
+		const isCurrentUser = user?.id?.toString() === item.senderId;
+		const isSystemMessage = item.senderId === 'system';
 
 		return (
 			<View
 				style={[
 					styles.messageContainer,
-					isOwnMessage ? styles.ownMessage : styles.otherMessage,
+					isSystemMessage 
+						? styles.systemMessageContainer
+						: isCurrentUser 
+							? styles.currentUserMessage 
+							: styles.otherUserMessage,
 				]}
 			>
+				{!isSystemMessage && !isCurrentUser && (
+					<Text style={styles.senderName}>
+						{item.senderUsername}
+					</Text>
+				)}
+				{!isSystemMessage && isCurrentUser && (
+					<Text style={styles.sentIndicator}>
+						✓ Envoyé
+					</Text>
+				)}
 				<Text
 					style={[
 						styles.messageText,
-						!item.isDecrypted && styles.errorText,
+						isSystemMessage && styles.systemMessageText,
+						!item.isDecrypted && styles.encryptedMessageText,
 					]}
 				>
 					{item.content}

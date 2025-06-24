@@ -126,6 +126,11 @@ export class GroupChatCrypto
 	{
 		return await clearAllCryptoData();
 	}
+
+	public cleanupExpiredExchanges(): void
+	{
+		keyExchangeHandler.cleanupExpiredExchanges();
+	}
 }
 
 export const groupChatCrypto = new GroupChatCrypto();

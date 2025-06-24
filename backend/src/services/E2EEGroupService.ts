@@ -34,6 +34,43 @@ export class E2EEGroupService
 
 	public addUserToWaitroom(user: WaitingUser): void 
 	{
+		console.log(`🔍 Adding user ${user.userId} to waitroom or existing group`);
+		
+		// First, check if there are existing groups that can accept new members
+		const availableGroup = this.findAvailableGroup();
+		
+		if (availableGroup) {
+			console.log(`✅ Found available group ${availableGroup.groupId} with ${availableGroup.members.length}/${availableGroup.maxMembers} members`);
+			
+			// Add user to existing group
+			const newMember: GroupMember = {
+				userId: user.userId,
+				publicKey: user.publicKey,
+				isActive: true,
+				joinedAt: new Date()
+			};
+			
+			this.addMemberToGroup(availableGroup.groupId, newMember).then(updatedGroup => {
+				if (updatedGroup) {
+					console.log(`✅ User ${user.userId} added to existing group ${availableGroup.groupId}`);
+					// Trigger the group update callback
+					if (this.onGroupCreated) {
+						this.onGroupCreated(updatedGroup);
+					}
+				}
+			}).catch(error => {
+				console.error(`❌ Failed to add user ${user.userId} to existing group:`, error);
+				// Fallback to waitroom if adding to existing group fails
+				this.addToWaitroom(user);
+			});
+		} else {
+			console.log(`📋 No available groups found, adding user ${user.userId} to waitroom`);
+			this.addToWaitroom(user);
+		}
+	}
+
+	private addToWaitroom(user: WaitingUser): void 
+	{
 		const existingIndex = this.waitingRoom.findIndex(
 			u => u.userId === user.userId
 		);
@@ -49,6 +86,18 @@ export class E2EEGroupService
 
 		this.cleanupExpiredWaitingUsers();
 		this.tryCreateGroup();
+	}
+
+	private findAvailableGroup(): GroupSession | null 
+	{
+		for (const [groupId, group] of this.groupSessions) {
+			// Check if group is active and has room for more members
+			if (group.status === 'active' && group.members.length < group.maxMembers) {
+				// All members in the array are active now (inactive ones are removed)
+				return group;
+			}
+		}
+		return null;
 	}
 
 	public removeUserFromWaitroom(userId: string): void 
@@ -137,11 +186,8 @@ export class E2EEGroupService
 			return null;
 		}
 
-		// Set member as inactive instead of removing
-		const member = group.members.find(m => m.userId === userId);
-		if (member) {
-			member.isActive = false;
-		}
+		// Remove member completely from the group instead of marking inactive
+		group.members = group.members.filter(m => m.userId !== userId);
 
 		group.lastActivity = new Date();
 		this.userToGroup.delete(userId);
@@ -149,9 +195,8 @@ export class E2EEGroupService
 		// Update member status in database
 		await this.setMemberInactiveInDatabase(groupId, userId);
 
-		// Check if group is empty (no active members)
-		const activeMembers = group.members.filter(m => m.isActive);
-		if (activeMembers.length === 0) 
+		// Check if group is empty (no remaining members)
+		if (group.members.length === 0) 
 		{
 			await this.deleteGroupCompletely(groupId);
 			return null;
@@ -191,6 +236,16 @@ export class E2EEGroupService
 	public getWaitingUsers(): WaitingUser[] 
 	{
 		return [...this.waitingRoom]; // Return a copy to prevent external modifications
+	}
+
+	public getMinMembers(): number 
+	{
+		return this.MIN_MEMBERS;
+	}
+
+	public getMaxMembers(): number 
+	{
+		return this.MAX_MEMBERS;
 	}
 
 	public async deleteGroupCompletely(groupId: string): Promise<void> 
@@ -241,9 +296,9 @@ export class E2EEGroupService
 			await Message.create({
 				id: messageId,
 				groupId: groupId,
-				senderId: parseInt(senderId),
+				senderId: parseInt(senderId), // Always parse as integer (system messages should pass real user ID)
 				encryptedContent: JSON.stringify(encryptedMessage),
-				messageType: 'text',
+				messageType: senderId === 'system' ? 'system' : 'text',
 				timestamp: timestamp,
 				isDelivered: true
 			});
@@ -314,13 +369,24 @@ export class E2EEGroupService
 
 			console.log(`✅ Created new group ${groupId} with ${members.length} members`);
 
-			console.log(`🔍 Checking onGroupCreated callback: ${!!this.onGroupCreated}`);
-			if (this.onGroupCreated) {
-				console.log(`📞 Calling onGroupCreated callback for group ${groupId}`);
-				this.onGroupCreated(group);
-			} else {
-				console.warn(`❌ No onGroupCreated callback set!`);
-			}
+			// **IMPORTANT: Persist to database FIRST before calling callback**
+			this.persistGroupToDatabase(group).then(() => {
+				console.log(`💾 Group ${groupId} persisted to database`);
+				
+				console.log(`🔍 Checking onGroupCreated callback: ${!!this.onGroupCreated}`);
+				if (this.onGroupCreated) {
+					console.log(`📞 Calling onGroupCreated callback for group ${groupId}`);
+					this.onGroupCreated(group);
+				} else {
+					console.warn(`❌ No onGroupCreated callback set!`);
+				}
+			}).catch(error => {
+				console.error(`❌ Failed to persist group to database:`, error);
+				// Still call callback even if DB fails (in-memory mode)
+				if (this.onGroupCreated) {
+					this.onGroupCreated(group);
+				}
+			});
 
 			return group;
 		} else {
@@ -339,7 +405,7 @@ export class E2EEGroupService
 
 	private generateMessageId(): string 
 	{
-		return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		return uuidv4();
 	}
 
 	// Database persistence methods
@@ -438,5 +504,25 @@ export class E2EEGroupService
 		} catch (error) {
 			console.error('Failed to delete group from database:', error);
 		}
+	}
+
+	public async sendJoinMessage(groupId: string, userIds: string[]): Promise<void> {
+		const group = this.groupSessions.get(groupId);
+		if (!group) return;
+
+		// Create a system message for new members joining
+		const joinMessage = {
+			content: userIds.length === 1 
+				? `${userIds[0]} a rejoint le groupe` 
+				: `${userIds.join(', ')} ont rejoint le groupe`,
+			keyVersion: 0,
+			timestamp: new Date(),
+			senderId: 'system'
+		};
+
+		// Store the join message
+		const messageInfo = await this.storeMessage(groupId, 'system', joinMessage);
+		
+		return Promise.resolve();
 	}
 } 

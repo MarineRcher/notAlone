@@ -21,6 +21,8 @@ export interface KeyExchangeMessage
 	publicKey: string;
 	groupId: string;
 	timestamp: Date;
+	remainingMembers?: GroupMember[];
+	allMembers?: GroupMember[];
 }
 
 export interface GroupSession 
@@ -57,4 +59,5 @@ export interface SocketUserData
 	socketId: string;
 	currentGroupId?: string;
 	publicKey?: string;
+	username?: string;
 } 

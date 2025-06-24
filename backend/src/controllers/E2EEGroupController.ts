@@ -85,7 +85,8 @@ export class E2EEGroupController
 		{
 			socket.user = {
 				userId: testUser.id.toString(),
-				socketId: socket.id
+				socketId: socket.id,
+				username: testUser.login
 			};
 			console.log(`🧪 Test user authenticated: ${testUser.login}`);
 			callback(true);
@@ -118,7 +119,8 @@ export class E2EEGroupController
 			{
 				socket.user = {
 					userId: userId.toString(),
-					socketId: socket.id
+					socketId: socket.id,
+					username: decoded.login || 'unknown'
 				};
 				console.log(`✅ Real user authenticated: ${userId} (${decoded.login || 'unknown'})`);
 				callback(true);
