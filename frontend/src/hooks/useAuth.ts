@@ -14,6 +14,7 @@ export const useAuth = () => {
     update2FAStatus: context.update2FAStatus,
     updateNotificationSettings: context.updateNotificationSettings,
     updatePremiumStatus: context.updatePremiumStatus,
+    checkTokenValidity: context.checkTokenValidity,
     isAuthenticated: !!context.user,
   };
 };

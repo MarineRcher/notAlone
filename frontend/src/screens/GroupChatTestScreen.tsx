@@ -20,19 +20,60 @@ interface GroupInfo {
     name: string;
     currentMembers: number;
     maxMembers: number;
+    members?: Array<{
+        userId: string;
+        id: string;
+        login: string;
+        publicKey?: string;
+    }>;
 }
 
 export default function GroupChatTestScreen({ navigation }: any) {
     const { user, isAuthenticated } = useAuth();
-    const { encryptGroupMessage, decryptGroupMessage, initialize, initialized, createGroupSession } = useExpoCompatibleEncryption();
+    const { 
+        encryptGroupMessage, 
+        decryptGroupMessage, 
+        initialize, 
+        initialized, 
+        joinGroup,
+        leaveGroup,
+        processKeyExchange,
+        refreshGroupKeys,
+        clearGroupKey 
+    } = useExpoCompatibleEncryption();
     const [isConnected, setIsConnected] = useState(false);
     const [transport, setTransport] = useState("N/A");
-    const [connectionError, setConnectionError] = useState<string | null>(null);
-    const [isConnecting, setIsConnecting] = useState(false);
+    const [socketId, setSocketId] = useState("");
     const [currentGroup, setCurrentGroup] = useState<GroupInfo | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState("");
+    const [sendingMessage, setSendingMessage] = useState(false);
     const [isJoining, setIsJoining] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [connectionError, setConnectionError] = useState<string | null>(null);
+
+    const userId = user?.id?.toString() || "";
+
+    // Handle key refresh when group membership changes
+    const handleKeyRefresh = async (groupId: string) => {
+        try {
+            if (!initialized || !groupId) {
+                console.log("⚠️ Cannot refresh keys - encryption not initialized or no group ID");
+                return;
+            }
+
+            console.log("🔄 Refreshing keys for group:", groupId);
+            
+            // Generate new personal key and broadcast to group
+            const keyExchangeMessage = await refreshGroupKeys(groupId, userId);
+            
+            // Broadcast the new key to all group members
+            socket.emit("key_exchange", keyExchangeMessage);
+            console.log("✅ Key refresh initiated");
+        } catch (error) {
+            console.error("❌ Failed to refresh keys:", error);
+        }
+    };
 
     // Initialize encryption when component mounts
     useEffect(() => {
@@ -45,7 +86,6 @@ export default function GroupChatTestScreen({ navigation }: any) {
         function onConnect() {
             console.log("✅ Connected to server");
             setIsConnected(true);
-            setConnectionError(null);
             setIsConnecting(false);
             if (socket.io && socket.io.engine) {
                 setTransport(socket.io.engine.transport.name);
@@ -80,13 +120,57 @@ export default function GroupChatTestScreen({ navigation }: any) {
             if (initialized && data.group?.id) {
                 try {
                     console.log("🔐 Setting up group encryption session...");
-                    // Extract member IDs from group data - in a real app this would come from the server
+                    // Extract member IDs from group data
                     const memberIds = data.group.members?.map((member: any) => member.userId?.toString() || member.id?.toString()) || [];
-                    await createGroupSession(data.group.id, memberIds);
+                    const keyExchangeMessage = await joinGroup(data.group.id, memberIds, userId);
+                    
+                    // Process our own key exchange message to ensure group key is generated
+                    await processKeyExchange(keyExchangeMessage, userId);
+                    
+                    // Broadcast key exchange message to other group members
+                    socket.emit("key_exchange", keyExchangeMessage);
                     console.log("✅ Group encryption session established");
                 } catch (error) {
                     console.error("❌ Failed to setup group encryption session:", error);
                 }
+            }
+        }
+
+        function onUserJoined(data: any) {
+            console.log("👋 User joined:", data);
+            const systemMessage: Message = {
+                id: `system_${Date.now()}`,
+                content: `${data.login} joined the group`,
+                senderLogin: "System",
+                timestamp: new Date(),
+                isOwn: false
+            };
+            setMessages(prev => [...prev, systemMessage]);
+            
+            // When a new user joins, we need to regenerate keys for security
+            // Send a new personal key to all group members
+            if (initialized && currentGroup?.id && data.userId) {
+                console.log("🔄 User joined - initiating key refresh...");
+                handleKeyRefresh(currentGroup.id);
+            }
+        }
+
+        function onUserLeft(data: any) {
+            console.log("👋 User left:", data);
+            const systemMessage: Message = {
+                id: `system_${Date.now()}`,
+                content: `${data.login} left the group`,
+                senderLogin: "System",
+                timestamp: new Date(),
+                isOwn: false
+            };
+            setMessages(prev => [...prev, systemMessage]);
+            
+            // When a user leaves, we need to regenerate keys for security
+            // All remaining users send new personal keys to regenerate group key
+            if (initialized && currentGroup?.id && data.userId) {
+                console.log("🔄 User left - initiating key refresh...");
+                handleKeyRefresh(currentGroup.id);
             }
         }
 
@@ -97,16 +181,43 @@ export default function GroupChatTestScreen({ navigation }: any) {
             
             try {
                 if (data.encryptedContent && initialized) {
-                    // Try to decrypt the message
-                    const encryptedMessage: EncryptedMessage = JSON.parse(data.encryptedContent);
-                    const decryptedMessage = await decryptGroupMessage(encryptedMessage);
-                    messageContent = decryptedMessage.content;
+                    // Parse the encrypted message (could be different formats)
+                    const encryptedData: any = JSON.parse(data.encryptedContent);
+                    console.log("🔍 Parsed encrypted message format:", {
+                        hasIv: !!encryptedData.iv,
+                        hasCiphertext: !!encryptedData.ciphertext,
+                        hasKeyHash: !!encryptedData.keyHash,
+                        hasHeader: !!encryptedData.header,
+                        hasSignature: !!encryptedData.signature,
+                        senderId: encryptedData.senderId || encryptedData.header?.senderId,
+                        groupId: encryptedData.groupId
+                    });
+                    
+                    // Check if this is an ExpoCompatibleCrypto message format
+                    if (encryptedData.iv && encryptedData.ciphertext && encryptedData.keyHash) {
+                        console.log("🔓 Decrypting message for group:", encryptedData.groupId);
+                        const encryptedMessage: EncryptedMessage = encryptedData;
+                        const decryptedMessage = await decryptGroupMessage(encryptedMessage);
+                        messageContent = decryptedMessage.content;
+                        console.log("✅ Message decrypted successfully:", messageContent);
+                    } else {
+                        // This might be a different format (e.g., from test scripts or other clients)
+                        console.warn("⚠️ Message format not compatible with ExpoCompatibleCrypto. Attempting to display raw content...");
+                        
+                        // Try to extract any readable content
+                        if (encryptedData.header && encryptedData.ciphertext) {
+                            messageContent = `[Different encryption format] - Sender: ${encryptedData.header.senderId}`;
+                        } else {
+                            messageContent = "[Incompatible message format]";
+                        }
+                    }
                 } else {
                     // Fallback to plain text if encryption not available
                     messageContent = data.encryptedContent || data.content || "[No content]";
+                    console.log("ℹ️ Using fallback content:", messageContent);
                 }
             } catch (error) {
-                console.error("Failed to decrypt message:", error);
+                console.error("❌ Failed to decrypt message:", error);
                 messageContent = "[Encrypted message - decryption failed]";
             }
             
@@ -120,28 +231,27 @@ export default function GroupChatTestScreen({ navigation }: any) {
             setMessages(prev => [...prev, newMsg]);
         }
 
-        function onUserJoined(data: any) {
-            console.log("👋 User joined:", data);
-            const systemMessage: Message = {
-                id: `system_${Date.now()}`,
-                content: `${data.login} joined the group`,
-                senderLogin: "System",
-                timestamp: new Date(),
-                isOwn: false
-            };
-            setMessages(prev => [...prev, systemMessage]);
-        }
-
-        function onUserLeft(data: any) {
-            console.log("👋 User left:", data);
-            const systemMessage: Message = {
-                id: `system_${Date.now()}`,
-                content: `${data.login} left the group`,
-                senderLogin: "System",
-                timestamp: new Date(),
-                isOwn: false
-            };
-            setMessages(prev => [...prev, systemMessage]);
+        async function onKeyExchange(data: any) {
+            console.log("🔐 Key exchange received:", data);
+            
+            try {
+                if (initialized && data) {
+                    await processKeyExchange(data, userId);
+                    console.log("✅ Key exchange processed successfully");
+                    
+                    // Only respond with our key if this is a join from another user, not from ourselves
+                    // and not if this is already a refresh action to avoid infinite loops
+                    if (data.action === 'join' && 
+                        data.userId !== userId && 
+                        currentGroup?.id) {
+                        console.log("🔄 Responding to new user join with our key...");
+                        const ourKeyExchange = await refreshGroupKeys(currentGroup.id, userId);
+                        socket.emit("key_exchange", ourKeyExchange);
+                    }
+                }
+            } catch (error) {
+                console.error("❌ Failed to process key exchange:", error);
+            }
         }
 
         // Set up event listeners
@@ -151,6 +261,7 @@ export default function GroupChatTestScreen({ navigation }: any) {
         socket.on('group_joined', onGroupJoined);
         socket.on('new_message', onNewMessage);
         socket.on('user_joined', onUserJoined);
+        socket.on('key_exchange', onKeyExchange);
         socket.on('user_left', onUserLeft);
 
         // Check if already connected
@@ -187,8 +298,18 @@ export default function GroupChatTestScreen({ navigation }: any) {
         
         const connected = await connectWithAuth();
         if (!connected) {
-            setConnectionError("Failed to connect. Please check your authentication.");
+            setConnectionError("Authentication failed. Please log in again.");
             setIsConnecting(false);
+            
+            // Show login prompt if authentication failed
+            Alert.alert(
+                "Session Expired", 
+                "Your session has expired. Please log in again to use group chat.", 
+                [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "Login", onPress: () => navigation.navigate("Login") }
+                ]
+            );
         }
     };
 
@@ -282,19 +403,6 @@ export default function GroupChatTestScreen({ navigation }: any) {
         }
     };
 
-    const leaveGroup = () => {
-        if (!isConnected || !currentGroup) return;
-        
-        socket.emit("leave_group", {
-            groupId: currentGroup.id
-        }, (response: any) => {
-            if (response && response.success) {
-                setCurrentGroup(null);
-                setMessages([]);
-            }
-        });
-    };
-
     const getConnectionStatusText = () => {
         if (connectionError) return `Error: ${connectionError}`;
         if (isConnecting) return 'Connecting...';
@@ -370,9 +478,33 @@ export default function GroupChatTestScreen({ navigation }: any) {
                     )}
                 </View>
                 {currentGroup && (
-                    <TouchableOpacity style={styles.leaveButton} onPress={leaveGroup}>
-                        <Text style={styles.leaveButtonText}>Leave Group</Text>
-                    </TouchableOpacity>
+                                    <TouchableOpacity 
+                    style={styles.leaveButton} 
+                    onPress={async () => {
+                        if (!currentGroup) return;
+                        
+                        try {
+                            const leaveMessage = await leaveGroup(currentGroup.id, userId);
+                            
+                            // Broadcast leave message to other group members
+                            socket.emit("key_exchange", leaveMessage);
+                            
+                            // Leave the group via socket
+                            socket.emit("leave_group", {
+                                groupId: currentGroup.id
+                            }, (response: any) => {
+                                if (response && response.success) {
+                                    setCurrentGroup(null);
+                                    setMessages([]);
+                                }
+                            });
+                        } catch (error) {
+                            console.error('❌ Failed to leave group:', error);
+                        }
+                    }}
+                >
+                    <Text style={styles.leaveButtonText}>Leave Group</Text>
+                </TouchableOpacity>
                 )}
             </View>
 
@@ -466,6 +598,26 @@ export default function GroupChatTestScreen({ navigation }: any) {
                         </View>
                     </View>
                 )}
+            </View>
+
+            {/* Debug Controls */}
+            <View style={styles.debugControls}>
+                <TouchableOpacity
+                    style={[styles.button, styles.debugButton]}
+                    onPress={async () => {
+                        try {
+                            console.log('🧹 Clearing group key for testing...');
+                            await clearGroupKey(currentGroup?.id || "");
+                            console.log('✅ Group key cleared - will regenerate deterministically');
+                            Alert.alert('Success', 'Group key cleared! It will regenerate deterministically when you send/receive a message.');
+                        } catch (error) {
+                            console.error('❌ Failed to clear group key:', error);
+                            Alert.alert('Error', 'Failed to clear group key');
+                        }
+                    }}
+                >
+                    <Text style={styles.buttonText}>🧹 Clear Group Key</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

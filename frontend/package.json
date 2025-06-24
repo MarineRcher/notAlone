@@ -32,6 +32,7 @@
         "expo-font": "~13.3.1",
         "expo-secure-store": "~14.2.3",
         "expo-status-bar": "^2.0.0",
+        "js-sha256": "^0.11.1",
         "jwt-decode": "^4.0.0",
         "react": "19.0.0",
         "react-dom": "19.0.0",

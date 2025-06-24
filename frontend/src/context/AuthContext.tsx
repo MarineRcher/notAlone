@@ -17,6 +17,7 @@ type AuthContextType = {
     update2FAStatus: (status: boolean) => void;
     updateNotificationSettings: (notify: boolean, hourNotify?: string) => void;
     updatePremiumStatus: (status: boolean) => void;
+    checkTokenValidity: () => Promise<void>;
 };
 
 interface AuthProviderProps {
@@ -29,6 +30,7 @@ export const AuthContext = createContext<AuthContextType>({
     update2FAStatus: () => {},
     updateNotificationSettings: () => {},
     updatePremiumStatus: () => {},
+    checkTokenValidity: async () => {},
 });
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -53,12 +55,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
     };
 
+    const checkTokenValidity = async () => {
+        const isValid = await authHelpers.isTokenValid();
+        if (!isValid && user) {
+            // Token is invalid and we have a user set, clear it
+            setUser(null);
+        }
+    };
+
     useEffect(() => {
         const loadUser = async () => {
             const token = await authHelpers.getToken();
             if (token) {
-                const decoded = jwtDecode<User>(token);
-                setUser(decoded);
+                try {
+                    const decoded = jwtDecode<User & { exp: number }>(token);
+                    
+                    // Check if token is expired
+                    const currentTime = Date.now() / 1000;
+                    if (decoded.exp && decoded.exp < currentTime) {
+                        // Token is expired, remove it and don't set user
+                        console.log("Token expired, removing from storage");
+                        await authHelpers.deleteToken();
+                        setUser(null);
+                        return;
+                    }
+                    
+                    setUser(decoded);
+                } catch (error) {
+                    // Invalid token, remove it
+                    console.log("Invalid token, removing from storage");
+                    await authHelpers.deleteToken();
+                    setUser(null);
+                }
             }
         };
         loadUser();
@@ -72,6 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 update2FAStatus,
                 updateNotificationSettings,
                 updatePremiumStatus,
+                checkTokenValidity,
             }}
         >
             <View style={{ flex: 1 }}>{children}</View>

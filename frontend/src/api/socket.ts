@@ -24,10 +24,10 @@ let socket = io(apiConfig.socketURL, {
 // Function to connect with authentication
 export const connectWithAuth = async (): Promise<boolean> => {
   try {
-    const token = await authHelpers.getToken();
+    const token = await authHelpers.getValidToken();
     
     if (!token) {
-      console.log('❌ No authentication token available');
+      console.log('❌ No valid authentication token available');
       return false;
     }
 

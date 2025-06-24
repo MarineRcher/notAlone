@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import GroupService from '../services/GroupService';
 import GroupController from '../controllers/GroupController';
+import GroupMember from '../models/GroupMember';
+import User from '../models/User';
 
 const router = express.Router();
 const groupService = new GroupService();
@@ -295,13 +297,24 @@ router.get('/users/:userId/public-key', async (req: Request, res: Response): Pro
   try {
     const { userId } = req.params;
     
-    // In a real implementation, you would fetch the user's public key from the database
-    // For this demo, we'll return a mock key
-    
-    res.json({
-      success: true,
-      data: 'mock_public_key_base64' // In real implementation, fetch from GroupMember.publicKey
+    // Find the user's most recent group membership to get their public key
+    const groupMember = await GroupMember.findOne({
+      where: { userId: parseInt(userId), isActive: true },
+      order: [['joinedAt', 'DESC']],
+      attributes: ['publicKey']
     });
+    
+    if (groupMember && groupMember.publicKey) {
+      res.json({
+        success: true,
+        data: groupMember.publicKey
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Public key not found for user'
+      });
+    }
   } catch (error) {
     console.error('Error getting public key:', error);
     res.status(500).json({
@@ -384,6 +397,49 @@ router.post('/group-messages', authenticateToken, async (req: AuthenticatedReque
     res.status(500).json({
       success: false,
       message: 'Failed to send encrypted group message'
+    });
+  }
+});
+
+/**
+ * GET /api/groups/:groupId/members/public-keys
+ * Get all public keys for group members (for e2ee)
+ */
+router.get('/groups/:groupId/members/public-keys', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { groupId } = req.params;
+    
+    // Get all active group members with their public keys
+    const members = await GroupMember.findAll({
+      where: { 
+        groupId,
+        isActive: true 
+      },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'login']
+      }],
+      attributes: ['userId', 'publicKey']
+    });
+    
+    // Format response as userId -> publicKey mapping
+    const publicKeys: { [userId: string]: string } = {};
+    members.forEach(member => {
+      if (member.publicKey) {
+        publicKeys[member.userId.toString()] = member.publicKey;
+      }
+    });
+    
+    res.json({
+      success: true,
+      data: publicKeys
+    });
+  } catch (error) {
+    console.error('Error getting group member public keys:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get group member public keys'
     });
   }
 });

@@ -318,4 +318,33 @@ export default StyleSheet.create({
         fontFamily: Fonts.quicksand.regular,
         textAlign: "center",
     },
+    
+    // Debug controls
+    debugControls: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        backgroundColor: colors.background,
+        borderTopWidth: 1,
+        borderTopColor: colors.text + "15",
+    },
+    button: {
+        backgroundColor: colors.primary,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 15,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    debugButton: {
+        backgroundColor: "#FF9800", // Orange for debug actions
+    },
+    buttonText: {
+        color: colors.background,
+        fontSize: 14,
+        fontFamily: Fonts.quicksand.bold,
+        textAlign: "center",
+    },
 }); 
