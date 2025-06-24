@@ -1,8 +1,21 @@
+# Ignore TypeScript and JavaScript files - let ESLint handle them
+*.ts
+*.tsx
+*.js
+*.jsx
+
+# Node modules
 node_modules/
-.expo/
+
+# Build outputs
 dist/
-coverage/
+.expo/
+build/
+
+# Logs
 *.log
+
+coverage/
 .env
 .env.local
 .env.production

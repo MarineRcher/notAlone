@@ -37,9 +37,6 @@ export default defineConfig([
 			react: reactPlugin,
 		},
 		rules: {
-			// Prettier integration
-			"prettier/prettier": "error",
-
 			// Function maximum 25 lines (excluding braces)
 			"max-lines-per-function": [
 				"error",
@@ -60,6 +57,7 @@ export default defineConfig([
 					ignoreUrls: true,
 					ignoreStrings: true,
 					ignoreTemplateLiterals: true,
+					tabWidth: 4,
 				},
 			],
 
@@ -73,6 +71,16 @@ export default defineConfig([
 
 			// No trailing spaces
 			"no-trailing-spaces": "error",
+
+			// No empty lines with only whitespace
+			"no-multiple-empty-lines": [
+				"error",
+				{
+					max: 1,
+					maxEOF: 0,
+					maxBOF: 0,
+				},
+			],
 
 			// Require newlines around control statements
 			curly: ["error", "all"],
@@ -131,8 +139,14 @@ export default defineConfig([
 			// Operator placement at beginning of line when breaking
 			"operator-linebreak": ["error", "before"],
 
-			// Consistent indentation (handled by Prettier)
-			indent: "off",
+			// Consistent indentation with tabs
+			indent: [
+				"error",
+				"tab",
+				{
+					SwitchCase: 1,
+				},
+			],
 
 			// Override conflicting built-in rules for TypeScript
 			"no-unused-vars": "off",
@@ -158,6 +172,21 @@ export default defineConfig([
 					blocks: "never",
 					classes: "never",
 					switches: "never",
+				},
+			],
+
+			// Ensure consistent spacing in object curly braces
+			"object-curly-spacing": ["error", "always"],
+
+			// Ensure consistent spacing in array brackets
+			"array-bracket-spacing": ["error", "never"],
+
+			// Ensure consistent spacing around arrow functions
+			"arrow-spacing": [
+				"error",
+				{
+					before: true,
+					after: true,
 				},
 			],
 
