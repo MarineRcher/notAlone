@@ -2,9 +2,9 @@ import * as SecureStore from "expo-secure-store";
 import { CryptoStorageData, UserKeyPair, GroupKeyInfo } from "./types";
 
 const STORAGE_KEYS = {
-	USER_KEY_PAIR: "@crypto_user_key_pair",
-	GROUP_KEYS: "@crypto_group_keys",
-	MEMBER_KEYS: "@crypto_member_keys"
+	USER_KEY_PAIR: "crypto_user_key_pair",
+	GROUP_KEYS: "crypto_group_keys",
+	MEMBER_KEYS: "crypto_member_keys"
 } as const;
 
 export async function saveUserKeyPair(keyPair: UserKeyPair): Promise<void>

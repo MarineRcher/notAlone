@@ -184,10 +184,13 @@ const HomeScreen = ({ navigation }) =>
 				</View>
 
 				<View style={styles.rightColumn}>
-					<View style={styles.group}>
+					<TouchableOpacity
+						style={styles.group}
+						onPress={() => navigation.navigate("GroupChat")}
+					>
 						<GroupUsers width={36} height={36} />
 						<Text style={styles.userText}>Cercle de parole</Text>
-					</View>
+					</TouchableOpacity>
 					<View style={styles.user}>
 						<User width={36} height={36} />
 						<Text style={styles.squaresText}>
@@ -212,15 +215,6 @@ const HomeScreen = ({ navigation }) =>
 			<TouchableOpacity style={styles.number} onPress={handlePhoneCall}>
 				<Phone width={36} height={36} />
 				<Text style={styles.squaresText}>Appeler une aide anonyme</Text>
-			</TouchableOpacity>
-
-			{/* Group Chat Button */}
-			<TouchableOpacity
-				style={[styles.group, { marginHorizontal: 0, marginTop: 15 }]}
-				onPress={() => navigation.navigate("GroupChat")}
-			>
-				<GroupUsers width={36} height={36} />
-				<Text style={styles.squaresText}>Group Chat</Text>
 			</TouchableOpacity>
 		</KeyboardAwareScrollView>
 	);

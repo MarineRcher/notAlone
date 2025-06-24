@@ -17,7 +17,7 @@ import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
-import GroupChatTestScreen from "../screens/GroupChatTestScreen";
+import GroupChatScreen from "../screens/GroupChatScreen";
 import colors from "../css/colors";
 
 const Stack = createStackNavigator();
@@ -115,11 +115,9 @@ const AppNavigator = () =>
 					component={SupportScreen}
 					options={{ headerShown: false }}
 				/>
-
-				{/* Group Chat */}
 				<Stack.Screen
 					name="GroupChat"
-					component={GroupChatTestScreen}
+					component={GroupChatScreen}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>

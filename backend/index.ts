@@ -9,7 +9,7 @@ import authRoutes from "./src/routes/authRoutes";
 import usersRoutes from "./src/routes/userRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
 import groupRoutes from "./src/routes/groupRoutes";
-import GroupController from "./src/controllers/GroupController";
+import { E2EEGroupController } from "./src/controllers/E2EEGroupController";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
 
@@ -29,17 +29,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/addictions", addictionRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/groups", groupRoutes);
-// Add the e2ee compatibility routes directly
-app.use("/api", groupRoutes);
-
-// Extend Socket type for user property
-interface AuthenticatedSocket extends Socket {
-    user?: {
-        userId: number;
-        login: string;
-        isMockUser?: boolean;
-    };
-}
 
 // Socket.IO server configuration
 const io = new Server(server, {
@@ -53,70 +42,28 @@ const io = new Server(server, {
     transports: ['websocket', 'polling']
 });
 
-// Socket.IO middleware for authentication
-io.use(async (socket, next) => {
-    try {
-        const authSocket = socket as AuthenticatedSocket;
-        const token = socket.handshake.auth.token;
-        if (!token) {
-            return next(new Error('Authentication error: No token provided'));
-        }
-        
-        // For testing without database, allow mock tokens
-        if (token.startsWith('mock_jwt_token_')) {
-            const mockUser = {
-                userId: Math.floor(Math.random() * 1000),
-                login: token.replace('mock_jwt_token_', ''),
-                isMockUser: true
-            };
-            authSocket.user = mockUser;
-            console.log(`🧪 Mock user authenticated: ${mockUser.login} (ID: ${mockUser.userId})`);
-            return next();
-        }
-        
-        // For production with database, verify actual JWT
-        // This is where you would verify the JWT token with your secret
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // authSocket.user = decoded;
-        
-        // For now, allow any token for testing
-        authSocket.user = { userId: 1, login: 'testuser' };
-        next();
-    } catch (error) {
-        console.error('Socket.IO authentication error:', error);
-        next(new Error('Authentication error'));
-    }
-});
+// Initialize E2EE Group controller
+const e2eeController = new E2EEGroupController(io);
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
+    e2eeController.handleConnection(socket);
 
-    // Handle client disconnection
     socket.on("disconnect", (reason) => {
         console.log(`Client ${socket.id} disconnected:`, reason);
     });
 
-    // Handle connection errors
     socket.on("error", (error) => {
         console.error(`Socket error for client ${socket.id}:`, error);
     });
-
-    // Initialize group controller for this socket
-    const groupController = new GroupController(io);
-    groupController.handleConnection(socket as AuthenticatedSocket);
 });
-
-// Initialize group controller for cleanup jobs
-const groupController = new GroupController(io);
 
 // Schedule cleanup jobs every 5 minutes
 setInterval(async () => {
     try {
         console.log('🧹 Running scheduled cleanup...');
-        await groupController.cleanupInactiveGroups();
-        await groupController.autoSealFullGroups();
-        await groupController.cleanupEmptyGroups();
+        e2eeController.getSocketService().getGroupService().cleanupInactiveGroups();
     } catch (error) {
         console.error('Error in scheduled cleanup:', error);
     }
@@ -133,7 +80,7 @@ async function startServer() {
             console.log('✅ Database connected successfully');
             databaseConnected = true;
         } catch (dbError: any) {
-            console.warn('⚠️  Database connection failed - Socket.IO will work but groups won\'t persist:');
+            console.warn('⚠️  Database connection failed - E2EE groups will work in-memory only:');
             console.warn('   To enable full functionality, start PostgreSQL or use Docker Compose');
             console.warn('   Database error:', dbError.message);
         }
@@ -149,7 +96,7 @@ async function startServer() {
         // Basic health check endpoint
         app.get("/", (req: Request, res: Response) => {
             res.json({ 
-                message: "Backend API is running",
+                message: "E2EE Group Chat Backend API",
                 status: "healthy",
                 timestamp: new Date().toISOString(),
                 services: {
@@ -160,63 +107,53 @@ async function startServer() {
                 endpoints: {
                     auth: "/api/auth",
                     groups: "/api/groups (requires database)",
-                    websocket: "socket.io connection (works without database)"
+                    websocket: "socket.io E2EE group chat"
                 },
-                note: databaseConnected ? "Full functionality available" : "Socket.IO available for testing - database required for persistence"
+                note: databaseConnected ? "Full E2EE functionality available" : "E2EE groups available in-memory - database required for persistence"
             });
         });
 
         // Socket.IO test endpoint
-        app.get("/test-socketio", (req: Request, res: Response) => {
+        app.get("/test-e2ee", (req: Request, res: Response) => {
             res.json({
-                message: "Socket.IO Test Endpoint",
+                message: "E2EE Group Chat Test Endpoint",
                 instructions: "Connect to this server using Socket.IO client on same port",
-                example: `
-                const io = require('socket.io-client');
-                const socket = io('http://localhost:3000');
-                socket.on('connect', () => console.log('Connected!'));
-                socket.emit('test_message', { text: 'Hello Socket.IO!' });
-                `,
                 events: [
                     "join_random_group",
                     "send_group_message", 
                     "leave_group",
-                    "typing_start",
-                    "typing_stop"
-                ]
+                    "crypto_key_exchange"
+                ],
+                authentication: {
+                    mock: "mock_jwt_token_alice (for testing)",
+                    real: "Valid JWT token with user ID"
+                }
             });
         });
 
-        // Start the server
         const PORT = process.env.PORT || 3000;
-        server.listen(PORT as number, '0.0.0.0', () => {
-            console.log(`🚀 Server is running on port ${PORT}`);
-            console.log(`📡 HTTP endpoints available at http://localhost:${PORT}`);
-            console.log(`🔌 Socket.IO server is ready for connections`);
-            
+
+        server.listen(PORT as number, "0.0.0.0", () => {
+            console.log(`🚀 E2EE Server running on port ${PORT}`);
+            console.log(`📡 HTTP endpoints: http://localhost:${PORT}`);
+            console.log(`🔌 Socket.IO E2EE ready for connections`);
+            console.log(`🔐 End-to-end encrypted group chat enabled`);
+
             if (databaseConnected) {
-                console.log(`📋 Available routes:`);
-                console.log(`  - POST /api/groups/join-random (join random group)`);
-                console.log(`  - GET /api/groups/stats (group statistics)`);
-                console.log(`  - Socket.IO events: join_random_group, send_group_message, leave_group`);
+                console.log(`📋 Full functionality available with database persistence`);
             } else {
-                console.log(`🧪 Testing mode - Socket.IO events available:`);
-                console.log(`  - Connect to Socket.IO for real-time testing`);
-                console.log(`  - Visit http://localhost:${PORT}/test-socketio for examples`);
-                console.log(`  - Database features disabled (groups won't persist)`);
-                console.log(`  - Run test client: node test-socketio-client.js`);
+                console.log(`🧪 In-memory mode - groups and messages not persisted`);
             }
         });
 
-        // Handle server shutdown gracefully
-        process.on('SIGTERM', () => {
-            console.log('SIGTERM received. Closing server...');
+        process.on("SIGTERM", () => {
+            console.log("SIGTERM received. Closing server...");
             server.close(() => {
-                console.log('Server closed');
+                console.log("Server closed");
                 process.exit(0);
             });
         });
-
+        
     } catch (error) {
         console.error("❌ Critical server startup error:", error);
         process.exit(1);

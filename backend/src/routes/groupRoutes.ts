@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import GroupService from '../services/GroupService';
-import GroupController from '../controllers/GroupController';
 import GroupMember from '../models/GroupMember';
 import User from '../models/User';
 

@@ -1,7 +1,6 @@
 {
     "name": "frontend",
     "version": "1.0.0",
-    "type": "module",
     "main": "App.tsx",
     "scripts": {
         "start": "expo start",

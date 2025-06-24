@@ -5,9 +5,9 @@ export const CRYPTO_CONFIG = {
 	keyRotationInterval: 24 * 60 * 60 * 1000,
 	messageRetentionDays: 30,
 	secureStorageKeys: {
-		userKeyPair: "@crypto_user_key_pair",
-		groupKeys: "@crypto_group_keys",
-		memberKeys: "@crypto_member_keys"
+		userKeyPair: "crypto_user_key_pair",
+		groupKeys: "crypto_group_keys",
+		memberKeys: "crypto_member_keys"
 	},
 	algorithms: {
 		keyDerivation: "SHA-256",

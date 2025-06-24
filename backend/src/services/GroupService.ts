@@ -198,7 +198,7 @@ class GroupService {
   }
 
   /**
-   * Leave a group
+   * Leave a group - COMPLETELY removes user from group
    */
   async leaveGroup(userId: number, groupId: string): Promise<boolean> {
     try {
@@ -211,11 +211,14 @@ class GroupService {
       });
 
       if (!membership) {
+        console.log(`❌ User ${userId} not found in group ${groupId} or already inactive`);
         return false;
       }
 
-      // Mark membership as inactive
-      await membership.update({ isActive: false });
+      console.log(`🚪 User ${userId} leaving group ${groupId} - REMOVING membership completely`);
+
+      // COMPLETELY DELETE the membership instead of marking inactive
+      await membership.destroy();
 
       // Update group member count
       const group = await Group.findByPk(groupId);
@@ -223,15 +226,22 @@ class GroupService {
         const newCount = Math.max(0, group.currentMembers - 1);
         await group.update({ currentMembers: newCount });
 
-        // If group is empty, mark it as inactive
+        console.log(`📊 Group ${groupId} member count updated: ${group.currentMembers} -> ${newCount}`);
+
+        // If group is empty, mark it as inactive and clean it up
         if (newCount === 0) {
+          console.log(`🗑️ Group ${groupId} is now empty - marking as inactive`);
           await group.update({ isActive: false });
+          
+          // Optional: Delete empty group completely
+          await this.cleanupEmptyGroup(groupId);
         }
       }
 
       // Clear cache
       await this.redisService.clearGroupCache(groupId);
 
+      console.log(`✅ User ${userId} successfully removed from group ${groupId}`);
       return true;
     } catch (error) {
       console.error('Error leaving group:', error);
@@ -328,26 +338,10 @@ class GroupService {
       return existingMember;
     }
 
-    // Check for inactive membership that can be reactivated
-    const inactiveMember = await GroupMember.findOne({
-      where: {
-        groupId,
-        userId,
-        isActive: false
-      }
-    });
-
-    if (inactiveMember) {
-      console.log(`♻️ Reactivating existing membership for user ${userId} in group ${groupId}`);
-      await inactiveMember.update({
-        isActive: true,
-        joinedAt: new Date(),
-        publicKey: publicKey || inactiveMember.publicKey
-      });
-      return inactiveMember;
-    }
-    
-    // Create new membership
+    // Since we now DELETE memberships completely when leaving, 
+    // we don't need to check for inactive memberships anymore.
+    // Just create a new membership directly.
+    console.log(`✨ Creating new membership for user ${userId} in group ${groupId}`);
     return await GroupMember.create({
       groupId,
       userId,
@@ -455,6 +449,40 @@ class GroupService {
   }
 
   /**
+   * Clean up a specific empty group
+   */
+  private async cleanupEmptyGroup(groupId: string): Promise<void> {
+    try {
+      const group = await Group.findByPk(groupId);
+      if (!group || group.currentMembers > 0) {
+        return; // Group doesn't exist or still has members
+      }
+
+      console.log(`🗑️ Cleaning up empty group: ${group.id} (${group.name})`);
+      
+      // Delete all messages from this group
+      const deletedMessages = await Message.destroy({
+        where: { groupId: group.id }
+      });
+
+      // Delete all remaining group members (should be none, but just in case)
+      const deletedMembers = await GroupMember.destroy({
+        where: { groupId: group.id }
+      });
+
+      // Delete the group itself
+      await group.destroy();
+
+      // Clear cache
+      await this.redisService.clearGroupCache(group.id);
+
+      console.log(`🗑️ Deleted empty group ${groupId}: ${deletedMessages} messages, ${deletedMembers} memberships`);
+    } catch (error) {
+      console.error(`Error cleaning up empty group ${groupId}:`, error);
+    }
+  }
+
+  /**
    * Enhanced cleanup: Delete empty groups and their messages
    */
   async cleanupEmptyGroups(): Promise<void> {
@@ -474,28 +502,50 @@ class GroupService {
       });
 
       for (const group of emptyGroups) {
-        console.log(`🗑️ Cleaning up empty group: ${group.id} (${group.name})`);
-        
-        // Delete all messages from this group
-        await Message.destroy({
-          where: { groupId: group.id }
-        });
-
-        // Delete all group members (inactive ones)
-        await GroupMember.destroy({
-          where: { groupId: group.id }
-        });
-
-        // Delete the group itself
-        await group.destroy();
-
-        // Clear cache
-        await this.redisService.clearGroupCache(group.id);
+        await this.cleanupEmptyGroup(group.id);
       }
 
       console.log(`✅ Cleaned up ${emptyGroups.length} empty groups`);
     } catch (error) {
       console.error('Error cleaning up empty groups:', error);
+    }
+  }
+
+  /**
+   * Startup cleanup: Delete ALL groups and their related data
+   * WARNING: This will delete ALL groups, messages, and memberships!
+   */
+  async deleteAllGroups(): Promise<void> {
+    try {
+      console.log('🧹 STARTUP CLEANUP: Deleting ALL groups...');
+
+      // Get count before deletion for logging
+      const totalGroups = await Group.count();
+      const totalMessages = await Message.count();
+      const totalMemberships = await GroupMember.count();
+
+      console.log(`📊 Found ${totalGroups} groups, ${totalMessages} messages, ${totalMemberships} memberships`);
+
+      // Delete all messages first (due to foreign key constraints)
+      await Message.destroy({ where: {}, truncate: true });
+      console.log('🗑️ Deleted all messages');
+
+      // Delete all group memberships
+      await GroupMember.destroy({ where: {}, truncate: true });
+      console.log('🗑️ Deleted all group memberships');
+
+      // Delete all groups
+      await Group.destroy({ where: {}, truncate: true });
+      console.log('🗑️ Deleted all groups');
+
+      // Clear all group-related cache
+      await this.redisService.clearAllGroupCache();
+      console.log('🗑️ Cleared all group cache');
+
+      console.log(`✅ STARTUP CLEANUP COMPLETE: Deleted ${totalGroups} groups, ${totalMessages} messages, ${totalMemberships} memberships`);
+    } catch (error) {
+      console.error('❌ Error during startup cleanup:', error);
+      throw error;
     }
   }
 
