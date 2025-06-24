@@ -9,9 +9,9 @@ import authRoutes from "./src/routes/authRoutes";
 import usersRoutes from "./src/routes/userRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
 import groupRoutes from "./src/routes/groupRoutes";
-import { E2EEGroupController } from "./src/controllers/E2EEGroupController";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
+import { SignalGroupController } from './src/controllers/SignalGroupController';
 
 // Initialize Express app
 const app = express();
@@ -42,13 +42,13 @@ const io = new Server(server, {
     transports: ['websocket', 'polling']
 });
 
-// Initialize E2EE Group controller
-const e2eeController = new E2EEGroupController(io);
+// Initialize Signal Protocol Group controller
+const signalGroupController = new SignalGroupController(io);
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
-    e2eeController.handleConnection(socket);
+    signalGroupController.handleConnection(socket as any);
 
     socket.on("disconnect", (reason) => {
         console.log(`Client ${socket.id} disconnected:`, reason);
@@ -63,7 +63,7 @@ io.on("connection", (socket) => {
 setInterval(async () => {
     try {
         console.log('🧹 Running scheduled cleanup...');
-        e2eeController.getSocketService().getGroupService().cleanupInactiveGroups();
+        signalGroupController.cleanup();
     } catch (error) {
         console.error('Error in scheduled cleanup:', error);
     }
@@ -113,31 +113,33 @@ async function startServer() {
             });
         });
 
-        // Socket.IO test endpoint
-        app.get("/test-e2ee", (req: Request, res: Response) => {
+        // Signal Protocol test endpoint
+        app.get("/test-signal", (req: Request, res: Response) => {
             res.json({
-                message: "E2EE Group Chat Test Endpoint",
+                message: "Signal Protocol E2E Group Chat Test Endpoint",
                 instructions: "Connect to this server using Socket.IO client on same port",
                 events: [
-                    "join_random_group",
-                    "send_group_message", 
+                    "join_group",
+                    "group_message", 
                     "leave_group",
-                    "crypto_key_exchange"
+                    "share_sender_key",
+                    "request_sender_keys"
                 ],
                 authentication: {
                     mock: "mock_jwt_token_alice (for testing)",
                     real: "Valid JWT token with user ID"
-                }
+                },
+                protocol: "Signal Protocol with Double Ratchet and Sender Keys"
             });
         });
 
         const PORT = process.env.PORT || 3000;
 
         server.listen(PORT as number, "0.0.0.0", () => {
-            console.log(`🚀 E2EE Server running on port ${PORT}`);
+            console.log(`🚀 Signal Protocol Server running on port ${PORT}`);
             console.log(`📡 HTTP endpoints: http://localhost:${PORT}`);
-            console.log(`🔌 Socket.IO E2EE ready for connections`);
-            console.log(`🔐 End-to-end encrypted group chat enabled`);
+            console.log(`🔌 Socket.IO Signal E2E ready for connections`);
+            console.log(`🔐 Signal Protocol group chat with Double Ratchet enabled`);
 
             if (databaseConnected) {
                 console.log(`📋 Full functionality available with database persistence`);

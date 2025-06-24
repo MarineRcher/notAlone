@@ -1,140 +1,96 @@
-import {
-	UserKeyPair,
-	GroupMember,
-	GroupKeyInfo,
-	EncryptedMessage,
-	KeyExchangeMessage
-} from "./types";
-import { groupCryptoManager } from "./groupCryptoManager";
-import { keyExchangeHandler } from "./keyExchange";
-import { getUserKeyPair, clearAllCryptoData } from "./storage";
+// Signal Protocol Main Export
 
-export class GroupChatCrypto
-{
-	public async initializeUser(userId: string): Promise<UserKeyPair>
-	{
-		const existingKeyPair = await getUserKeyPair();
+export { SignalProtocolManager, signalProtocol } from './signal-protocol';
+export { DoubleRatchet } from './double-ratchet';
+export { GroupProtocol } from './group-protocol';
+export { signalStorage } from './storage';
 
-		if (existingKeyPair && existingKeyPair.userId === userId)
-		{
-			groupCryptoManager.setCurrentUserId(userId);
-			return existingKeyPair;
-		}
+export * from './types';
+export * from './utils';
 
-		const newKeyPair = await groupCryptoManager.generateUserKeyPair(userId);
+// Main API for easy integration
+export class CryptoAPI {
+  /**
+   * Initialize the crypto system
+   */
+  static async initialize(password?: string): Promise<void> {
+    await signalProtocol.initialize(password);
+  }
 
-		return newKeyPair;
-	}
+  /**
+   * Start 1:1 session
+   */
+  static async startSession(userId: string, remoteDeviceInfo: any): Promise<void> {
+    await signalProtocol.startSession(userId, remoteDeviceInfo);
+  }
 
-	public async joinGroup(
-		groupId: string,
-		newMember: GroupMember,
-		existingMembers: GroupMember[]
-	): Promise<GroupKeyInfo>
-	{
-		return await groupCryptoManager.handleUserJoinGroup(
-			groupId,
-			newMember,
-			existingMembers
-		);
-	}
+  /**
+   * Send encrypted message to user
+   */
+  static async sendMessage(userId: string, message: string): Promise<any> {
+    return await signalProtocol.encryptMessage(userId, message);
+  }
 
-	public async leaveGroup(
-		groupId: string,
-		leavingUserId: string,
-		remainingMembers: GroupMember[]
-	): Promise<GroupKeyInfo | null>
-	{
-		return await groupCryptoManager.handleUserLeaveGroup(
-			groupId,
-			leavingUserId,
-			remainingMembers
-		);
-	}
+  /**
+   * Decrypt received message
+   */
+  static async receiveMessage(userId: string, encryptedMessage: any): Promise<string> {
+    return await signalProtocol.decryptMessage(userId, encryptedMessage);
+  }
 
-	public async encryptMessage(
-		groupId: string,
-		message: string
-	): Promise<EncryptedMessage>
-	{
-		return await groupCryptoManager.encryptMessage(groupId, message);
-	}
+  /**
+   * Create new group
+   */
+  static async createGroup(groupId: string, myUserId: string): Promise<void> {
+    await signalProtocol.createGroup(groupId, myUserId);
+  }
 
-	public async decryptMessage(
-		groupId: string,
-		encryptedMessage: EncryptedMessage
-	): Promise<string>
-	{
-		return await groupCryptoManager.decryptMessage(
-			groupId,
-			encryptedMessage
-		);
-	}
+  /**
+   * Send group message
+   */
+  static async sendGroupMessage(groupId: string, message: string): Promise<any> {
+    return await signalProtocol.encryptGroupMessage(groupId, message);
+  }
 
-	public async getGroupKeyInfo(
-		groupId: string
-	): Promise<GroupKeyInfo | null>
-	{
-		return await groupCryptoManager.getGroupKey(groupId);
-	}
+  /**
+   * Decrypt group message
+   */
+  static async receiveGroupMessage(groupId: string, encryptedMessage: any): Promise<string> {
+    return await signalProtocol.decryptGroupMessage(groupId, encryptedMessage);
+  }
 
-	public async handleKeyExchange(message: KeyExchangeMessage): Promise<void>
-	{
-		return await keyExchangeHandler.handleKeyExchange(message);
-	}
+  /**
+   * Add member to group
+   */
+  static async addGroupMember(groupId: string, memberBundle: any): Promise<void> {
+    await signalProtocol.addGroupMember(groupId, memberBundle);
+  }
 
-	public async sendKeyExchange(
-		groupId: string,
-		type: "KEY_EXCHANGE" | "NEW_MEMBER" | "MEMBER_LEFT"
-	): Promise<KeyExchangeMessage | null>
-	{
-		return await keyExchangeHandler.sendKeyExchange(groupId, type);
-	}
+  /**
+   * Remove member from group
+   */
+  static async removeGroupMember(groupId: string, userId: string): Promise<void> {
+    await signalProtocol.removeGroupMember(groupId, userId);
+  }
 
-	public async handleNewMemberJoin(
-		groupId: string,
-		newMember: GroupMember,
-		existingMembers: GroupMember[]
-	): Promise<void>
-	{
-		return await keyExchangeHandler.handleNewMemberJoin(
-			groupId,
-			newMember,
-			existingMembers
-		);
-	}
+  /**
+   * Get device info for key exchange
+   */
+  static async getDeviceInfo(): Promise<any> {
+    return await signalProtocol.getDeviceInfo();
+  }
 
-	public async handleMemberLeave(
-		groupId: string,
-		leavingUserId: string,
-		remainingMembers: GroupMember[]
-	): Promise<void>
-	{
-		return await keyExchangeHandler.handleMemberLeave(
-			groupId,
-			leavingUserId,
-			remainingMembers
-		);
-	}
+  /**
+   * Get sender key bundle for group
+   */
+  static async getSenderKeyBundle(groupId: string): Promise<any> {
+    return await signalProtocol.getSenderKeyBundle(groupId);
+  }
 
-	public async getUserKeyPair(): Promise<UserKeyPair | null>
-	{
-		return await getUserKeyPair();
-	}
-
-	public async clearAllData(): Promise<void>
-	{
-		return await clearAllCryptoData();
-	}
-
-	public cleanupExpiredExchanges(): void
-	{
-		keyExchangeHandler.cleanupExpiredExchanges();
-	}
-}
-
-export const groupChatCrypto = new GroupChatCrypto();
-
-export * from "./types";
-export { groupCryptoManager } from "./groupCryptoManager";
-export { keyExchangeHandler } from "./keyExchange";
+  /**
+   * Clear all crypto data
+   */
+  static async clearAll(): Promise<void> {
+    await signalProtocol.clearAll();
+  }
+} 
