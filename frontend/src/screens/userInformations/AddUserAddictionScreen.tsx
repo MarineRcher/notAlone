@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    Alert,
-    ActivityIndicator,
+	View,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	ScrollView,
+	Alert,
+	ActivityIndicator,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import addictionService from "../../api/addictionService";
@@ -18,159 +18,177 @@ import Button from "../../components/button";
 import DatePicker from "../../components/datePicker";
 
 interface Addiction {
-    id: number;
-    addiction: string;
+	id: number;
+	addiction: string;
 }
 
-const AddUserAddictionScreen = ({ navigation }) => {
-    const [addictions, setAddictions] = useState<Addiction[]>([]);
-    const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
-        null
-    );
-    const [date, setDate] = useState(new Date());
-    const [usePerDay, setUsePerDay] = useState("");
-    const [spendingPerDay, setSpendingPerDay] = useState("");
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [fetching, setFetching] = useState(true);
+const AddUserAddictionScreen = ({ navigation }) => 
+{
+	const [addictions, setAddictions] = useState<Addiction[]>([]);
+	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
+		null
+	);
+	const [date, setDate] = useState(new Date());
+	const [usePerDay, setUsePerDay] = useState("");
+	const [spendingPerDay, setSpendingPerDay] = useState("");
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [fetching, setFetching] = useState(true);
 
-    useEffect(() => {
-        const fetchAddictions = async () => {
-            try {
-                const data = await addictionService.getAllAddictions();
-                setAddictions(data.addictions);
-                if (data.length > 0) setSelectedAddiction(data[0].id);
-            } catch (error) {
-                Alert.alert("Erreur", error.message);
-            } finally {
-                setFetching(false);
-            }
-        };
+	useEffect(() => 
+{
+		const fetchAddictions = async () => 
+{
+			try 
+{
+				const data = await addictionService.getAllAddictions();
 
-        fetchAddictions();
-    }, []);
+				setAddictions(data.addictions);
+				if (data.length > 0) {
+					setSelectedAddiction(data[0].id);
+				}
+			} catch (error) {
+				Alert.alert("Erreur", error.message);
+			} finally {
+				setFetching(false);
+			}
+		};
 
-    const handleDateChange = (event, selectedDate) => {
-        setShowDatePicker(false);
-        if (selectedDate) {
-            setDate(selectedDate);
-        }
-    };
+		fetchAddictions();
+	}, []);
 
-    const validateForm = () => {
-        if (!selectedAddiction) {
-            Alert.alert("Erreur", "Veuillez sélectionner une addiction");
-            return false;
-        }
+	const handleDateChange = (event, selectedDate) => 
+{
+		setShowDatePicker(false);
+		if (selectedDate) 
+{
+			setDate(selectedDate);
+		}
+	};
 
-        if (usePerDay && isNaN(parseFloat(usePerDay))) {
-            Alert.alert(
-                "Erreur",
-                "Le nombre d'utilisations doit être un nombre valide"
-            );
-            return false;
-        }
+	const validateForm = () => 
+{
+		if (!selectedAddiction) 
+{
+			Alert.alert("Erreur", "Veuillez sélectionner une addiction");
+			return false;
+		}
 
-        if (spendingPerDay && isNaN(parseFloat(spendingPerDay))) {
-            Alert.alert(
-                "Erreur",
-                "Le montant dépensé doit être un nombre valide"
-            );
-            return false;
-        }
+		if (usePerDay && isNaN(parseFloat(usePerDay))) 
+{
+			Alert.alert(
+				"Erreur",
+				"Le nombre d'utilisations doit être un nombre valide"
+			);
+			return false;
+		}
 
-        return true;
-    };
+		if (spendingPerDay && isNaN(parseFloat(spendingPerDay))) 
+{
+			Alert.alert(
+				"Erreur",
+				"Le montant dépensé doit être un nombre valide"
+			);
+			return false;
+		}
 
-    const handleSubmit = async () => {
-        if (!validateForm()) return;
+		return true;
+	};
 
-        setIsLoading(true);
+	const handleSubmit = async () => 
+{
+		if (!validateForm()) {
+			return;
+		}
 
-        try {
-            await addictionService.addUserAddiction({
-                addiction_id: selectedAddiction!,
-                date: date.toISOString(),
-                use_a_day: usePerDay ? parseFloat(usePerDay) : undefined,
-                spending_a_day: spendingPerDay
-                    ? parseFloat(spendingPerDay)
-                    : undefined,
-            });
+		setIsLoading(true);
 
-            navigation.navigate("AskNotifications");
-        } catch (error) {
-            Alert.alert("Erreur", error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+		try 
+{
+			await addictionService.addUserAddiction({
+				addiction_id: selectedAddiction!,
+				date: date.toISOString(),
+				use_a_day: usePerDay ? parseFloat(usePerDay) : undefined,
+				spending_a_day: spendingPerDay
+					? parseFloat(spendingPerDay)
+					: undefined,
+			});
 
-    if (fetching) {
-        return (
-            <View>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+			navigation.navigate("AskNotifications");
+		} catch (error) {
+			Alert.alert("Erreur", error.message);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-    return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <BackButton />
-            <View style={styles.container}>
-                <Mascot mascot="hey" text="Parle-moi un peu de toi..." />
+	if (fetching) 
+{
+		return (
+			<View>
+				<ActivityIndicator size="large" />
+			</View>
+		);
+	}
 
-                <View style={styles.formSection}>
-                    <Picker
-                        selectedValue={selectedAddiction}
-                        onValueChange={(itemValue) =>
-                            setSelectedAddiction(itemValue)
-                        }
-                    >
-                        <Picker.Item
-                            style={styles.pickerItem}
-                            label="Sélectionnez une addiction"
-                            value={null}
-                            enabled={false}
-                        />
-                        {addictions.map((addiction) => (
-                            <Picker.Item
-                                style={styles.pickerItem}
-                                key={addiction.id}
-                                label={addiction.addiction}
-                                value={addiction.id}
-                            />
-                        ))}
-                    </Picker>
+	return (
+		<ScrollView contentContainerStyle={styles.scrollContainer}>
+			<BackButton />
+			<View style={styles.container}>
+				<Mascot mascot="hey" text="Parle-moi un peu de toi..." />
 
-                    <DatePicker
-                        value={date}
-                        onChange={setDate}
-                        placeholder="Sélectionnez une date"
-                        showPicker={showDatePicker}
-                        setShowPicker={setShowDatePicker}
-                    />
-                    <Input
-                        placeholder="Consommation par jour"
-                        keyboardType="numeric"
-                        value={usePerDay}
-                        onChangeText={setUsePerDay}
-                    />
-                    <Input
-                        placeholder="Dépenses par jour"
-                        keyboardType="numeric"
-                        value={spendingPerDay}
-                        onChangeText={setSpendingPerDay}
-                    />
-                </View>
+				<View style={styles.formSection}>
+					<Picker
+						selectedValue={selectedAddiction}
+						onValueChange={(itemValue) =>
+							setSelectedAddiction(itemValue)
+						}
+					>
+						<Picker.Item
+							style={styles.pickerItem}
+							label="Sélectionnez une addiction"
+							value={null}
+							enabled={false}
+						/>
+						{addictions.map((addiction) => (
+							<Picker.Item
+								style={styles.pickerItem}
+								key={addiction.id}
+								label={addiction.addiction}
+								value={addiction.id}
+							/>
+						))}
+					</Picker>
 
-                <Button
-                    title={isLoading ? "Chargement..." : "Ajouter l'addiction"}
-                    disabled={isLoading ? true : false}
-                    onPress={handleSubmit}
-                />
-            </View>
-        </ScrollView>
-    );
+					<DatePicker
+						value={date}
+						onChange={setDate}
+						placeholder="Sélectionnez une date"
+						showPicker={showDatePicker}
+						setShowPicker={setShowDatePicker}
+					/>
+					<Input
+						placeholder="Consommation par jour"
+						keyboardType="numeric"
+						value={usePerDay}
+						onChangeText={setUsePerDay}
+					/>
+					<Input
+						placeholder="Dépenses par jour"
+						keyboardType="numeric"
+						value={spendingPerDay}
+						onChangeText={setSpendingPerDay}
+					/>
+				</View>
+
+				<Button
+					title={isLoading ? "Chargement..." : "Ajouter l'addiction"}
+					disabled={isLoading ? true : false}
+					onPress={handleSubmit}
+				/>
+			</View>
+		</ScrollView>
+	);
 };
 
 export default AddUserAddictionScreen;
