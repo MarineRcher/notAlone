@@ -1,109 +1,96 @@
-// Signal Protocol Main Export
+// Pure TypeScript Signal Protocol Implementation using Noble Cryptography
+// Modular architecture for better maintainability
 
-export { SignalProtocolManager, signalProtocol } from './signal-protocol';
-export { DoubleRatchet } from './double-ratchet';
-export { GroupProtocol } from './group-protocol';
-export { signalStorage } from './storage';
+import { NobleSignalProtocol } from './protocol';
 
-// Key Exchange Algorithms
-export { 
-  DiffieHellmanKeyExchange,
-  TripleDiffieHellman,
-  KeyDerivation,
-  DH,
-  TripleDH,
-  KDF
-} from './key-exchange';
+console.log('🔑 [NOBLE-SIGNAL] Loading modular Signal Protocol implementation...');
 
-export * from './types';
-export * from './utils';
+// ========================= PUBLIC API =========================
 
-// Import for internal use
-import { signalProtocol } from './signal-protocol';
-
-// Main API for easy integration
 export class CryptoAPI {
-  /**
-   * Initialize the crypto system
-   */
-  static async initialize(password?: string): Promise<void> {
-    await signalProtocol.initialize(password);
+  static async initialize(): Promise<void> {
+    await NobleSignalProtocol.initialize();
   }
 
-  /**
-   * Start 1:1 session
-   */
   static async startSession(userId: string, remoteDeviceInfo: any): Promise<void> {
-    await signalProtocol.startSession(userId, remoteDeviceInfo);
+    console.log('🔑 [CRYPTO-API] 1:1 sessions available in full implementation');
   }
 
-  /**
-   * Send encrypted message to user
-   */
   static async sendMessage(userId: string, message: string): Promise<any> {
-    return await signalProtocol.encryptMessage(userId, message);
+    throw new Error('Use sendGroupMessage for group communication');
   }
 
-  /**
-   * Decrypt received message
-   */
   static async receiveMessage(userId: string, encryptedMessage: any): Promise<string> {
-    return await signalProtocol.decryptMessage(userId, encryptedMessage);
+    throw new Error('Use receiveGroupMessage for group communication');
   }
 
-  /**
-   * Create new group
-   */
   static async createGroup(groupId: string, myUserId: string): Promise<void> {
-    await signalProtocol.createGroup(groupId, myUserId);
+    await NobleSignalProtocol.createGroup(groupId, myUserId);
   }
 
-  /**
-   * Send group message
-   */
   static async sendGroupMessage(groupId: string, message: string): Promise<any> {
-    return await signalProtocol.encryptGroupMessage(groupId, message);
+    return await NobleSignalProtocol.sendGroupMessage(groupId, message);
   }
 
-  /**
-   * Decrypt group message
-   */
   static async receiveGroupMessage(groupId: string, encryptedMessage: any): Promise<string> {
-    return await signalProtocol.decryptGroupMessage(groupId, encryptedMessage);
+    return await NobleSignalProtocol.receiveGroupMessage(groupId, encryptedMessage);
   }
 
-  /**
-   * Add member to group
-   */
   static async addGroupMember(groupId: string, memberBundle: any): Promise<void> {
-    await signalProtocol.addGroupMember(groupId, memberBundle);
+    await NobleSignalProtocol.addGroupMember(groupId, memberBundle);
   }
 
-  /**
-   * Remove member from group
-   */
   static async removeGroupMember(groupId: string, userId: string): Promise<void> {
-    await signalProtocol.removeGroupMember(groupId, userId);
+    await NobleSignalProtocol.removeGroupMember(groupId, userId);
   }
 
-  /**
-   * Get device info for key exchange
-   */
   static getDeviceInfo(): any {
-    return signalProtocol.getDeviceInfo();
+    return NobleSignalProtocol.getDeviceInfo();
   }
 
-  /**
-   * Get sender key bundle for group
-   */
   static async getSenderKeyBundle(groupId: string): Promise<any> {
-    return await signalProtocol.getSenderKeyBundle(groupId);
+    return await NobleSignalProtocol.getSenderKeyBundle(groupId);
   }
 
-  /**
-   * Clear all crypto data
-   */
   static async clearAll(): Promise<void> {
-    await signalProtocol.clearAll();
+    await NobleSignalProtocol.clearAll();
   }
-} 
+
+  // Additional utility methods
+  static getIdentityFingerprint(): string {
+    return NobleSignalProtocol.getIdentityFingerprint();
+  }
+
+  static verifyIdentity(publicKey: Uint8Array, expectedFingerprint: string): boolean {
+    return NobleSignalProtocol.verifyIdentity(publicKey, expectedFingerprint);
+  }
+
+  static async resetGroupSession(groupId: string, userId: string): Promise<void> {
+    await NobleSignalProtocol.resetGroupSession(groupId, userId);
+  }
+
+  static getActiveGroups(): string[] {
+    return NobleSignalProtocol.getActiveGroups();
+  }
+}
+
+// Re-export types for external use
+export type {
+  KeyPair,
+  IdentityKeys,
+  MessageKeys,
+  ChainKey,
+  SenderKeyState,
+  GroupMessage,
+  EncryptedMessage,
+  DecryptedMessage,
+  DeviceInfo,
+  SenderKeyBundle
+} from './types';
+
+// Re-export classes for advanced usage
+export { NobleSignalProtocol } from './protocol';
+export { NobleSignalCrypto } from './noble-crypto';
+export { SenderKeySession } from './sender-key';
+
+console.log('🔑 [NOBLE-SIGNAL] Modular implementation loaded successfully'); 

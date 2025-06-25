@@ -1,166 +1,77 @@
-// Signal Protocol Types for E2E Encrypted Group Chat
+// TypeScript types and interfaces for Signal Protocol implementation
 
 export interface KeyPair {
-  publicKey: ArrayBuffer;
-  privateKey: ArrayBuffer;
+  privateKey: Uint8Array;
+  publicKey: Uint8Array;
 }
 
-export interface IdentityKeyPair extends KeyPair {
-  keyId: string;
-}
-
-export interface PreKeyBundle {
-  identityKey: ArrayBuffer;
-  signedPreKey: {
-    publicKey: ArrayBuffer;
-    signature: ArrayBuffer;
-    keyId: number;
-  };
-  preKey?: {
-    publicKey: ArrayBuffer;
-    keyId: number;
-  };
-}
-
-export interface ChainKey {
-  key: ArrayBuffer;
-  counter: number;
+export interface IdentityKeys {
+  identityKey: KeyPair;
+  signedPreKey: KeyPair;
+  preKeys: KeyPair[];
+  registrationId: number;
 }
 
 export interface MessageKeys {
-  cipherKey: ArrayBuffer;
-  macKey: ArrayBuffer;
-  iv: ArrayBuffer;
+  cipherKey: Uint8Array;
+  macKey: Uint8Array;
+  iv: Uint8Array;
 }
 
-export interface RatchetState {
-  rootKey: ArrayBuffer;
-  sendingChain: ChainKey | null;
-  receivingChains: Map<string, ChainKey>;
-  dhSendingKey: KeyPair | null;
-  dhReceivingKey: ArrayBuffer | null;
-  prevSendingCounter: number;
-  messageCounter: number;
-  skippedMessages: Map<string, MessageKeys>;
-}
-
-export interface SessionState {
-  localIdentityKey: IdentityKeyPair;
-  remoteIdentityKey: ArrayBuffer | null;
-  ratchetState: RatchetState;
-  sessionVersion: number;
-  isInitialized: boolean;
-}
-
-export interface GroupSessionState {
-  groupId: string;
-  members: Map<string, SessionState>;
-  senderKeys: Map<string, SenderKeyState>;
-  myUserId: string;
+export interface ChainKey {
+  key: Uint8Array;
+  index: number;
 }
 
 export interface SenderKeyState {
-  sendingChain: ChainKey;
+  chainKey: ChainKey;
   signingKey: KeyPair;
-  chainKeyHistory: Array<{
-    chainKey: ChainKey;
-    signingKey: ArrayBuffer;
-  }>;
-}
-
-export interface SignalMessage {
-  type: 'PREKEY_MESSAGE' | 'SIGNAL_MESSAGE' | 'SENDER_KEY_MESSAGE';
-  version: number;
-  registrationId?: number;
-  preKeyId?: number;
-  signedPreKeyId?: number;
-  identityKey?: ArrayBuffer;
-  message: ArrayBuffer;
-  signature?: ArrayBuffer;
+  messageKeys: Map<number, MessageKeys>;
 }
 
 export interface GroupMessage {
-  groupId: string;
-  senderId: string;
   messageId: string;
   timestamp: number;
-  encryptedPayload: ArrayBuffer;
-  signature: ArrayBuffer;
-  keyVersion: number;
+  groupId: string;
+  senderId: string;
+  encryptedPayload: Uint8Array;
+  signature: Uint8Array;
+  keyIndex: number;
 }
 
+// Public API types
+export interface EncryptedMessage {
+  messageId: string;
+  timestamp: number;
+  groupId: string;
+  senderId: string;
+  encryptedPayload: number[];
+  signature: number[];
+  keyIndex: number;
+}
+
+export interface DecryptedMessage {
+  messageId: string;
+  content: string;
+  senderId: string;
+  timestamp: number;
+  verified: boolean;
+  groupId?: string;
+}
+
+// Device and member bundle types
 export interface DeviceInfo {
   deviceId: string;
   registrationId: number;
-  identityKey: ArrayBuffer;
-  preKeys: PreKeyBundle[];
+  identityKey: number[];
+  signedPreKey: number[];
+  preKeys: number[][];
 }
 
-export interface StoredSession {
+export interface SenderKeyBundle {
   userId: string;
-  sessionState: SessionState;
-  lastActivity: number;
-}
-
-export interface StoredGroupSession {
   groupId: string;
-  groupState: GroupSessionState;
-  lastActivity: number;
-}
-
-export interface CryptoConfig {
-  maxSkippedMessages: number;
-  maxChainKeyHistory: number;
-  sessionTimeout: number;
-  ratchetAdvanceThreshold: number;
-}
-
-export interface KeyDerivationResult {
-  rootKey: ArrayBuffer;
-  chainKey: ArrayBuffer;
-}
-
-export interface PreKeyBundle {
-  identityKey: ArrayBuffer;
-  signedPreKey: {
-    publicKey: ArrayBuffer;
-    signature: ArrayBuffer;
-    keyId: number;
-  };
-  preKey?: {
-    publicKey: ArrayBuffer;
-    keyId: number;
-  };
-}
-
-// Error types
-export class SignalError extends Error {
-  constructor(message: string, public code: string) {
-    super(message);
-    this.name = 'SignalError';
-  }
-}
-
-export class DuplicateMessageError extends SignalError {
-  constructor(message: string = 'Duplicate message detected') {
-    super(message, 'DUPLICATE_MESSAGE');
-  }
-}
-
-export class InvalidKeyError extends SignalError {
-  constructor(message: string = 'Invalid cryptographic key') {
-    super(message, 'INVALID_KEY');
-  }
-}
-
-export class UntrustedIdentityError extends SignalError {
-  constructor(message: string = 'Untrusted identity key') {
-    super(message, 'UNTRUSTED_IDENTITY');
-  }
-}
-
-export class NoSessionError extends SignalError {
-  constructor(message: string = 'No session exists') {
-    super(message, 'NO_SESSION');
-  }
+  chainKey: number[];
+  signingPublicKey: number[];
+  keyIndex: number;
 } 

@@ -1,171 +1,234 @@
 /**
- * Encryption Helpers
- *
- * This file contains helper utilities for encryption that don't fit directly
- * in the main encryption modules but are useful for common encryption tasks.
+ * Encryption Helper Utilities
+ * 
+ * This file contains helper utilities for encryption that work with
+ * the modular Noble Signal Protocol implementation.
  */
 
-import { EncryptedMessage, DecryptedMessage } from "../crypto/types";
-import * as utils from "../crypto/utils";
+import type { EncryptedMessage, DecryptedMessage } from '../crypto/types';
+
+// Updated interfaces to work with the new Noble implementation
+interface MessageMetadata {
+	messageId: string;
+	timestamp: number;
+	groupId: string;
+	senderId: string;
+	keyIndex: number;
+}
 
 /**
  * Formats a timestamp from an encrypted message into a readable date/time
  * @param timestamp The timestamp in milliseconds
  * @returns A formatted date string
  */
-export const formatMessageTime = (timestamp: number): string => 
-{
+export function formatMessageTimestamp(timestamp: number): string {
 	const date = new Date(timestamp);
+	const now = new Date();
+	const diffMs = now.getTime() - timestamp;
+	const diffMins = Math.floor(diffMs / (1000 * 60));
+	const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-	return date.toLocaleString();
-};
-
-/**
- * Creates a unique chat ID for a conversation between two users
- * @param userId1 First user ID
- * @param userId2 Second user ID
- * @returns A deterministic chat ID for the conversation
- */
-export const createDirectChatId = (
-	userId1: string,
-	userId2: string
-): string => 
-{
-	// Sort the IDs to ensure the same chat ID regardless of order
-	const sortedIds = [userId1, userId2].sort();
-
-	return `chat-${sortedIds[0]}-${sortedIds[1]}`;
-};
-
-/**
- * Validates if a message was received within the acceptable time range
- * to prevent replay attacks
- * @param timestamp The message timestamp
- * @param maxAgeMinutes Maximum acceptable age in minutes (default: 5)
- * @returns True if the message is within the valid time range
- */
-export const isMessageTimeValid = (
-	timestamp: number,
-	maxAgeMinutes = 5
-): boolean => 
-{
-	return utils.isTimestampValid(timestamp, maxAgeMinutes);
-};
-
-/**
- * Prepares a message object for display in the UI
- * @param decryptedMessage The decrypted message from encryption
- * @param currentUserId The current user's ID
- * @returns A formatted message object ready for UI rendering
- */
-export const prepareMessageForDisplay = (
-	decryptedMessage: DecryptedMessage,
-	currentUserId: string
-) => 
-{
-	const isOwnMessage = decryptedMessage.senderId === currentUserId;
-
-	return {
-		id: decryptedMessage.messageId,
-		text: decryptedMessage.content,
-		sender: decryptedMessage.senderId,
-		timestamp: decryptedMessage.timestamp,
-		time: formatMessageTime(decryptedMessage.timestamp),
-		isOwn: isOwnMessage,
-		isVerified: decryptedMessage.verified,
-		groupId: decryptedMessage.groupId,
-	};
-};
-
-/**
- * Generates a fingerprint for a public key that can be displayed to users
- * for manual verification
- * @param publicKeyBase64 Base64-encoded public key
- * @returns A readable fingerprint string (e.g., "AB12 CD34 EF56...")
- */
-export const generateKeyFingerprint = (publicKeyBase64: string): string => 
-{
-	try 
-{
-		// Convert base64 to bytes
-		const keyBytes = utils.base64ToBytes(publicKeyBase64);
-
-		// Take the first 16 bytes and convert to hex
-		const fingerprintBytes = keyBytes.slice(0, 16);
-		const fingerprintHex = Array.from(fingerprintBytes)
-			.map((byte) => byte.toString(16).padStart(2, "0"))
-			.join("");
-
-		// Format with spaces for readability (groups of 4 characters)
-		return (
-			fingerprintHex
-				.toUpperCase()
-				.match(/.{1,4}/g)
-				?.join(" ") || ""
-		);
-	} catch (error) {
-		console.error("Error generating key fingerprint:", error);
-		return "";
+	if (diffMins < 1) {
+		return 'Just now';
+	} else if (diffMins < 60) {
+		return `${diffMins}m ago`;
+	} else if (diffHours < 24) {
+		return `${diffHours}h ago`;
+	} else if (diffDays < 7) {
+		return `${diffDays}d ago`;
+	} else {
+		return date.toLocaleDateString();
 	}
-};
+}
 
 /**
- * Checks if a message needs to be retried because the session is still initializing
- * @param error The error from an encryption operation
- * @returns True if the message should be retried
+ * Extracts metadata from an encrypted message without decrypting it
+ * @param encryptedMessage The encrypted message
+ * @returns Message metadata
  */
-export const shouldRetryMessage = (error: any): boolean => 
-{
+export function extractMessageMetadata(encryptedMessage: EncryptedMessage): MessageMetadata {
+	return {
+		messageId: encryptedMessage.messageId,
+		timestamp: encryptedMessage.timestamp,
+		groupId: encryptedMessage.groupId,
+		senderId: encryptedMessage.senderId,
+		keyIndex: encryptedMessage.keyIndex
+	};
+}
+
+/**
+ * Validates that an encrypted message has all required fields
+ * @param message The message to validate
+ * @returns True if valid, false otherwise
+ */
+export function validateEncryptedMessage(message: any): message is EncryptedMessage {
 	return (
-		error
-		&& error.name === "EncryptionError"
-		&& error.type === "session_not_established"
+		typeof message === 'object' &&
+		typeof message.messageId === 'string' &&
+		typeof message.timestamp === 'number' &&
+		typeof message.groupId === 'string' &&
+		typeof message.senderId === 'string' &&
+		Array.isArray(message.encryptedPayload) &&
+		Array.isArray(message.signature) &&
+		typeof message.keyIndex === 'number'
 	);
-};
+}
 
 /**
- * Estimates the security strength of the encryption configuration
- * @returns An object with security metrics
+ * Creates a DecryptedMessage object from decrypted content and metadata
+ * @param content The decrypted message content
+ * @param metadata The message metadata
+ * @param verified Whether the signature was verified
+ * @returns A DecryptedMessage object
  */
-export const getEncryptionSecurityMetrics = () => 
-{
+export function createDecryptedMessage(
+	content: string,
+	metadata: MessageMetadata,
+	verified: boolean = true
+): DecryptedMessage {
 	return {
-		keyStrength: "Strong (2048-bit RSA / 256-bit AES)",
-		forwardSecrecy: true,
-		verifiedMessages: true,
-		recommendedRotationPeriod: "7 days for group chats",
-		endToEndEncrypted: true,
+		messageId: metadata.messageId,
+		content,
+		senderId: metadata.senderId,
+		timestamp: metadata.timestamp,
+		verified,
+		groupId: metadata.groupId
 	};
-};
+}
 
 /**
- * Safely serializes an encrypted message for storage or transmission
- * @param message The encrypted message object
- * @returns A string representation of the message
+ * Truncates a message ID for display purposes
+ * @param messageId The full message ID
+ * @param maxLength Maximum length to display
+ * @returns Truncated message ID
  */
-export const serializeForStorage = (message: EncryptedMessage): string => 
-{
-	try 
-{
-		return JSON.stringify(message);
-	} catch (error) {
-		console.error("Error serializing message:", error);
-		throw new Error("Failed to serialize encrypted message");
+export function truncateMessageId(messageId: string, maxLength: number = 12): string {
+	if (messageId.length <= maxLength) {
+		return messageId;
 	}
-};
+	const start = Math.floor(maxLength / 2) - 1;
+	const end = messageId.length - (maxLength - start - 3);
+	return `${messageId.substring(0, start)}...${messageId.substring(end)}`;
+}
 
 /**
- * Safely parses a serialized encrypted message
- * @param serialized The serialized message string
- * @returns The parsed EncryptedMessage object
+ * Gets a display name for a sender (could be extended to use a user lookup)
+ * @param senderId The sender's ID
+ * @returns A display name
  */
-export const parseFromStorage = (serialized: string): EncryptedMessage => 
-{
-	try 
-{
-		return JSON.parse(serialized) as EncryptedMessage;
-	} catch (error) {
-		console.error("Error parsing encrypted message:", error);
-		throw new Error("Failed to parse encrypted message");
+export function getSenderDisplayName(senderId: string): string {
+	// For now, just return the sender ID
+	// In a real app, you'd look up the user's display name
+	return senderId;
+}
+
+/**
+ * Checks if a message is from the current user
+ * @param senderId The sender's ID
+ * @param currentUserId The current user's ID
+ * @returns True if the message is from the current user
+ */
+export function isOwnMessage(senderId: string, currentUserId: string): boolean {
+	return senderId === currentUserId;
+}
+
+/**
+ * Estimates the encrypted message size
+ * @param plaintext The original plaintext
+ * @returns Estimated size in bytes
+ */
+export function estimateEncryptedSize(plaintext: string): number {
+	const plaintextBytes = new TextEncoder().encode(plaintext).length;
+	const overhead = 12 + 16 + 64 + 100; // nonce + auth tag + signature + metadata
+	return plaintextBytes + overhead;
+}
+
+/**
+ * Creates a debug summary of an encrypted message (without revealing content)
+ * @param message The encrypted message
+ * @returns Debug information
+ */
+export function getMessageDebugInfo(message: EncryptedMessage): string {
+	const payloadSize = message.encryptedPayload.length;
+	const signatureSize = message.signature.length;
+	const age = Date.now() - message.timestamp;
+	
+	return [
+		`ID: ${truncateMessageId(message.messageId)}`,
+		`Group: ${message.groupId}`,
+		`From: ${message.senderId}`,
+		`Size: ${payloadSize}b + ${signatureSize}b sig`,
+		`Age: ${Math.floor(age / 1000)}s`,
+		`KeyIdx: ${message.keyIndex}`
+	].join(' | ');
+}
+
+/**
+ * Validates message ordering (helpful for debugging out-of-order delivery)
+ * @param messages Array of encrypted messages
+ * @returns True if messages are in chronological order
+ */
+export function validateMessageOrder(messages: EncryptedMessage[]): boolean {
+	for (let i = 1; i < messages.length; i++) {
+		if (messages[i].timestamp < messages[i - 1].timestamp) {
+			return false;
+		}
 	}
-};
+	return true;
+}
+
+/**
+ * Sorts messages by timestamp
+ * @param messages Array of messages to sort
+ * @returns Sorted array (new array, doesn't mutate original)
+ */
+export function sortMessagesByTime<T extends { timestamp: number }>(messages: T[]): T[] {
+	return [...messages].sort((a, b) => a.timestamp - b.timestamp);
+}
+
+/**
+ * Groups messages by sender
+ * @param messages Array of messages
+ * @returns Map of senderId to messages
+ */
+export function groupMessagesBySender<T extends { senderId: string }>(
+	messages: T[]
+): Map<string, T[]> {
+	const groups = new Map<string, T[]>();
+	
+	for (const message of messages) {
+		const existing = groups.get(message.senderId) || [];
+		existing.push(message);
+		groups.set(message.senderId, existing);
+	}
+	
+	return groups;
+}
+
+/**
+ * Filters messages within a time range
+ * @param messages Array of messages
+ * @param startTime Start timestamp (inclusive)
+ * @param endTime End timestamp (inclusive)
+ * @returns Filtered messages
+ */
+export function filterMessagesByTimeRange<T extends { timestamp: number }>(
+	messages: T[],
+	startTime: number,
+	endTime: number
+): T[] {
+	return messages.filter(msg => 
+		msg.timestamp >= startTime && msg.timestamp <= endTime
+	);
+}
+
+/**
+ * Constants for common crypto operations
+ */
+export const CRYPTO_CONSTANTS = {
+	MAX_MESSAGE_SIZE: 1024 * 64, // 64KB max message size
+	KEY_ROTATION_INTERVAL: 1000, // Rotate keys every 1000 messages
+	MAX_SKIPPED_MESSAGES: 1000, // Maximum messages to skip before failing
+	SESSION_TIMEOUT: 24 * 60 * 60 * 1000, // 24 hours
+} as const;
