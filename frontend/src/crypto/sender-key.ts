@@ -85,10 +85,20 @@ export class SenderKeySession {
       throw new Error(`Message signature verification failed for ${message.messageId}`);
     }
 
-    // In a full implementation, we'd derive the correct message key based on the sender's chain state
-    // For this demo, we'll use a simplified approach
-    const messageKey = NobleSignalCrypto.randomBytes(32);
-    const msgKeys = NobleSignalCrypto.deriveMessageKeys(messageKey);
+    // Try to get the correct message key for this key index
+    let msgKeys = this.state.messageKeys.get(message.keyIndex);
+    
+    if (!msgKeys) {
+      // If we don't have the message key, derive it from the current chain state
+      // This is a simplified approach - in production, we'd handle out-of-order messages better
+      const { chainKey, messageKey } = NobleSignalCrypto.kdfChainKey(this.state.chainKey.key);
+      msgKeys = NobleSignalCrypto.deriveMessageKeys(messageKey);
+      
+      // Store for future use
+      this.state.messageKeys.set(message.keyIndex, msgKeys);
+      this.state.chainKey.key = chainKey;
+      this.state.chainKey.index = message.keyIndex + 1;
+    }
 
     // Extract nonce and ciphertext
     const nonce = message.encryptedPayload.slice(0, 12);

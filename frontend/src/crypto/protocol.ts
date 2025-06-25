@@ -11,6 +11,7 @@ export class NobleSignalProtocol {
   private static identityKeys?: IdentityKeys;
   private static groupSessions = new Map<string, SenderKeySession>();
   private static senderKeys = new Map<string, Uint8Array>();
+  private static senderSessions = new Map<string, SenderKeySession>();
 
   static async initialize(): Promise<void> {
     console.log('🔑 [NOBLE-SIGNAL] Initializing Signal Protocol with Noble cryptography...');
@@ -97,11 +98,23 @@ export class NobleSignalProtocol {
         keyIndex: encryptedMessage.keyIndex
       };
       
-      // Use a dummy session for decryption (simplified for demo)
-      const tempSession = new SenderKeySession(groupId, 'temp');
-      const dummyPublicKey = senderPublicKey || NobleSignalCrypto.randomBytes(32);
+      // Get or create sender's session for decryption
+      const senderSessionKey = `${groupId}-${encryptedMessage.senderId}`;
+      let senderSession = this.senderSessions.get(senderSessionKey);
       
-      return await tempSession.decryptMessage(groupMessage, dummyPublicKey);
+      if (!senderSession) {
+        // Create a minimal session for this sender if we don't have one
+        // In a real implementation, this would use the sender's chain state
+        senderSession = new SenderKeySession(groupId, encryptedMessage.senderId);
+        this.senderSessions.set(senderSessionKey, senderSession);
+        console.log(`🔑 [NOBLE-SIGNAL] Created session for sender: ${encryptedMessage.senderId}`);
+      }
+      
+      if (!senderPublicKey) {
+        throw new Error(`No public key for sender ${encryptedMessage.senderId}. Sender key distribution required.`);
+      }
+      
+      return await senderSession.decryptMessage(groupMessage, senderPublicKey);
     } catch (error) {
       console.error(`🔑 [NOBLE-SIGNAL] ❌ Failed to decrypt group message: ${error}`);
       throw error;
@@ -118,10 +131,19 @@ export class NobleSignalProtocol {
         console.log(`🔑 [NOBLE-SIGNAL] Added member: ${memberData.userId} to group ${groupId}`);
       }
       
-      // Update existing session with new member's bundle
-      const session = this.groupSessions.get(groupId);
-      if (session && memberData.chainKey) {
-        session.updateFromBundle(memberData);
+      // Create or update sender session with the member's chain state
+      if (memberData.chainKey && memberData.userId) {
+        const senderSessionKey = `${groupId}-${memberData.userId}`;
+        let senderSession = this.senderSessions.get(senderSessionKey);
+        
+        if (!senderSession) {
+          senderSession = new SenderKeySession(groupId, memberData.userId);
+          this.senderSessions.set(senderSessionKey, senderSession);
+        }
+        
+        // Update the session with the received bundle
+        senderSession.updateFromBundle(memberData);
+        console.log(`🔑 [NOBLE-SIGNAL] Updated sender session for: ${memberData.userId}`);
       }
     } catch (error) {
       console.error(`🔑 [NOBLE-SIGNAL] ❌ Failed to add group member: ${error}`);
@@ -213,6 +235,7 @@ export class NobleSignalProtocol {
       // Clear in-memory state
       this.groupSessions.clear();
       this.senderKeys.clear();
+      this.senderSessions.clear();
       this.identityKeys = undefined;
       this.initialized = false;
       

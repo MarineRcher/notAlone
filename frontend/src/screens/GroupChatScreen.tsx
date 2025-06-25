@@ -216,55 +216,55 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
           ...data.encryptedMessage,
           senderId: data.senderId
         });
-        
-        const message: Message = {
+          
+          const message: Message = {
           id: data.encryptedMessage.messageId,
-          senderId: data.senderId,
-          senderName: data.senderName,
-          content: decryptedContent,
+            senderId: data.senderId,
+            senderName: data.senderName,
+            content: decryptedContent,
           timestamp: data.encryptedMessage.timestamp,
-          isEncrypted: true,
-          isOwn: false,
-        };
+            isEncrypted: true,
+            isOwn: false,
+          };
 
-        setMessages(prev => [...prev, message]);
+          setMessages(prev => [...prev, message]);
         console.log('✅ [LIBSIGNAL] Message decrypted successfully');
-        
-        // Auto-scroll to bottom
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-        
-      } catch (decryptError: any) {
+          
+          // Auto-scroll to bottom
+          setTimeout(() => {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+          
+        } catch (decryptError: any) {
         console.error('❌ [LIBSIGNAL] Failed to decrypt message:', decryptError);
         
         // Store pending message and request sender key distribution
         const pendingId = `pending_${data.senderId}_${data.encryptedMessage.timestamp}`;
-        
-        setPendingMessages(prev => {
-          const newMap = new Map(prev);
-          newMap.set(pendingId, data);
-          return newMap;
-        });
-        
+          
+          setPendingMessages(prev => {
+            const newMap = new Map(prev);
+            newMap.set(pendingId, data);
+            return newMap;
+          });
+          
         // Request sender key distribution
-        socketRef.current?.emit('request_sender_key', {
-          groupId,
-          fromUserId: data.senderId,
-        });
-        
-        // Show pending message
-        const pendingMessage: Message = {
-          id: pendingId,
-          senderId: data.senderId,
-          senderName: data.senderName,
+          socketRef.current?.emit('request_sender_key', {
+            groupId,
+            fromUserId: data.senderId,
+          });
+          
+          // Show pending message
+          const pendingMessage: Message = {
+            id: pendingId,
+            senderId: data.senderId,
+            senderName: data.senderName,
           content: '🔄 Waiting for sender key...',
           timestamp: data.encryptedMessage.timestamp,
-          isEncrypted: false,
-          isOwn: false,
-        };
-        
-        setMessages(prev => [...prev, pendingMessage]);
+            isEncrypted: false,
+            isOwn: false,
+          };
+          
+          setMessages(prev => [...prev, pendingMessage]);
       }
       
     } catch (error) {
@@ -364,7 +364,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
       console.log('✅ [LIBSIGNAL] Sender key processed successfully');
       
       // Try to decrypt any pending messages from this sender
-      await processPendingMessages(data.fromUserId);
+        await processPendingMessages(data.fromUserId);
       
     } catch (error: any) {
       console.error('❌ [LIBSIGNAL] Failed to process sender key distribution:', error);
@@ -450,7 +450,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
       // Encrypt message using libsignal
       const encryptedMessage = await CryptoAPI.sendGroupMessage(groupId, newMessage.trim());
       console.log('✅ [LIBSIGNAL] Message encrypted successfully');
-      
+
       // Send encrypted message via socket
       socketRef.current?.emit('group_message', {
         groupId,
@@ -523,7 +523,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 						styles.messageText,
           !item.isEncrypted && styles.errorText,
         ]}>
-					{item.content}
+					          {item.content}
           {item.isEncrypted && ' 🔐'}
 				</Text>
 				<Text style={styles.messageTime}>

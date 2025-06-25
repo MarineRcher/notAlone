@@ -352,6 +352,37 @@ class GroupService {
   }
 
   /**
+   * Find or create a group by name (for non-UUID group IDs)
+   */
+  async findOrCreateGroupByName(groupName: string): Promise<{ groupId: string; isNew: boolean }> {
+    try {
+      // First try to find existing group by name
+      let group = await Group.findOne({
+        where: { name: groupName }
+      });
+
+      if (group) {
+        return { groupId: group.id, isNew: false };
+      }
+
+      // Create new group if not found
+      group = await Group.create({
+        name: groupName,
+        isActive: true,
+        isPublic: true,
+        maxMembers: 10,
+        minMembersToStart: 2,
+        status: 'active' // Start as active for E2EE groups
+      });
+
+      return { groupId: group.id, isNew: true };
+    } catch (error) {
+      console.error('Error finding/creating group by name:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Store a message in the database
    */
   async storeMessage(

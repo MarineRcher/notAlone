@@ -1,6 +1,6 @@
 /**
  * Encryption Helper Utilities
- * 
+ *
  * This file contains helper utilities for encryption that work with
  * the modular Noble Signal Protocol implementation.
  */
@@ -121,7 +121,7 @@ export function getSenderDisplayName(senderId: string): string {
 	// For now, just return the sender ID
 	// In a real app, you'd look up the user's display name
 	return senderId;
-}
+	}
 
 /**
  * Checks if a message is from the current user
@@ -185,7 +185,7 @@ export function validateMessageOrder(messages: EncryptedMessage[]): boolean {
  */
 export function sortMessagesByTime<T extends { timestamp: number }>(messages: T[]): T[] {
 	return [...messages].sort((a, b) => a.timestamp - b.timestamp);
-}
+	}
 
 /**
  * Groups messages by sender

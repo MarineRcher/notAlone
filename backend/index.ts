@@ -9,9 +9,10 @@ import authRoutes from "./src/routes/authRoutes";
 import usersRoutes from "./src/routes/userRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
 import groupRoutes from "./src/routes/groupRoutes";
+import nobleGroupRoutes from "./src/routes/nobleGroupRoutes";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
-import { SignalGroupController } from './src/controllers/SignalGroupController';
+import { NobleSignalController } from './src/controllers/NobleSignalController';
 
 // Initialize Express app
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/addictions", addictionRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/noble-groups", nobleGroupRoutes);
 
 // Socket.IO server configuration
 const io = new Server(server, {
@@ -42,13 +44,13 @@ const io = new Server(server, {
     transports: ['websocket', 'polling']
 });
 
-// Initialize Signal Protocol Group controller
-const signalGroupController = new SignalGroupController(io);
+// Initialize Noble Signal Protocol Group controller
+const nobleSignalController = new NobleSignalController(io);
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
-    signalGroupController.handleConnection(socket as any);
+    nobleSignalController.handleConnection(socket as any);
 
     socket.on("disconnect", (reason) => {
         console.log(`Client ${socket.id} disconnected:`, reason);
@@ -63,7 +65,7 @@ io.on("connection", (socket) => {
 setInterval(async () => {
     try {
         console.log('🧹 Running scheduled cleanup...');
-        signalGroupController.cleanup();
+        nobleSignalController.cleanup();
     } catch (error) {
         console.error('Error in scheduled cleanup:', error);
     }
