@@ -10,9 +10,9 @@ import crypto from "crypto";
  * @throws {Error} If JWT_SECRET environment variable is not set
  */
 export const generateToken = (payload: object, expiresIn: string): string => {
-    return jwt.sign(payload, process.env.JWT_SECRET!, {
-        expiresIn,
-    } as jwt.SignOptions);
+	return jwt.sign(payload, process.env.JWT_SECRET!, {
+		expiresIn,
+	} as jwt.SignOptions);
 };
 
 /**
@@ -23,8 +23,8 @@ export const generateToken = (payload: object, expiresIn: string): string => {
  * with TTL matching token's expiration time
  */
 export const revokeToken = async (token: string): Promise<void> => {
-    const decoded = jwt.decode(token) as { exp: number };
-    const ttl = decoded.exp - Math.floor(Date.now() / 1000);
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-    await redisClient.set(`blacklist:${tokenHash}`, "revoked", { EX: ttl });
+	const decoded = jwt.decode(token) as { exp: number };
+	const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+	const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+	await redisClient.set(`blacklist:${tokenHash}`, "revoked", { EX: ttl });
 };

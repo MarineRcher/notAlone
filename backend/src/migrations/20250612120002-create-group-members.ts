@@ -2,7 +2,7 @@ import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
   async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.createTable('group_members', {
+    await queryInterface.createTable("group_members", {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -13,23 +13,23 @@ export default {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: 'groups',
-          key: 'id'
+          model: "groups",
+          key: "id"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'users',
-          key: 'id'
+          model: "users",
+          key: "id"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       role: {
-        type: DataTypes.ENUM('admin', 'member'),
-        defaultValue: 'member',
+        type: DataTypes.ENUM("admin", "member"),
+        defaultValue: "member",
         allowNull: false
       },
       joinedAt: {
@@ -45,7 +45,7 @@ export default {
       publicKey: {
         type: DataTypes.TEXT,
         allowNull: true,
-        comment: 'Base64 encoded public key for e2ee'
+        comment: "Base64 encoded public key for e2ee"
       },
       lastSeenAt: {
         type: DataTypes.DATE,
@@ -62,15 +62,15 @@ export default {
     });
 
     // Create indexes
-    await queryInterface.addIndex('group_members', ['groupId', 'userId'], {
+    await queryInterface.addIndex("group_members", ["groupId", "userId"], {
       unique: true,
-      name: 'unique_group_user'
+      name: "unique_group_user"
     });
-    await queryInterface.addIndex('group_members', ['userId', 'isActive']);
-    await queryInterface.addIndex('group_members', ['groupId', 'isActive']);
+    await queryInterface.addIndex("group_members", ["userId", "isActive"]);
+    await queryInterface.addIndex("group_members", ["groupId", "isActive"]);
   },
 
   async down(queryInterface: QueryInterface) {
-    await queryInterface.dropTable('group_members');
+    await queryInterface.dropTable("group_members");
   }
 }; 

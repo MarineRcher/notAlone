@@ -16,51 +16,56 @@ import Input from "../../components/input";
 import Button from "../../components/button";
 
 type Props = NativeStackScreenProps<any, any>;
-const LoginScreen = ({ navigation }: Props) => {
-    const [loginOrEmail, setLoginOrEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState({
-        loginOrEmail: "",
-        password: "",
-    });
+const LoginScreen = ({ navigation }: Props) =>
+{
+	const [loginOrEmail, setLoginOrEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [errors, setErrors] = useState({
+		loginOrEmail: "",
+		password: "",
+	});
 
 	const handleLoginOrEmailChange = (text: string) =>
-{
+	{
 		setLoginOrEmail(text.trim());
 	};
 
 	const handlePasswordChange = (text: string) =>
-{
+	{
 		setPassword(text);
 	};
 
 	const validateForm = () =>
-{
+	{
 		let isValid = true;
 		const newErrors = { loginOrEmail: "", password: "" };
 
 		if (!loginOrEmail.trim())
-{
+		{
 			newErrors.loginOrEmail = "Le login ou l'email est requis";
 			isValid = false;
-		} else if (loginOrEmail.includes("@")) {
+		}
+		else if (loginOrEmail.includes("@"))
+		{
 			if (!validator.isEmail(loginOrEmail))
-{
+			{
 				newErrors.loginOrEmail = "Format d'email invalide";
 				isValid = false;
 			}
-		} else {
+		}
+		else
+		{
 			if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/))
-{
-				newErrors.loginOrEmail =
-					"Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+			{
+				newErrors.loginOrEmail
+					= "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
 				isValid = false;
 			}
 		}
 
 		if (!password)
-{
+		{
 			newErrors.password = "Le mot de passe est requis";
 			isValid = false;
 		}
@@ -70,37 +75,45 @@ const LoginScreen = ({ navigation }: Props) => {
 	};
 
 	const handleLogin = async () =>
-{
+	{
 		if (!validateForm())
-{
+		{
 			return;
 		}
 
 		setIsLoading(true);
 
 		try
-{
+		{
 			const response = await authService.login({
 				loginOrEmail,
 				password,
 			});
 
-            if (response.data.requiresTwoFactor) {
-                navigation.navigate("TwoFactorLogin", {
-                    tempToken: response.data.tempToken,
-                });
-            } else {
-                navigation.navigate("Ask2fa");
-            }
-        } catch (error) {
-            let errorMessage = "Une erreur est survenue lors de la connexion";
+			if (response.data.requiresTwoFactor)
+			{
+				navigation.navigate("TwoFactorLogin", {
+					tempToken: response.data.tempToken,
+				});
+			}
+			else
+			{
+				navigation.navigate("Ask2fa");
+			}
+		}
+		catch (error)
+		{
+			let errorMessage = "Une erreur est survenue lors de la connexion";
 
-            if (error.response) {
-                errorMessage = error.response.data.message || errorMessage;
-            }
+			if (error.response)
+			{
+				errorMessage = error.response.data.message || errorMessage;
+			}
 
 			Alert.alert("Erreur", errorMessage);
-		} finally {
+		}
+		finally
+		{
 			setIsLoading(false);
 		}
 	};

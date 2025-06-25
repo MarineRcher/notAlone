@@ -2,18 +2,18 @@ import apiClient from "./apiClient";
 import { authHelpers } from "./authHelpers";
 
 const addictionService = {
-	getAllAddictions: async () => 
-{
+	getAllAddictions: async () =>
+	{
 		const response = await apiClient.get("/addictions/all");
 
 		return response.data;
 	},
-	getUserAddictions: async () => 
-{
+	getUserAddictions: async () =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 
@@ -33,12 +33,12 @@ const addictionService = {
 		date: string;
 		use_a_day?: number;
 		spending_a_day?: number;
-	}) => 
-{
+	}) =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-const ForestScreen = () => 
+const ForestScreen = () =>
 {
 	return (
 		<View

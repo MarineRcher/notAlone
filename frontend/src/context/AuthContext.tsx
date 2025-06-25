@@ -26,37 +26,38 @@ interface AuthProviderProps {
 
 export const AuthContext = createContext<AuthContextType>({
 	user: null,
-	setUser: () => 
-{},
-	update2FAStatus: () => 
-{},
-	updateNotificationSettings: () => 
-{},
-	updatePremiumStatus: () => 
-{},
-	checkTokenValidity: async () => 
-{},
+	setUser: () =>
+	{},
+	update2FAStatus: () =>
+	{},
+	updateNotificationSettings: () =>
+	{},
+	updatePremiumStatus: () =>
+	{},
+	checkTokenValidity: async () =>
+	{},
 });
 
-export function AuthProvider({ children }: AuthProviderProps) 
+export function AuthProvider({ children }: AuthProviderProps)
 {
 	const [user, setUser] = useState<User | null>(null);
-	const update2FAStatus = (status: boolean) => 
-{
+	const update2FAStatus = (status: boolean) =>
+	{
 		setUser((prev) => (prev ? { ...prev, has2FA: status } : null));
 	};
-	const updatePremiumStatus = (status: boolean) => 
-{
+	const updatePremiumStatus = (status: boolean) =>
+	{
 		setUser((prev) => (prev ? { ...prev, hasPremium: status } : null));
 	};
 	const updateNotificationSettings = (
 		notify: boolean,
 		hourNotify?: string
-	) => 
-{
-		setUser((prev) => 
-{
-			if (!prev) {
+	) =>
+	{
+		setUser((prev) =>
+		{
+			if (!prev)
+			{
 				return null;
 			}
 			return {
@@ -67,34 +68,34 @@ export function AuthProvider({ children }: AuthProviderProps)
 		});
 	};
 
-	const checkTokenValidity = async () => 
-{
+	const checkTokenValidity = async () =>
+	{
 		const isValid = await authHelpers.isTokenValid();
 
 		if (!isValid && user)
-{
+		{
 			// Token is invalid and we have a user set, clear it
 			setUser(null);
 		}
 	};
 
-	useEffect(() => 
-{
-		const loadUser = async () => 
-{
+	useEffect(() =>
+	{
+		const loadUser = async () =>
+		{
 			const token = await authHelpers.getToken();
 
 			if (token)
-{
-				try 
-{
+			{
+				try
+				{
 					const decoded = jwtDecode<User & { exp: number }>(token);
 
 					// Check if token is expired
 					const currentTime = Date.now() / 1000;
 
 					if (decoded.exp && decoded.exp < currentTime)
-{
+					{
 						// Token is expired, remove it and don't set user
 						console.log("Token expired, removing from storage");
 						await authHelpers.deleteToken();
@@ -103,7 +104,9 @@ export function AuthProvider({ children }: AuthProviderProps)
 					}
 
 					setUser(decoded);
-				} catch (error) {
+				}
+				catch (error)
+				{
 					// Invalid token, remove it
 					console.log("Invalid token, removing from storage");
 					await authHelpers.deleteToken();

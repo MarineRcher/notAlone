@@ -4,7 +4,7 @@ import { QueryInterface, DataTypes } from "sequelize";
 export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
         await queryInterface.sequelize.query(
-            'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
+            "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
         );
 
         await queryInterface.createTable("users", {

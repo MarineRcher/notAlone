@@ -25,37 +25,37 @@ const socket = io(apiConfig.socketURL, {
 });
 
 // Function to connect with authentication
-export const connectWithAuth = async (): Promise<boolean> => 
+export const connectWithAuth = async (): Promise<boolean> =>
 {
-	try 
-{
+	try
+	{
 		const token = await authHelpers.getValidToken();
 
-		if (!token) 
-{
+		if (!token)
+		{
 			console.log("❌ No valid authentication token available");
 			return false;
 		}
 
 		// Disconnect if already connected
-		if (socket.connected) 
-{
+		if (socket.connected)
+		{
 			socket.disconnect();
 		}
 
 		// Update auth token on existing socket instead of creating new one
 		socket.auth = { token: token };
 
-		return new Promise((resolve) => 
-{
-			const timeout = setTimeout(() => 
-{
+		return new Promise((resolve) =>
+		{
+			const timeout = setTimeout(() =>
+			{
 				console.log("❌ Connection timeout");
 				resolve(false);
 			}, 10000);
 
-			const onConnect = () => 
-{
+			const onConnect = () =>
+			{
 				clearTimeout(timeout);
 				console.log("✅ Socket.IO connected with authentication");
 				console.log("🔗 Transport:", socket.io.engine.transport.name);
@@ -65,8 +65,8 @@ export const connectWithAuth = async (): Promise<boolean> =>
 				resolve(true);
 			};
 
-			const onConnectError = (error: any) => 
-{
+			const onConnectError = (error: any) =>
+			{
 				clearTimeout(timeout);
 				console.error("🚨 Socket.IO connection error:", error.message);
 				console.error("🔍 Error details:", error);
@@ -81,52 +81,54 @@ export const connectWithAuth = async (): Promise<boolean> =>
 			// Connect with the updated auth token
 			socket.connect();
 		});
-	} catch (error) {
+	}
+	catch (error)
+	{
 		console.error("❌ Error connecting with auth:", error);
 		return false;
 	}
 };
 
 // Function to disconnect
-export const disconnect = () => 
+export const disconnect = () =>
 {
-	if (socket) 
-{
+	if (socket)
+	{
 		socket.disconnect();
 	}
 };
 
 // Enhanced logging for debugging
-socket.on("connect", () => 
+socket.on("connect", () =>
 {
 	console.log("✅ Socket.IO connected successfully");
 	console.log("🔗 Transport:", socket.io.engine.transport.name);
 	console.log("📱 Socket ID:", socket.id);
 });
 
-socket.on("disconnect", (reason) => 
+socket.on("disconnect", (reason) =>
 {
 	console.log("❌ Socket.IO disconnected:", reason);
 });
 
-socket.on("connect_error", (error) => 
+socket.on("connect_error", (error) =>
 {
 	console.error("🚨 Socket.IO connection error:", error.message);
 	console.error("🔍 Error details:", error);
 	console.log("🌐 Trying to connect to:", apiConfig.socketURL);
 });
 
-socket.on("reconnect", (attemptNumber) => 
+socket.on("reconnect", (attemptNumber) =>
 {
 	console.log("🔄 Socket.IO reconnected after", attemptNumber, "attempts");
 });
 
-socket.on("reconnect_error", (error) => 
+socket.on("reconnect_error", (error) =>
 {
 	console.error("🔄❌ Socket.IO reconnection error:", error.message);
 });
 
-socket.on("reconnect_failed", () => 
+socket.on("reconnect_failed", () =>
 {
 	console.error("💥 Socket.IO reconnection failed - giving up");
 });

@@ -74,4 +74,4 @@ export interface SenderKeyBundle {
   chainKey: number[];
   signingPublicKey: number[];
   keyIndex: number;
-} 
+}

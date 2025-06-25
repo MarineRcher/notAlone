@@ -15,23 +15,23 @@ import Mascot from "../../components/mascot";
 import styles from "../form.style";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-
 type Props = NativeStackScreenProps<any, any>;
-const RegisterScreen = ({ navigation }: Props) => {
-    const [login, setLogin] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState({
-        login: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    });
+const RegisterScreen = ({ navigation }: Props) =>
+{
+	const [login, setLogin] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [errors, setErrors] = useState({
+		login: "",
+		email: "",
+		password: "",
+		confirmPassword: "",
+	});
 
 	const validateForm = () =>
-{
+	{
 		let isValid = true;
 		const newErrors = {
 			login: "",
@@ -41,29 +41,34 @@ const RegisterScreen = ({ navigation }: Props) => {
 		};
 
 		if (!login.trim())
-{
+		{
 			newErrors.login = "Le login est requis";
 			isValid = false;
-		} else if (!validator.matches(login, /^[a-zA-Z0-9_-]{3,20}$/)) {
-			newErrors.login =
-				"Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+		}
+		else if (!validator.matches(login, /^[a-zA-Z0-9_-]{3,20}$/))
+		{
+			newErrors.login
+				= "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
 			isValid = false;
 		}
 
 		if (!email.trim())
-{
+		{
 			newErrors.email = "L'email est requis";
 			isValid = false;
-		} else if (!validator.isEmail(email)) {
+		}
+		else if (!validator.isEmail(email))
+		{
 			newErrors.email = "Format d'email invalide";
 			isValid = false;
 		}
 
 		if (!password)
-{
+		{
 			newErrors.password = "Le mot de passe est requis";
 			isValid = false;
-		} else if (
+		}
+		else if (
 			!validator.isStrongPassword(password, {
 				minLength: 12,
 				minLowercase: 1,
@@ -72,16 +77,16 @@ const RegisterScreen = ({ navigation }: Props) => {
 				minSymbols: 1,
 			})
 		)
-{
-			newErrors.password =
-				"Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial";
+		{
+			newErrors.password
+				= "Le mot de passe doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial";
 			isValid = false;
 		}
 
 		if (password !== confirmPassword)
-{
-			newErrors.confirmPassword =
-				"Les mots de passe ne correspondent pas";
+		{
+			newErrors.confirmPassword
+				= "Les mots de passe ne correspondent pas";
 			isValid = false;
 		}
 
@@ -90,36 +95,36 @@ const RegisterScreen = ({ navigation }: Props) => {
 	};
 
 	const handleLoginChange = (text: string) =>
-{
+	{
 		setLogin(text.trim());
 	};
 
 	const handleEmailChange = (text: string) =>
-{
+	{
 		setEmail(text);
 	};
 
 	const handlePasswordChange = (text: string) =>
-{
+	{
 		setPassword(text);
 	};
 
 	const handlePasswordConfirmChange = (text: string) =>
-{
+	{
 		setConfirmPassword(text);
 	};
 
 	const handleRegister = async () =>
-{
+	{
 		if (!validateForm())
-{
+		{
 			return;
 		}
 
 		setIsLoading(true);
 
 		try
-{
+		{
 			const sanitizedLogin = validator.escape(login.trim());
 			const normalizedEmail = validator.normalizeEmail(email) || email;
 
@@ -132,16 +137,20 @@ const RegisterScreen = ({ navigation }: Props) => {
 				isBlocked: false,
 			});
 			navigation.navigate("Ask2fa", { isFromRegistration: true });
-		} catch (error) {
+		}
+		catch (error)
+		{
 			let errorMessage = "Une erreur est survenue lors de l'inscription";
 
 			if (error.response)
-{
+			{
 				errorMessage = error.response.data.message || errorMessage;
 			}
 
 			Alert.alert("Erreur", errorMessage);
-		} finally {
+		}
+		finally
+		{
 			setIsLoading(false);
 		}
 	};

@@ -29,34 +29,42 @@ type Props = NativeStackScreenProps<any, "TwoFactorLogin"> & {
         params: TwoFactorLoginParams;
     };
 };
-const TwoFactorLoginScreen = ({ route, navigation }: Props) => {
-    const { setUser } = useContext(AuthContext);
-    const [otp, setOtp] = useState("");
-    const { tempToken } = route.params;
+const TwoFactorLoginScreen = ({ route, navigation }: Props) =>
+{
+	const { setUser } = useContext(AuthContext);
+	const [otp, setOtp] = useState("");
+	const { tempToken } = route.params;
 
-    const handleVerify = async () => {
-        try {
-            if (!validator.isNumeric(otp) || otp.length !== 6) {
-                Alert.alert("Erreur", "Le code doit être à 6 chiffres");
-                return;
-            }
-            const response = await authService.verify2FALogin({
-                tempToken,
-                otp,
-            });
-            await authHelpers.saveToken(response.data.token);
-            const decoded = jwtDecode<User>(response.data.token);
-            setUser(decoded);
-            navigation.navigate("Main");
-        } catch (error) {
-            const apiError = error as ApiError;
+	const handleVerify = async () =>
+	{
+		try
+		{
+			if (!validator.isNumeric(otp) || otp.length !== 6)
+			{
+				Alert.alert("Erreur", "Le code doit être à 6 chiffres");
+				return;
+			}
+			const response = await authService.verify2FALogin({
+				tempToken,
+				otp,
+			});
 
-            Alert.alert(
-                "Erreur",
-                apiError.response?.data?.message || "Code invalide"
-            );
-        }
-    };
+			await authHelpers.saveToken(response.data.token);
+			const decoded = jwtDecode<User>(response.data.token);
+
+			setUser(decoded);
+			navigation.navigate("Main");
+		}
+		catch (error)
+		{
+			const apiError = error as ApiError;
+
+			Alert.alert(
+				"Erreur",
+				apiError.response?.data?.message || "Code invalide"
+			);
+		}
+	};
 
 	return (
 		<ScrollView contentContainerStyle={styles.scrollContainer}>

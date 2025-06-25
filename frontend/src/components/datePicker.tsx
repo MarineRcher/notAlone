@@ -18,13 +18,13 @@ const DatePicker: React.FC<CustomDatePickerProps> = ({
 	placeholder = "Sélectionnez une date",
 	showPicker,
 	setShowPicker,
-}) => 
+}) =>
 {
-	const handleChange = (event, selectedDate) => 
-{
+	const handleChange = (event, selectedDate) =>
+	{
 		setShowPicker(false);
-		if (event.type === "set" && selectedDate) 
-{
+		if (event.type === "set" && selectedDate)
+		{
 			onChange(selectedDate);
 		}
 	};

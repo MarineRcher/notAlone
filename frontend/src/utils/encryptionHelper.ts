@@ -21,7 +21,8 @@ interface MessageMetadata {
  * @param timestamp The timestamp in milliseconds
  * @returns A formatted date string
  */
-export function formatMessageTimestamp(timestamp: number): string {
+export function formatMessageTimestamp(timestamp: number): string
+{
 	const date = new Date(timestamp);
 	const now = new Date();
 	const diffMs = now.getTime() - timestamp;
@@ -29,15 +30,24 @@ export function formatMessageTimestamp(timestamp: number): string {
 	const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
 	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-	if (diffMins < 1) {
+	if (diffMins < 1)
+	{
 		return 'Just now';
-	} else if (diffMins < 60) {
+	}
+	else if (diffMins < 60)
+	{
 		return `${diffMins}m ago`;
-	} else if (diffHours < 24) {
+	}
+	else if (diffHours < 24)
+	{
 		return `${diffHours}h ago`;
-	} else if (diffDays < 7) {
+	}
+	else if (diffDays < 7)
+	{
 		return `${diffDays}d ago`;
-	} else {
+	}
+	else
+	{
 		return date.toLocaleDateString();
 	}
 }
@@ -47,7 +57,8 @@ export function formatMessageTimestamp(timestamp: number): string {
  * @param encryptedMessage The encrypted message
  * @returns Message metadata
  */
-export function extractMessageMetadata(encryptedMessage: EncryptedMessage): MessageMetadata {
+export function extractMessageMetadata(encryptedMessage: EncryptedMessage): MessageMetadata
+{
 	return {
 		messageId: encryptedMessage.messageId,
 		timestamp: encryptedMessage.timestamp,
@@ -62,16 +73,17 @@ export function extractMessageMetadata(encryptedMessage: EncryptedMessage): Mess
  * @param message The message to validate
  * @returns True if valid, false otherwise
  */
-export function validateEncryptedMessage(message: any): message is EncryptedMessage {
+export function validateEncryptedMessage(message: any): message is EncryptedMessage
+{
 	return (
-		typeof message === 'object' &&
-		typeof message.messageId === 'string' &&
-		typeof message.timestamp === 'number' &&
-		typeof message.groupId === 'string' &&
-		typeof message.senderId === 'string' &&
-		Array.isArray(message.encryptedPayload) &&
-		Array.isArray(message.signature) &&
-		typeof message.keyIndex === 'number'
+		typeof message === 'object'
+		&& typeof message.messageId === 'string'
+		&& typeof message.timestamp === 'number'
+		&& typeof message.groupId === 'string'
+		&& typeof message.senderId === 'string'
+		&& Array.isArray(message.encryptedPayload)
+		&& Array.isArray(message.signature)
+		&& typeof message.keyIndex === 'number'
 	);
 }
 
@@ -86,7 +98,8 @@ export function createDecryptedMessage(
 	content: string,
 	metadata: MessageMetadata,
 	verified: boolean = true
-): DecryptedMessage {
+): DecryptedMessage
+{
 	return {
 		messageId: metadata.messageId,
 		content,
@@ -103,12 +116,15 @@ export function createDecryptedMessage(
  * @param maxLength Maximum length to display
  * @returns Truncated message ID
  */
-export function truncateMessageId(messageId: string, maxLength: number = 12): string {
-	if (messageId.length <= maxLength) {
+export function truncateMessageId(messageId: string, maxLength: number = 12): string
+{
+	if (messageId.length <= maxLength)
+	{
 		return messageId;
 	}
 	const start = Math.floor(maxLength / 2) - 1;
 	const end = messageId.length - (maxLength - start - 3);
+
 	return `${messageId.substring(0, start)}...${messageId.substring(end)}`;
 }
 
@@ -117,11 +133,12 @@ export function truncateMessageId(messageId: string, maxLength: number = 12): st
  * @param senderId The sender's ID
  * @returns A display name
  */
-export function getSenderDisplayName(senderId: string): string {
+export function getSenderDisplayName(senderId: string): string
+{
 	// For now, just return the sender ID
 	// In a real app, you'd look up the user's display name
 	return senderId;
-	}
+}
 
 /**
  * Checks if a message is from the current user
@@ -129,7 +146,8 @@ export function getSenderDisplayName(senderId: string): string {
  * @param currentUserId The current user's ID
  * @returns True if the message is from the current user
  */
-export function isOwnMessage(senderId: string, currentUserId: string): boolean {
+export function isOwnMessage(senderId: string, currentUserId: string): boolean
+{
 	return senderId === currentUserId;
 }
 
@@ -138,9 +156,11 @@ export function isOwnMessage(senderId: string, currentUserId: string): boolean {
  * @param plaintext The original plaintext
  * @returns Estimated size in bytes
  */
-export function estimateEncryptedSize(plaintext: string): number {
+export function estimateEncryptedSize(plaintext: string): number
+{
 	const plaintextBytes = new TextEncoder().encode(plaintext).length;
 	const overhead = 12 + 16 + 64 + 100; // nonce + auth tag + signature + metadata
+
 	return plaintextBytes + overhead;
 }
 
@@ -149,11 +169,12 @@ export function estimateEncryptedSize(plaintext: string): number {
  * @param message The encrypted message
  * @returns Debug information
  */
-export function getMessageDebugInfo(message: EncryptedMessage): string {
+export function getMessageDebugInfo(message: EncryptedMessage): string
+{
 	const payloadSize = message.encryptedPayload.length;
 	const signatureSize = message.signature.length;
 	const age = Date.now() - message.timestamp;
-	
+
 	return [
 		`ID: ${truncateMessageId(message.messageId)}`,
 		`Group: ${message.groupId}`,
@@ -169,9 +190,12 @@ export function getMessageDebugInfo(message: EncryptedMessage): string {
  * @param messages Array of encrypted messages
  * @returns True if messages are in chronological order
  */
-export function validateMessageOrder(messages: EncryptedMessage[]): boolean {
-	for (let i = 1; i < messages.length; i++) {
-		if (messages[i].timestamp < messages[i - 1].timestamp) {
+export function validateMessageOrder(messages: EncryptedMessage[]): boolean
+{
+	for (let i = 1; i < messages.length; i++)
+	{
+		if (messages[i].timestamp < messages[i - 1].timestamp)
+		{
 			return false;
 		}
 	}
@@ -183,9 +207,10 @@ export function validateMessageOrder(messages: EncryptedMessage[]): boolean {
  * @param messages Array of messages to sort
  * @returns Sorted array (new array, doesn't mutate original)
  */
-export function sortMessagesByTime<T extends { timestamp: number }>(messages: T[]): T[] {
+export function sortMessagesByTime<T extends { timestamp: number }>(messages: T[]): T[]
+{
 	return [...messages].sort((a, b) => a.timestamp - b.timestamp);
-	}
+}
 
 /**
  * Groups messages by sender
@@ -194,15 +219,18 @@ export function sortMessagesByTime<T extends { timestamp: number }>(messages: T[
  */
 export function groupMessagesBySender<T extends { senderId: string }>(
 	messages: T[]
-): Map<string, T[]> {
+): Map<string, T[]>
+{
 	const groups = new Map<string, T[]>();
-	
-	for (const message of messages) {
+
+	for (const message of messages)
+	{
 		const existing = groups.get(message.senderId) || [];
+
 		existing.push(message);
 		groups.set(message.senderId, existing);
 	}
-	
+
 	return groups;
 }
 
@@ -217,8 +245,9 @@ export function filterMessagesByTimeRange<T extends { timestamp: number }>(
 	messages: T[],
 	startTime: number,
 	endTime: number
-): T[] {
-	return messages.filter(msg => 
+): T[]
+{
+	return messages.filter(msg =>
 		msg.timestamp >= startTime && msg.timestamp <= endTime
 	);
 }

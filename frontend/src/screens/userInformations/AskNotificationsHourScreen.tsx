@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import {
 	Text,
 	ScrollView,
@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import userService from "../../api/userService";
-import { useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext, User } from "../../context/AuthContext";
 import styles from "../form.style";
@@ -21,15 +20,16 @@ import TimePicker from "../../components/timePicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const AskNotificationsHourScreen = ({ navigation }: Props) => {
-    const { setUser } = useContext(AuthContext);
-    const [hour, setHour] = useState("");
-    const [showPicker, setShowPicker] = useState(false);
-    const [isLoading, setLoading] = useState(false);
-    const [date, setDate] = useState(new Date());
+const AskNotificationsHourScreen = ({ navigation }: Props) =>
+{
+	const { setUser } = useContext(AuthContext);
+	const [hour, setHour] = useState("");
+	const [showPicker, setShowPicker] = useState(false);
+	const [isLoading, setLoading] = useState(false);
+	const [date, setDate] = useState(new Date());
 
 	const formatToHHMM = (dateObj: Date): string =>
-{
+	{
 		const h = dateObj.getHours().toString().padStart(2, "0");
 		const m = dateObj.getMinutes().toString().padStart(2, "0");
 
@@ -37,29 +37,33 @@ const AskNotificationsHourScreen = ({ navigation }: Props) => {
 	};
 
 	const handleSubmit = async () =>
-{
+	{
 		if (!hour)
-{
+		{
 			Alert.alert("Erreur", "Veuillez sélectionner une heure.");
 			return;
 		}
 
 		setLoading(true);
 		try
-{
+		{
 			const response = await userService.hourNotifications({ hour });
 
 			if (response.token)
-{
+			{
 				const decoded = jwtDecode<User>(response.token);
 
 				setUser(decoded);
 			}
 			navigation.navigate("Main");
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.error("Erreur heure notifications :", error);
 			Alert.alert("Erreur", "Impossible de définir l'heure.");
-		} finally {
+		}
+		finally
+		{
 			setLoading(false);
 		}
 	};
@@ -78,7 +82,7 @@ const AskNotificationsHourScreen = ({ navigation }: Props) => {
 					<TimePicker
 						value={date}
 						onChange={(d) =>
-{
+						{
 							setDate(d);
 							setHour(formatToHHMM(d));
 						}}

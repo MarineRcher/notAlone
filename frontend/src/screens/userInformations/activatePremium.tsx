@@ -19,55 +19,64 @@ import Feature from "../../components/feature";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const ActivatePremiumScreen = ({ navigation }: Props) => {
-    const { setUser } = useContext(AuthContext);
-    const [loading, setLoading] = useState(false);
+const ActivatePremiumScreen = ({ navigation }: Props) =>
+{
+	const { setUser } = useContext(AuthContext);
+	const [loading, setLoading] = useState(false);
 
-    const handleActivate = async () => {
-        try {
-            setLoading(true);
-            const response = await userService.activatePremium();
+	const handleActivate = async () =>
+	{
+		try
+		{
+			setLoading(true);
+			const response = await userService.activatePremium();
 
-            if (response.token) {
-                const decoded = jwtDecode<User>(response.token);
-                setUser(decoded);
-            }
-            Alert.alert("Succès", "Version premium activée !");
-            navigation.goBack();
-        } catch (error) {
-            console.error("Erreur premium:", error);
-            Alert.alert("Erreur", "Impossible d'activer la version premium");
-        } finally {
-            setLoading(false);
-        }
-    };
+			if (response.token)
+			{
+				const decoded = jwtDecode<User>(response.token);
 
-    return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <BackButton />
-            <View style={styles.container}>
-                <Mascot
-                    mascot="woaw"
-                    text="Prêt à booster ton aventure ? Découvre les fonctionnalités exclusives du premium !"
-                />
+				setUser(decoded);
+			}
+			Alert.alert("Succès", "Version premium activée !");
+			navigation.goBack();
+		}
+		catch (error)
+		{
+			console.error("Erreur premium:", error);
+			Alert.alert("Erreur", "Impossible d'activer la version premium");
+		}
+		finally
+		{
+			setLoading(false);
+		}
+	};
 
-                <View style={styles.formSection}>
-                    <Feature feature="Plus de limites" />
-                    <Feature feature="Plus de limites" />
-                    <Feature feature="Plus de limites" />
-                    <Feature feature="Plus de limites" />
-                    <Feature feature="Plus de limites" />
-                </View>
-                <Button
-                    title={
-                        loading ? "Chargement..." : "Activer version Premium"
-                    }
-                    onPress={handleActivate}
-                    disabled={loading}
-                />
-            </View>
-        </ScrollView>
-    );
+	return (
+		<ScrollView contentContainerStyle={styles.scrollContainer}>
+			<BackButton />
+			<View style={styles.container}>
+				<Mascot
+					mascot="woaw"
+					text="Prêt à booster ton aventure ? Découvre les fonctionnalités exclusives du premium !"
+				/>
+
+				<View style={styles.formSection}>
+					<Feature feature="Plus de limites" />
+					<Feature feature="Plus de limites" />
+					<Feature feature="Plus de limites" />
+					<Feature feature="Plus de limites" />
+					<Feature feature="Plus de limites" />
+				</View>
+				<Button
+					title={
+						loading ? "Chargement..." : "Activer version Premium"
+					}
+					onPress={handleActivate}
+					disabled={loading}
+				/>
+			</View>
+		</ScrollView>
+	);
 };
 
 export default ActivatePremiumScreen;

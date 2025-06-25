@@ -19,28 +19,28 @@ const TimePicker: React.FC<CustomTimePickerProps> = ({
 	showPicker,
 	setShowPicker,
 	error,
-}) => 
+}) =>
 {
-	const handleChange = (event, selectedDate) => 
-{
-		if (Platform.OS === "android") 
-{
+	const handleChange = (event, selectedDate) =>
+	{
+		if (Platform.OS === "android")
+		{
 			setShowPicker(false);
 		}
 
-		if (event?.type === "set" && selectedDate) 
-{
+		if (event?.type === "set" && selectedDate)
+		{
 			onChange(selectedDate);
 		}
 
-		if (event?.type === "dismissed") 
-{
+		if (event?.type === "dismissed")
+		{
 			setShowPicker(false);
 		}
 	};
 
-	const formatToHHMM = (dateObj: Date): string => 
-{
+	const formatToHHMM = (dateObj: Date): string =>
+	{
 		const h = dateObj.getHours().toString().padStart(2, "0");
 		const m = dateObj.getMinutes().toString().padStart(2, "0");
 

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-const ResourcesScreen = () => 
+const ResourcesScreen = () =>
 {
 	return (
 		<View

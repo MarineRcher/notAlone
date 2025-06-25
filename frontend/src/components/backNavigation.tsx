@@ -7,16 +7,21 @@ interface BackButtonProps {
     onPress?: () => void;
 }
 
-const BackButton = ({ onPress }: BackButtonProps) => {
-    const navigation = useNavigation();
+const BackButton = ({ onPress }: BackButtonProps) =>
+{
+	const navigation = useNavigation();
 
-    const handlePress = () => {
-        if (onPress) {
-            onPress();
-        } else {
-            navigation.goBack();
-        }
-    };
+	const handlePress = () =>
+	{
+		if (onPress)
+		{
+			onPress();
+		}
+		else
+		{
+			navigation.goBack();
+		}
+	};
 
 	return (
 		<TouchableOpacity style={styles.backButton} onPress={handlePress}>

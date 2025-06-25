@@ -30,11 +30,11 @@ import FollowScreen from "../screens/followScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        background: colors.background,
-    },
+	...DefaultTheme,
+	colors: {
+		...DefaultTheme.colors,
+		background: colors.background,
+	},
 };
 
 const AppNavigator = () =>
@@ -82,88 +82,88 @@ const AppNavigator = () =>
 					options={{ headerShown: false }}
 				/>
 
-                {/* user informations */}
-                <Stack.Screen
-                    name="ActivatePremium"
-                    component={ActivatePremiumScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="ChangeEmail"
-                    component={ChangeEmailScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="ChangePassword"
-                    component={ChangePasswordScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="AskNotifications"
-                    component={AskNotificationsScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="AskNotificationsHour"
-                    component={AskNotificationsHourScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="AddUserAddiction"
-                    component={AddUserAddictionScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="PrivacyPolicy"
-                    component={PrivacyPolicycreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Support"
-                    component={SupportScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="GroupChat"
-                    component={GroupChatScreen}
-                    options={{ headerShown: false }}
-                />
+				{/* user informations */}
+				<Stack.Screen
+					name="ActivatePremium"
+					component={ActivatePremiumScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="ChangeEmail"
+					component={ChangeEmailScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="ChangePassword"
+					component={ChangePasswordScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="AskNotifications"
+					component={AskNotificationsScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="AskNotificationsHour"
+					component={AskNotificationsHourScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="AddUserAddiction"
+					component={AddUserAddictionScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="PrivacyPolicy"
+					component={PrivacyPolicycreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Support"
+					component={SupportScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="GroupChat"
+					component={GroupChatScreen}
+					options={{ headerShown: false }}
+				/>
 
-                {/* journal */}
+				{/* journal */}
 
-                <Stack.Screen
-                    name="Difficulty"
-                    component={AskDifficultyScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Consumed"
-                    component={AskConsumedScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Note"
-                    component={NoteJourneyScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Goal"
-                    component={JourneyGoalScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Activities"
-                    component={TopActivitiesScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Resume"
-                    component={ResumeJourneyScreen}
-                    options={{ headerShown: false }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
+				<Stack.Screen
+					name="Difficulty"
+					component={AskDifficultyScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Consumed"
+					component={AskConsumedScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Note"
+					component={NoteJourneyScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Goal"
+					component={JourneyGoalScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Activities"
+					component={TopActivitiesScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Resume"
+					component={ResumeJourneyScreen}
+					options={{ headerShown: false }}
+				/>
+			</Stack.Navigator>
+		</NavigationContainer>
+	);
 };
 
 export default AppNavigator;

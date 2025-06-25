@@ -12,7 +12,7 @@ const TabIcon: React.FC<TabIconProps> = ({
 	focused,
 	ActiveIcon,
 	InactiveIcon,
-}) => 
+}) =>
 {
 	const Icon = focused ? ActiveIcon : InactiveIcon;
 

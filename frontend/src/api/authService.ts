@@ -22,86 +22,86 @@ export interface newPasswordData {
 }
 
 const authService = {
-	register: async (userData: RegisterData) => 
-{
+	register: async (userData: RegisterData) =>
+	{
 		const response = await apiClient.post("/auth/register", userData);
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response;
 	},
 
-	login: async (userData: LoginData) => 
-{
+	login: async (userData: LoginData) =>
+	{
 		const response = await apiClient.post("/auth/login", userData);
 
-		if (!response.data.requiresTwoFactor && response.data.token) 
-{
+		if (!response.data.requiresTwoFactor && response.data.token)
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response;
 	},
 
-	logout: async () => 
-{
+	logout: async () =>
+	{
 		await authHelpers.deleteToken();
 	},
 
-	changePassword: async (userData: newPasswordData) => 
-{
+	changePassword: async (userData: newPasswordData) =>
+	{
 		return await apiClient.post("/auth/changePassword", userData);
 	},
 
 	generate2FASecret: () => apiClient.post("/auth/2fa/generate"),
 
-	verify2FASetup: async (data: { token: string; otp: string }) => 
-{
+	verify2FASetup: async (data: { token: string; otp: string }) =>
+	{
 		const response = await apiClient.post("/auth/2fa/verify-setup", data);
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response;
 	},
 
-	verify2FALogin: async (data: { tempToken: string; otp: string }) => 
-{
+	verify2FALogin: async (data: { tempToken: string; otp: string }) =>
+	{
 		const response = await apiClient.post("/auth/2fa/verify-login", data);
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response;
 	},
 
-	disable2FA: async (data: { userId: string; otp: string }) => 
-{
+	disable2FA: async (data: { userId: string; otp: string }) =>
+	{
 		const response = await apiClient.post("/auth/2fa/disable", data);
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 	},
 };
 
-const refreshToken = async () => 
+const refreshToken = async () =>
 {
 	const token = await authHelpers.getToken();
 
 	if (!token)
-{
+	{
 		throw new Error("No token available");
 	}
 
 	const response = await apiClient.post("/auth/refresh");
 
 	if (response.data.token)
-{
+	{
 		await authHelpers.saveToken(response.data.token);
 	}
 	return response.data.token;

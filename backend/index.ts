@@ -13,7 +13,7 @@ import groupRoutes from "./src/routes/groupRoutes";
 import nobleGroupRoutes from "./src/routes/nobleGroupRoutes";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
-import { NobleSignalController } from './src/controllers/NobleSignalController';
+import { NobleSignalController } from "./src/controllers/NobleSignalController";
 
 // Initialize Express app
 const app = express();
@@ -36,134 +36,148 @@ app.use("/api/noble-groups", nobleGroupRoutes);
 
 // Socket.IO server configuration
 const io = new Server(server, {
-    cors: {
-        origin: process.env.CLIENT_URL || "*",
-        methods: ["GET", "POST"],
-        credentials: true
-    },
-    pingTimeout: 60000,
-    pingInterval: 25000,
-    transports: ['websocket', 'polling']
+	cors: {
+		origin: process.env.CLIENT_URL || "*",
+		methods: ["GET", "POST"],
+		credentials: true,
+	},
+	pingTimeout: 60000,
+	pingInterval: 25000,
+	transports: ["websocket", "polling"],
 });
 
 // Initialize Noble Signal Protocol Group controller
 const nobleSignalController = new NobleSignalController(io);
 
 // Socket.IO connection handling
-io.on("connection", (socket) => {
-    console.log("New client connected:", socket.id);
-    nobleSignalController.handleConnection(socket as any);
+io.on("connection", socket => {
+	console.log("New client connected:", socket.id);
+	nobleSignalController.handleConnection(socket as any);
 
-    socket.on("disconnect", (reason) => {
-        console.log(`Client ${socket.id} disconnected:`, reason);
-    });
+	socket.on("disconnect", reason => {
+		console.log(`Client ${socket.id} disconnected:`, reason);
+	});
 
-    socket.on("error", (error) => {
-        console.error(`Socket error for client ${socket.id}:`, error);
-    });
+	socket.on("error", error => {
+		console.error(`Socket error for client ${socket.id}:`, error);
+	});
 });
 
 // Schedule cleanup jobs every 5 minutes
-setInterval(async () => {
-    try {
-        console.log('🧹 Running scheduled cleanup...');
-        nobleSignalController.cleanup();
-    } catch (error) {
-        console.error('Error in scheduled cleanup:', error);
-    }
-}, 5 * 60 * 1000); // 5 minutes
+setInterval(
+	async () => {
+		try {
+			console.log("🧹 Running scheduled cleanup...");
+			nobleSignalController.cleanup();
+		} catch (error) {
+			console.error("Error in scheduled cleanup:", error);
+		}
+	},
+	5 * 60 * 1000,
+); // 5 minutes
 
 async function startServer() {
-    let databaseConnected = false;
+	let databaseConnected = false;
 
-    try {
-        // Database connection (optional for Socket.IO testing)
-        try {
-            await sequelize.authenticate();
-            await sequelize.sync();
-            console.log('✅ Database connected successfully');
-            databaseConnected = true;
-        } catch (dbError: any) {
-            console.warn('⚠️  Database connection failed - E2EE groups will work in-memory only:');
-            console.warn('   To enable full functionality, start PostgreSQL or use Docker Compose');
-            console.warn('   Database error:', dbError.message);
-        }
+	try {
+		// Database connection (optional for Socket.IO testing)
+		try {
+			await sequelize.authenticate();
+			await sequelize.sync();
+			console.log("✅ Database connected successfully");
+			databaseConnected = true;
+		} catch (dbError: any) {
+			console.warn(
+				"⚠️  Database connection failed - E2EE groups will work in-memory only:",
+			);
+			console.warn(
+				"   To enable full functionality, start PostgreSQL or use Docker Compose",
+			);
+			console.warn("   Database error:", dbError.message);
+		}
 
-        // Redis connection (optional)
-        try {
-            await connectRedis();
-            console.log('✅ Redis connected successfully');
-        } catch (error: any) {
-            console.warn('⚠️  Redis connection failed, continuing without Redis:', error.message);
-        }
+		// Redis connection (optional)
+		try {
+			await connectRedis();
+			console.log("✅ Redis connected successfully");
+		} catch (error: any) {
+			console.warn(
+				"⚠️  Redis connection failed, continuing without Redis:",
+				error.message,
+			);
+		}
 
-        // Basic health check endpoint
-        app.get("/", (req: Request, res: Response) => {
-            res.json({
-                message: "E2EE Group Chat Backend API",
-                status: "healthy",
-                timestamp: new Date().toISOString(),
-                services: {
-                    database: databaseConnected ? "connected" : "disabled",
-                    redis: "optional",
-                    websocket: "ready"
-                },
-                endpoints: {
-                    auth: "/api/auth",
-                    groups: "/api/groups (requires database)",
-                    websocket: "socket.io E2EE group chat"
-                },
-                note: databaseConnected ? "Full E2EE functionality available" : "E2EE groups available in-memory - database required for persistence"
-            });
-        });
+		// Basic health check endpoint
+		app.get("/", (req: Request, res: Response) => {
+			res.json({
+				message: "E2EE Group Chat Backend API",
+				status: "healthy",
+				timestamp: new Date().toISOString(),
+				services: {
+					database: databaseConnected ? "connected" : "disabled",
+					redis: "optional",
+					websocket: "ready",
+				},
+				endpoints: {
+					auth: "/api/auth",
+					groups: "/api/groups (requires database)",
+					websocket: "socket.io E2EE group chat",
+				},
+				note: databaseConnected
+					? "Full E2EE functionality available"
+					: "E2EE groups available in-memory - database required for persistence",
+			});
+		});
 
-        // Signal Protocol test endpoint
-        app.get("/test-signal", (req: Request, res: Response) => {
-            res.json({
-                message: "Signal Protocol E2E Group Chat Test Endpoint",
-                instructions: "Connect to this server using Socket.IO client on same port",
-                events: [
-                    "join_group",
-                    "group_message",
-                    "leave_group",
-                    "share_sender_key",
-                    "request_sender_keys"
-                ],
-                authentication: {
-                    mock: "mock_jwt_token_alice (for testing)",
-                    real: "Valid JWT token with user ID"
-                },
-                protocol: "Signal Protocol with Double Ratchet and Sender Keys"
-            });
-        });
+		// Signal Protocol test endpoint
+		app.get("/test-signal", (req: Request, res: Response) => {
+			res.json({
+				message: "Signal Protocol E2E Group Chat Test Endpoint",
+				instructions:
+					"Connect to this server using Socket.IO client on same port",
+				events: [
+					"join_group",
+					"group_message",
+					"leave_group",
+					"share_sender_key",
+					"request_sender_keys",
+				],
+				authentication: {
+					mock: "mock_jwt_token_alice (for testing)",
+					real: "Valid JWT token with user ID",
+				},
+				protocol: "Signal Protocol with Double Ratchet and Sender Keys",
+			});
+		});
 
-        const PORT = process.env.PORT || 3000;
+		const PORT = process.env.PORT || 3000;
 
-        server.listen(PORT as number, "0.0.0.0", () => {
-            console.log(`🚀 Signal Protocol Server running on port ${PORT}`);
-            console.log(`📡 HTTP endpoints: http://localhost:${PORT}`);
-            console.log(`🔌 Socket.IO Signal E2E ready for connections`);
-            console.log(`🔐 Signal Protocol group chat with Double Ratchet enabled`);
+		server.listen(PORT as number, "0.0.0.0", () => {
+			console.log(`🚀 Signal Protocol Server running on port ${PORT}`);
+			console.log(`📡 HTTP endpoints: http://localhost:${PORT}`);
+			console.log("🔌 Socket.IO Signal E2E ready for connections");
+			console.log("🔐 Signal Protocol group chat with Double Ratchet enabled");
 
-            if (databaseConnected) {
-                console.log(`📋 Full functionality available with database persistence`);
-            } else {
-                console.log(`🧪 In-memory mode - groups and messages not persisted`);
-            }
-        });
+			if (databaseConnected) {
+				console.log(
+					"📋 Full functionality available with database persistence",
+				);
+			} else {
+				console.log("🧪 In-memory mode - groups and messages not persisted");
+			}
+		});
 
-        process.on("SIGTERM", () => {
-            console.log("SIGTERM received. Closing server...");
-            server.close(() => {
-                console.log("Server closed");
-                process.exit(0);
-            });
-        });
-
-    } catch (error) {
-        console.error("❌ Critical server startup error:", error);
-        process.exit(1);
-    }
+		process.on("SIGTERM", () => {
+			console.log("SIGTERM received. Closing server...");
+			server.close(() => {
+				console.log("Server closed");
+				process.exit(0);
+			});
+		});
+	} catch (error) {
+		console.error("❌ Critical server startup error:", error);
+		process.exit(1);
+	}
 }
 
 startServer();

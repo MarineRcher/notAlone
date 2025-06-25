@@ -15,22 +15,22 @@ import ResumeJourney from "../../models/ResumeJourney";
  * @returns {Promise<void>} A promise that resolves when the response is sent or error handling is triggered.
  */
 export const getResumeJourney = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    try {
-        const resumeJourney = await ResumeJourney.findAll();
-        if (resumeJourney && resumeJourney.length > 0) {
-            res.status(201).json({
-                resumeJourney,
-            });
-        } else {
-            res.status(400).json({
-                message: "Aucun mot dans resume journey",
-            });
-        }
-    } catch (error) {
-        next(error);
-    }
+	try {
+		const resumeJourney = await ResumeJourney.findAll();
+		if (resumeJourney && resumeJourney.length > 0) {
+			res.status(201).json({
+				resumeJourney,
+			});
+		} else {
+			res.status(400).json({
+				message: "Aucun mot dans resume journey",
+			});
+		}
+	} catch (error) {
+		next(error);
+	}
 };

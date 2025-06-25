@@ -12,146 +12,146 @@ jest.mock("../../../../src/models/UserActivity");
 jest.mock("../../../../src/models/Activities");
 jest.mock("../../../../src/models/ResumeJourney");
 jest.mock("../../../../src/config/logger", () => ({
-    error: jest.fn(),
+	error: jest.fn(),
 }));
 
 describe("getUserJournal", () => {
-    let req: Partial<Request>;
-    let res: Partial<Response>;
-    let next: NextFunction;
+	let req: Partial<Request>;
+	let res: Partial<Response>;
+	let next: NextFunction;
 
-    beforeEach(() => {
-        req = {
-            user: {
-                id: "user-abc",
-                login: "testuser",
-                email: "test@example.com",
-                password: "hashed_password",
-                hasPremium: false,
-                has2FA: false,
-                twoFactorSecret: null,
-                isBlocked: false,
-                notify: false,
-                hourNotify: null,
-                failedLoginAttempts: 0,
-                blockedUntil: null,
-                points: 0,
-            } as UserAttributes,
-            body: { date: "2025-06-25" },
-        };
+	beforeEach(() => {
+		req = {
+			user: {
+				id: "user-abc",
+				login: "testuser",
+				email: "test@example.com",
+				password: "hashed_password",
+				hasPremium: false,
+				has2FA: false,
+				twoFactorSecret: null,
+				isBlocked: false,
+				notify: false,
+				hourNotify: null,
+				failedLoginAttempts: 0,
+				blockedUntil: null,
+				points: 0,
+			} as UserAttributes,
+			body: { date: "2025-06-25" },
+		};
 
-        res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn(),
-        };
+		res = {
+			status: jest.fn().mockReturnThis(),
+			json: jest.fn(),
+		};
 
-        next = jest.fn();
+		next = jest.fn();
 
-        jest.clearAllMocks();
-    });
+		jest.clearAllMocks();
+	});
 
-    it("should return 401 if user is not authenticated", async () => {
-        req.user = undefined;
+	it("should return 401 if user is not authenticated", async () => {
+		req.user = undefined;
 
-        await getUserJournal(req as Request, res as Response, next);
+		await getUserJournal(req as Request, res as Response, next);
 
-        expect(res.status).toHaveBeenCalledWith(401);
-        expect(res.json).toHaveBeenCalledWith({ message: "Non autorisé" });
-    });
+		expect(res.status).toHaveBeenCalledWith(401);
+		expect(res.json).toHaveBeenCalledWith({ message: "Non autorisé" });
+	});
 
-    it("should return null if journal not found", async () => {
-        (Journal.findOne as jest.Mock).mockResolvedValueOnce(null);
+	it("should return null if journal not found", async () => {
+		(Journal.findOne as jest.Mock).mockResolvedValueOnce(null);
 
-        await getUserJournal(req as Request, res as Response, next);
+		await getUserJournal(req as Request, res as Response, next);
 
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith(null);
-    });
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith(null);
+	});
 
-    it("should return journal with no activities or resume", async () => {
-        const journalMock = {
-            id_journal: "j-123",
-            id_user: "user-abc",
-            created_at: "2025-06-25",
-        };
+	it("should return journal with no activities or resume", async () => {
+		const journalMock = {
+			id_journal: "j-123",
+			id_user: "user-abc",
+			created_at: "2025-06-25",
+		};
 
-        (Journal.findOne as jest.Mock)
-            .mockResolvedValueOnce(journalMock) // current journal
-            .mockResolvedValueOnce(null); // previous day
+		(Journal.findOne as jest.Mock)
+			.mockResolvedValueOnce(journalMock) // current journal
+			.mockResolvedValueOnce(null); // previous day
 
-        (UserActivity.findAll as jest.Mock).mockResolvedValue([]);
+		(UserActivity.findAll as jest.Mock).mockResolvedValue([]);
 
-        await getUserJournal(req as Request, res as Response, next);
+		await getUserJournal(req as Request, res as Response, next);
 
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            journal: journalMock,
-            activities: [],
-            resume_journey: null,
-            previous_day_goal: null,
-        });
-    });
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			journal: journalMock,
+			activities: [],
+			resume_journey: null,
+			previous_day_goal: null,
+		});
+	});
 
-    it("should return journal with activities and resume", async () => {
-        const journalMock = {
-            id_journal: "j-123",
-            id_user: "user-abc",
-            id_resume_journey: "resume-001",
-            created_at: "2025-06-25",
-        };
+	it("should return journal with activities and resume", async () => {
+		const journalMock = {
+			id_journal: "j-123",
+			id_user: "user-abc",
+			id_resume_journey: "resume-001",
+			created_at: "2025-06-25",
+		};
 
-        const previousJournalMock = {
-            next_day_goal: "Faire du sport",
-        };
+		const previousJournalMock = {
+			next_day_goal: "Faire du sport",
+		};
 
-        const userActivityMock = [{ id_activity: 1 }, { id_activity: 2 }];
+		const userActivityMock = [{ id_activity: 1 }, { id_activity: 2 }];
 
-        const activityMock = [{ id_activity: 1, name: "lecture" }];
-        const resumeMock = { id_resume_journey: "resume-001", word: "Fierté" };
+		const activityMock = [{ id_activity: 1, name: "lecture" }];
+		const resumeMock = { id_resume_journey: "resume-001", word: "Fierté" };
 
-        (Journal.findOne as jest.Mock)
-            .mockResolvedValueOnce(journalMock) // current journal
-            .mockResolvedValueOnce(previousJournalMock); // previous day journal
+		(Journal.findOne as jest.Mock)
+			.mockResolvedValueOnce(journalMock) // current journal
+			.mockResolvedValueOnce(previousJournalMock); // previous day journal
 
-        (UserActivity.findAll as jest.Mock).mockResolvedValue(userActivityMock);
-        (Activities.findAll as jest.Mock).mockResolvedValue(activityMock);
-        (ResumeJourney.findOne as jest.Mock).mockResolvedValue(resumeMock);
+		(UserActivity.findAll as jest.Mock).mockResolvedValue(userActivityMock);
+		(Activities.findAll as jest.Mock).mockResolvedValue(activityMock);
+		(ResumeJourney.findOne as jest.Mock).mockResolvedValue(resumeMock);
 
-        await getUserJournal(req as Request, res as Response, next);
+		await getUserJournal(req as Request, res as Response, next);
 
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            journal: journalMock,
-            activities: [
-                {
-                    user_activity: userActivityMock[0],
-                    activity_details: activityMock,
-                },
-                {
-                    user_activity: userActivityMock[1],
-                    activity_details: activityMock,
-                },
-            ],
-            resume_journey: resumeMock,
-            previous_day_goal: "Faire du sport",
-        });
-    });
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith({
+			journal: journalMock,
+			activities: [
+				{
+					user_activity: userActivityMock[0],
+					activity_details: activityMock,
+				},
+				{
+					user_activity: userActivityMock[1],
+					activity_details: activityMock,
+				},
+			],
+			resume_journey: resumeMock,
+			previous_day_goal: "Faire du sport",
+		});
+	});
 
-    it("should log and call next on unexpected error", async () => {
-        const error = new Error("Boum");
-        (Journal.findOne as jest.Mock).mockRejectedValue(error);
+	it("should log and call next on unexpected error", async () => {
+		const error = new Error("Boum");
+		(Journal.findOne as jest.Mock).mockRejectedValue(error);
 
-        await getUserJournal(req as Request, res as Response, next);
+		await getUserJournal(req as Request, res as Response, next);
 
-        expect(logger.error).toHaveBeenCalledWith(
-            "Erreur lors de la récupération du journal de l'utilisateur",
-            expect.objectContaining({
-                error,
-                user_id: "user-abc",
-                ip: undefined,
-            })
-        );
+		expect(logger.error).toHaveBeenCalledWith(
+			"Erreur lors de la récupération du journal de l'utilisateur",
+			expect.objectContaining({
+				error,
+				user_id: "user-abc",
+				ip: undefined,
+			}),
+		);
 
-        expect(next).toHaveBeenCalledWith(error);
-    });
+		expect(next).toHaveBeenCalledWith(error);
+	});
 });

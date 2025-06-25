@@ -17,7 +17,7 @@ import {
 import { ActivityIndicator, View } from "react-native";
 import colors from "./src/css/colors";
 
-function App() 
+function App()
 {
 	const [quicksandLoaded] = useQuicksand({
 		Quicksand_400Regular,
@@ -31,8 +31,8 @@ function App()
 
 	const fontsLoaded = quicksandLoaded && balsamiqLoaded;
 
-	if (!fontsLoaded) 
-{
+	if (!fontsLoaded)
+	{
 		return (
 			<View
 				style={{
