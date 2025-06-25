@@ -2,6 +2,7 @@ import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
+        const now = new Date();
         await queryInterface.createTable("addictions", {
             id: {
                 type: DataTypes.INTEGER,
@@ -27,7 +28,26 @@ export default {
             },
         });
 
-        await queryInterface.addIndex("addictions", ["addiction"]);
+        await queryInterface.bulkInsert("addictions", [
+            {
+                addiction: "Tabac",
+                phone_number: "3989",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                addiction: "Alcool",
+                phone_number: "0969394020",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                addiction: "Jeux d'argent",
+                phone_number: "0974751313",
+                created_at: now,
+                updated_at: now,
+            },
+        ]);
     },
 
     async down(queryInterface: QueryInterface) {
