@@ -7,7 +7,7 @@ frontend/.env
 .expo/
 dist/
 web-build/
-
+backend/security.log
 # Native
 *.orig.*
 *.jks

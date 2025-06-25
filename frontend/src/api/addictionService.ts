@@ -29,7 +29,7 @@ const addictionService = {
 	},
 
 	addUserAddiction: async (data: {
-		addiction_id: number;
+		addiction_id: string;
 		date: string;
 		use_a_day?: number;
 		spending_a_day?: number;

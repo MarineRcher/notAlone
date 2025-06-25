@@ -9,7 +9,7 @@ class Addiction
     extends Model<AddictionAttributes, AddictionCreationAttributes>
     implements AddictionAttributes
 {
-    declare id: number;
+    declare id: string;
     declare addiction: string;
     declare phoneNumber: string;
 
@@ -20,9 +20,10 @@ class Addiction
 Addiction.init(
     {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
         addiction: {
             type: DataTypes.STRING,

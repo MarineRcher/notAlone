@@ -1,5 +1,5 @@
 export type Journal = {
-    id_journal: number;
+    id_journal: string;
     difficulty?: string;
     [key: string]: any;
 };
@@ -9,8 +9,8 @@ export type JournalResponse = {
         journal?: Journal;
         activities?: Array<{
             user_activity: {
-                id_activity: number;
-                id_journal: number;
+                id_activity: string;
+                id_journal: string;
                 [key: string]: any;
             };
             activity_details: Activity[];
@@ -20,7 +20,7 @@ export type JournalResponse = {
 };
 
 export type ResumeJourneyWord = {
-    id_resume_journey: number;
+    id_resume_journey: string;
     resume_journey: string;
     createdAt: string;
     updatedAt: string;
@@ -36,10 +36,10 @@ export type Step =
 
 export type NavigationParams = {
     date: string;
-    journalId?: number;
+    journalId?: string;
     existingData?: {
         journal?: {
-            id_journal: number;
+            id_journal: string;
             difficulty?: string;
             consumed?: boolean;
             resume?: string;
@@ -50,8 +50,8 @@ export type NavigationParams = {
         };
         activities?: Array<{
             user_activity: {
-                id_activity: number;
-                id_journal: number;
+                id_activity: string;
+                id_journal: string;
                 [key: string]: any;
             };
             activity_details: Activity[];
@@ -65,7 +65,7 @@ export type NavigationParams = {
 };
 
 export type Activity = {
-    id_activity: number;
+    id_activity: string;
     activity: string;
     createdAt: string;
     updatedAt: string;

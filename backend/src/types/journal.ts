@@ -1,9 +1,9 @@
 export interface JournalAttributes {
-    id_journal: number;
-    id_user: number;
+    id_journal: string;
+    id_user: string;
     difficulty: "Facile" | "Moyen" | "Dur";
     consumed?: boolean;
-    id_resume_journey?: number;
+    id_resume_journey?: string;
     note?: string;
     next_day_goal?: string;
     actual_day_goal_completed?: boolean;
@@ -12,18 +12,18 @@ export interface JournalAttributes {
 }
 
 export interface ResumeJourneyAttributes {
-    id_resume_journey: number;
+    id_resume_journey: string;
     resume_journey: string;
 }
 
 export interface ActivitiesAttributes {
-    id_activity: number;
+    id_activity: string;
     activity: string;
 }
 
 export interface UserActivityAttributes {
-    id_activity_user: number;
-    id_activity: number;
-    id_journal: number;
-    id_user: number;
+    id_activity_user: string;
+    id_activity: string;
+    id_journal: string;
+    id_user: string;
 }

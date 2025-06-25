@@ -9,7 +9,7 @@ class ResumeJourney
     extends Model<ResumeJourneyAttributes, ResumeJourneyCreationAttributes>
     implements ResumeJourneyAttributes
 {
-    declare id_resume_journey: number;
+    declare id_resume_journey: string;
     declare resume_journey: string;
 
     declare readonly createdAt: Date;
@@ -19,9 +19,10 @@ class ResumeJourney
 ResumeJourney.init(
     {
         id_resume_journey: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
         },
         resume_journey: {
             type: DataTypes.STRING,

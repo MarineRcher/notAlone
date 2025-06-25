@@ -3,11 +3,16 @@ import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
+        await queryInterface.sequelize.query(
+            'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
+        );
+
         await queryInterface.createTable("users", {
             id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             login: {
                 type: DataTypes.STRING,

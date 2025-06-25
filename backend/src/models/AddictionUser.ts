@@ -10,9 +10,9 @@ class AddictionUser
     extends Model<AddictionUserAttributes, AddictionUserCreationAttributes>
     implements AddictionUserAttributes
 {
-    public id_addiction_user!: number;
-    public id_addiction!: number;
-    public id_user!: number;
+    public id_addiction_user!: string;
+    public id_addiction!: string;
+    public id_user!: string;
     public date!: Date;
     public spending_a_day!: number;
     public use_a_day!: number;
@@ -38,17 +38,20 @@ class AddictionUser
 AddictionUser.init(
     {
         id_addiction_user: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
             autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         id_addiction: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
         id_user: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
         date: {
             type: DataTypes.DATE,
