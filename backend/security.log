@@ -671,3 +671,38 @@
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:11:00.689Z","user":1}
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T13:15:24.452Z","user":"circe@mail.com"}
 {"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T13:15:24.564Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:17:25.131Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"warn","message":"Échec de connexion - Utilisateur non trouvé","timestamp":"2025-06-25T07:17:25.146Z","user":"circe@mail.com"}
+{"email":"circe@mail.com","ip":"::ffff:172.18.0.1","level":"info","login":"circe","message":"Tentative d'inscription","timestamp":"2025-06-25T07:18:46.835Z"}
+{"ip":"::ffff:172.18.0.1","level":"info","login":"circe","message":"Inscription réussie","timestamp":"2025-06-25T07:18:47.246Z","userId":1}
+{"addiction":1,"ip":"::ffff:172.18.0.1","level":"info","message":"Addiction ajoutée avec succès","timestamp":"2025-06-25T07:20:51.415Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:24:19.816Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:24:19.938Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:25:32.931Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:25:33.046Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:26:25.016Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:26:25.152Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:26:25.426Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:26:25.611Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:27:02.933Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:27:03.085Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:28:34.311Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:28:34.470Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:35:51.523Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:35:51.662Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:38:28.220Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:38:28.361Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:44:37.158Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:44:37.328Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:47:11.842Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:47:11.972Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:54:20.060Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:54:20.176Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:56:24.336Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:56:24.443Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:00:48.193Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:00:48.318Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:06:28.791Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:06:28.910Z","user":1}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:07:39.688Z","user":"circe@mail.com"}
+{"ip":"::ffff:172.18.0.1","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:07:39.800Z","user":1}

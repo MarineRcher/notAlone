@@ -9,6 +9,7 @@ import { NavigationParams, JournalResponse } from "../types/journal";
 import colors from "../css/colors";
 import { Fonts } from "../css/font";
 import styles from "./followScreen.style";
+import { ScrollView } from "react-native-gesture-handler";
 
 type Props = NativeStackScreenProps<any, "Follow">;
 
@@ -53,47 +54,51 @@ const FollowScreen = ({ navigation }: Props) => {
     const today = new Date().toISOString().split("T")[0];
 
     return (
-        <View>
-            <Mascot
-                mascot="hey"
-                text="Ton journal t'attend ! Quelques lignes et hop, des points pour nourrir ta forêt."
-            />
-            <View style={styles.containerCalendar}>
-                <CalendarList
-                    style={styles.calendar}
-                    horizontal
-                    pagingEnabled
-                    pastScrollRange={12}
-                    futureScrollRange={0}
-                    calendarWidth={300}
-                    maxDate={today}
-                    onDayPress={handleDayPress}
-                    theme={{
-                        selectedDayBackgroundColor: colors.primary,
-                        todayTextColor: colors.primary,
-                        calendarBackground: colors.background,
-                        textMonthFontFamily: Fonts.quicksand.regular,
-                        textDayHeaderFontFamily: Fonts.quicksand.regular,
-                        dayTextColor: colors.text,
-                    }}
-                    markedDates={
-                        selectedDate
-                            ? {
-                                  [selectedDate]: {
-                                      selected: true,
-                                      selectedColor: colors.primary,
-                                  },
-                              }
-                            : {}
-                    }
+        <ScrollView>
+            <View style={styles.FollowPage}>
+                <Mascot
+                    mascot="hey"
+                    text="Ton journal t'attend ! Quelques lignes et hop, des points pour nourrir ta forêt."
                 />
-                <Button
-                    title={isLoading ? "Chargement..." : "Remplir le journal"}
-                    onPress={handleFillJournal}
-                    disabled={isLoading}
-                />
+                <View style={styles.containerCalendar}>
+                    <CalendarList
+                        style={styles.calendar}
+                        horizontal
+                        pagingEnabled
+                        pastScrollRange={12}
+                        futureScrollRange={0}
+                        calendarWidth={300}
+                        maxDate={today}
+                        onDayPress={handleDayPress}
+                        theme={{
+                            selectedDayBackgroundColor: colors.primary,
+                            todayTextColor: colors.primary,
+                            calendarBackground: colors.background,
+                            textMonthFontFamily: Fonts.quicksand.regular,
+                            textDayHeaderFontFamily: Fonts.quicksand.regular,
+                            dayTextColor: colors.text,
+                        }}
+                        markedDates={
+                            selectedDate
+                                ? {
+                                      [selectedDate]: {
+                                          selected: true,
+                                          selectedColor: colors.primary,
+                                      },
+                                  }
+                                : {}
+                        }
+                    />
+                    <Button
+                        title={
+                            isLoading ? "Chargement..." : "Remplir le journal"
+                        }
+                        onPress={handleFillJournal}
+                        disabled={isLoading}
+                    />
+                </View>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 

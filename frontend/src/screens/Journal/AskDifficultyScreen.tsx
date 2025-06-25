@@ -6,6 +6,8 @@ import Button from "../../components/button";
 import BackButton from "../../components/backNavigation";
 import journalService from "../../api/journalService";
 import { NavigationParams } from "../../types/journal";
+import DifficultySlider from "../../components/DifficultySlider";
+import styles from "./Journal.style";
 
 type Props = NativeStackScreenProps<any, "Difficulty">;
 
@@ -13,15 +15,17 @@ const AskDifficultyScreen = ({ navigation, route }: Props) => {
     const [journalData, setJournalData] = useState<NavigationParams | null>(
         null
     );
-    const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
+    const [selectedDifficulty, setSelectedDifficulty] =
+        useState<string>("Moyen");
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const params = route.params as NavigationParams;
         if (params) {
             setJournalData(params);
-            if (params.existingData?.journal?.difficulty) {
-                setSelectedDifficulty(params.existingData.journal.difficulty);
+            const existing = params.existingData?.journal?.difficulty;
+            if (existing) {
+                setSelectedDifficulty(existing);
             }
         }
     }, [route.params]);
@@ -59,33 +63,23 @@ const AskDifficultyScreen = ({ navigation, route }: Props) => {
     };
 
     return (
-        <View>
+        <View style={styles.page}>
             <BackButton />
             <Mascot
                 mascot="hey"
                 text="Un petit coup de museau pour te demander : comment va ton monde intérieur aujourd'hui ?"
             />
 
-            <View>
-                {["Facile", "Moyen", "Dur"].map((difficulty) => (
-                    <Button
-                        key={difficulty}
-                        title={difficulty}
-                        onPress={() => setSelectedDifficulty(difficulty)}
-                        style={{
-                            backgroundColor:
-                                selectedDifficulty === difficulty
-                                    ? "#00adf5"
-                                    : "#f0f0f0",
-                        }}
-                    />
-                ))}
-            </View>
+            <DifficultySlider
+                initialValue={selectedDifficulty}
+                onSelect={(val) => setSelectedDifficulty(val)}
+            />
 
             <Button
                 title={isLoading ? "Enregistrement..." : "Suivant"}
                 onPress={handleNext}
                 disabled={!selectedDifficulty || isLoading}
+                style={styles.buttonDifficulty}
             />
         </View>
     );
