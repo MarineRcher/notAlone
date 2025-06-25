@@ -13,8 +13,11 @@ import Button from "../../components/button";
 import Input from "../../components/input";
 import Mascot from "../../components/mascot";
 import styles from "../form.style";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const RegisterScreen = ({ navigation }) => {
+
+type Props = NativeStackScreenProps<any, any>;
+const RegisterScreen = ({ navigation }: Props) => {
     const [login, setLogin] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");

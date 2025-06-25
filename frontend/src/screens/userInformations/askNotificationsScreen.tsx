@@ -15,8 +15,10 @@ import styles from "../form.style";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import BackButton from "../../components/backNavigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const AskNotificationsScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const AskNotificationsScreen = ({ navigation }: Props) => {
     const [loading, setLoading] = useState(false);
     const { setUser } = useContext(AuthContext);
 

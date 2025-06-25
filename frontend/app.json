@@ -8,7 +8,7 @@
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
         "splash": {
-            "image": "./assets/splash.png",
+            "image": "./assets/mascot/woaw.png",
             "resizeMode": "contain",
             "backgroundColor": "#ffffff"
         },
@@ -25,6 +25,6 @@
             "favicon": "./assets/favicon.png",
             "bundler": "metro"
         },
-        "plugins": ["expo-secure-store", "expo-font"]
+        "plugins": ["expo-secure-store", "expo-font", "expo-dev-client"]
     }
 }

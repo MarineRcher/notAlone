@@ -18,6 +18,14 @@ import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
 import colors from "../css/colors";
+import AskDifficultyScreen from "../screens/Journal/AskDifficultyScreen";
+import AskConsumedScreen from "../screens/Journal/AskConsumedScreen";
+import NoteJourneyScreen from "../screens/Journal/NoteJourneyScreen";
+import journeyGoalScreen from "../screens/Journal/journeyGoalScreen";
+import TopActivitiesScreen from "../screens/Journal/TopActivitiesScreen";
+import ResumeJourneyScreen from "../screens/Journal/ResumeJourneyScreen";
+import JourneyGoalScreen from "../screens/Journal/journeyGoalScreen";
+import FollowScreen from "../screens/followScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -111,6 +119,39 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Support"
                     component={SupportScreen}
+                    options={{ headerShown: false }}
+                />
+
+                {/* journal */}
+
+                <Stack.Screen
+                    name="Difficulty"
+                    component={AskDifficultyScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Consumed"
+                    component={AskConsumedScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Note"
+                    component={NoteJourneyScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Goal"
+                    component={JourneyGoalScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Activities"
+                    component={TopActivitiesScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="Resume"
+                    component={ResumeJourneyScreen}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

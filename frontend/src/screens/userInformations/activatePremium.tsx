@@ -16,8 +16,10 @@ import styles from "../form.style";
 import BackButton from "../../components/backNavigation";
 import Mascot from "../../components/mascot";
 import Feature from "../../components/feature";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const ActivatePremiumScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const ActivatePremiumScreen = ({ navigation }: Props) => {
     const { setUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
 

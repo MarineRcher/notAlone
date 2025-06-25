@@ -13,6 +13,7 @@ interface UserCreationAttributes
         | "hourNotify"
         | "failedLoginAttempts"
         | "blockedUntil"
+        | "points"
     > {}
 class User
     extends Model<UserAttributes, UserCreationAttributes>
@@ -30,6 +31,7 @@ class User
     public hourNotify!: Date | null;
     public failedLoginAttempts!: number;
     public blockedUntil!: Date | null;
+    public points!: number;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -90,6 +92,10 @@ User.init(
         blockedUntil: {
             type: DataTypes.DATE,
             allowNull: true,
+        },
+        points: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
         },
     },
     {

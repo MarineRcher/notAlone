@@ -15,8 +15,11 @@ import BackButton from "../../components/backNavigation";
 import Mascot from "../../components/mascot";
 import Input from "../../components/input";
 import Button from "../../components/button";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const ChangeEmailScreen = ({ navigation }) => {
+
+type Props = NativeStackScreenProps<any, any>;
+const ChangeEmailScreen = ({ navigation }: Props) => {
     const [newEmail, setNewEmail] = useState("");
     const [loading, setLoading] = useState(false);
 

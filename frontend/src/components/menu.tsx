@@ -69,7 +69,7 @@ const BottomTabNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name="Suivi"
+                name="Follow"
                 component={FollowScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (

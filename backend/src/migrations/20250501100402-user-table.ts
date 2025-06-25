@@ -27,7 +27,7 @@ export default {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            has_2fa: {
+            has2_f_a: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
@@ -54,6 +54,10 @@ export default {
             blocked_until: {
                 type: DataTypes.DATE,
                 allowNull: true,
+            },
+            points: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0,
             },
             created_at: {
                 type: DataTypes.DATE,

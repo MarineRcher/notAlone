@@ -1,4 +1,3 @@
-// src/models/AddictionUser.ts
 import { Model, DataTypes, Optional } from "sequelize";
 import db from "../config/database";
 import { AddictionUserAttributes } from "../types/addictionUser";

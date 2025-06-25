@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, ScrollView } from "react-native";
 import styles from "../form.style";
 import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import BackButton from "../../components/backNavigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const Ask2faScreen = ({ navigation, route }) => {
+type Props = NativeStackScreenProps<any, any>;
+const Ask2faScreen = ({ navigation, route }: Props) => {
     const isFromRegistration = route?.params?.isFromRegistration || false;
 
     return (

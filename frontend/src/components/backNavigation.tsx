@@ -3,8 +3,11 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import ChevronLeft from "../../assets/icons/chevron-left.svg";
 import styles from "./backNavigation.style";
 import { useNavigation } from "@react-navigation/native";
+interface BackButtonProps {
+    onPress?: () => void;
+}
 
-const BackButton = ({ onPress }) => {
+const BackButton = ({ onPress }: BackButtonProps) => {
     const navigation = useNavigation();
 
     const handlePress = () => {

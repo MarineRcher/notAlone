@@ -12,7 +12,7 @@ export default {
                 type: DataTypes.STRING(255),
                 allowNull: false,
             },
-            phoneNumber: {
+            phone_number: {
                 type: DataTypes.STRING(20),
                 allowNull: false,
             },

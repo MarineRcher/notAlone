@@ -18,6 +18,7 @@ import GroupUsers from "../../assets/icons/user-group.svg";
 import colors from "../css/colors";
 import addictionService from "../api/addictionService";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type AddictionItem = {
     id: number;
@@ -27,7 +28,8 @@ type AddictionItem = {
     date: string;
 };
 
-const HomeScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const HomeScreen = ({ navigation }: Props) => {
     const [addictions, setAddictions] = useState<AddictionItem[]>([]);
     const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
         null

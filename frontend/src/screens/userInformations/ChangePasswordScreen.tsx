@@ -14,8 +14,10 @@ import Mascot from "../../components/mascot";
 import Button from "../../components/button";
 import Input from "../../components/input";
 import BackButton from "../../components/backNavigation";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const ChangePasswordScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const ChangePasswordScreen = ({ navigation }: Props) => {
     const [loginOrEmail, setLoginOrEmail] = useState("");
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");

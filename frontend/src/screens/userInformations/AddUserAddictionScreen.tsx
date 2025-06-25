@@ -16,13 +16,15 @@ import BackButton from "../../components/backNavigation";
 import Input from "../../components/input";
 import Button from "../../components/button";
 import DatePicker from "../../components/datePicker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 interface Addiction {
     id: number;
     addiction: string;
 }
 
-const AddUserAddictionScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const AddUserAddictionScreen = ({ navigation }: Props) => {
     const [addictions, setAddictions] = useState<Addiction[]>([]);
     const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
         null

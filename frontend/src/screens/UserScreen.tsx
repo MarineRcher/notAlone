@@ -16,8 +16,10 @@ import Button from "../components/button";
 import Link from "../components/linkUserAccount";
 import LinkPremium from "../components/LinkPremium";
 import TimePicker from "../components/timePicker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const UserScreen = ({ navigation }) => {
+type Props = NativeStackScreenProps<any, any>;
+const UserScreen = ({ navigation }: Props) => {
     const { user, updateNotificationSettings } = useContext(AuthContext);
     const { setUser } = useContext(AuthContext);
     const [isEditingTime, setIsEditingTime] = useState(false);
