@@ -21,7 +21,7 @@ export const addPoints = async (
 ): Promise<void> => {
     try {
         const user_id = req.user?.id;
-        const { id_journal, actual_day_goal_completed } = req.body;
+        const { id_journal } = req.body;
 
         if (!user_id) {
             res.status(401).json({ message: "Non autorisé" });
@@ -41,6 +41,7 @@ export const addPoints = async (
             });
             return;
         }
+        existingJournal.update({ have_points: true });
 
         const user = await User.findByPk(user_id);
         if (!user) {
@@ -62,18 +63,10 @@ export const addPoints = async (
         }
 
         await user.increment("points", { by: pointsToAdd });
-
-        await existingJournal.update({
-            actual_day_goal_completed: actual_day_goal_completed,
-        });
-
-        // Get updated user data to return current points
         await user.reload();
-
         res.status(200).json({
             message: message,
-            pointsAdded: pointsToAdd,
-            totalPoints: user.points,
+            totalPoints: user.dataValues.points,
         });
     } catch (error) {
         logger.error("Erreur lors de l'ajout de points de l'utilisateur", {

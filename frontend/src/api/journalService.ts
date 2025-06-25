@@ -55,6 +55,15 @@ const journalService = {
         });
         return response;
     },
+    addPoints: async (data: { id_journal: number }) => {
+        const token = await authHelpers.getToken();
+        if (!token) throw new Error("Token non disponible");
+
+        const response = await apiClient.post("/journal/addPoints", data, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response;
+    },
 
     addResumeJourney: async (data: {
         id_journal: number;

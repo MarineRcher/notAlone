@@ -7,6 +7,7 @@ export interface JournalAttributes {
     note?: string;
     next_day_goal?: string;
     actual_day_goal_completed?: boolean;
+    have_points?: boolean;
     created_at: Date;
 }
 

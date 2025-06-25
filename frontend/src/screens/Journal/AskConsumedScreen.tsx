@@ -1,4 +1,4 @@
-import { Text, View, TextInput } from "react-native";
+import { Text, View, TextInput, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../../components/mascot";
@@ -7,6 +7,7 @@ import BackButton from "../../components/backNavigation";
 import journalService from "../../api/journalService";
 import { NavigationParams } from "../../types/journal";
 import styles from "../form.style";
+import colors from "../../css/colors";
 
 type Props = NativeStackScreenProps<any, "Consumed">;
 
@@ -28,23 +29,17 @@ const AskConsumedScreen = ({ navigation, route }: Props) => {
         }
     }, [route.params]);
 
-    const handleYesPress = () => {
-        setConsumed(true);
-    };
-
-    const handleNoPress = () => {
-        setConsumed(false);
-    };
-
     const handleNext = async () => {
-        if (consumed === null) return;
-
+        // ✅ Permettre la navigation même sans sélection (valeur par défaut : true pour "Oui")
+        const consumedValue = consumed !== null ? consumed : true;
+        
         setIsLoading(true);
         try {
-            if (journalData?.journalId) {
+            // ✅ Seulement appeler l'API si on a un journal existant ET consumed = true
+            if (journalData?.journalId && consumedValue) {
                 await journalService.addUserConsumed({
                     id_journal: journalData.journalId,
-                    consumed: true,
+                    consumed: consumedValue,
                 });
             }
 
@@ -62,10 +57,19 @@ const AskConsumedScreen = ({ navigation, route }: Props) => {
     };
 
     const handleResume = async () => {
-        if (consumed === null) return;
-
+        // ✅ Permettre la navigation même sans sélection (valeur par défaut : false pour "Non")
+        const consumedValue = consumed !== null ? consumed : false;
+        
         setIsLoading(true);
         try {
+            // ✅ Pour "Non", on peut aussi enregistrer la valeur si on a un journal
+            if (journalData?.journalId) {
+                await journalService.addUserConsumed({
+                    id_journal: journalData.journalId,
+                    consumed: consumedValue,
+                });
+            }
+
             const updatedData: NavigationParams = {
                 ...journalData!,
                 currentStep: "resume",
@@ -79,44 +83,65 @@ const AskConsumedScreen = ({ navigation, route }: Props) => {
         }
     };
 
-    return (
-        <View>
-            <BackButton />
-            <Mascot
-                mascot="hey"
-                text="Il y a eu un petit écart ? Ce n'est pas grave, je suis toujours là."
-            />
+    // ✅ Fonction pour gérer le clic sur les boutons et mettre à jour l'état
+    const handleButtonPress = (value: boolean, action: () => void) => {
+        setConsumed(value);
+        action();
+    };
 
-            <View style={styles.buttonRow}>
-                <Button
-                    type="secondary"
-                    title="Non"
-                    onPress={handleResume}
-                    disabled={isLoading}
-                    style={{
-                        backgroundColor:
-                            consumed === false ? "#00adf5" : undefined,
-                        borderColor: consumed === false ? "#00adf5" : undefined,
-                    }}
-                    textStyle={{
-                        color: consumed === false ? "#fff" : undefined,
-                    }}
+    return (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <BackButton />
+
+            <View>
+                <Mascot
+                    mascot="hey"
+                    text="Il y a eu un petit écart ? Ce n'est pas grave, je suis toujours là."
                 />
-                <Button
-                    title="Oui"
-                    onPress={handleNext}
-                    disabled={isLoading}
-                    style={{
-                        backgroundColor:
-                            consumed === true ? "#00adf5" : "#f0f0f0",
-                        borderColor: consumed === true ? "#00adf5" : "#ccc",
-                    }}
-                    textStyle={{
-                        color: consumed === true ? "#fff" : "#333",
-                    }}
-                />
+
+                <View style={styles.buttonRow}>
+                    <Button
+                        type="secondary"
+                        title="Non"
+                        onPress={() => handleButtonPress(false, handleResume)}
+                        disabled={isLoading}
+                        style={{
+                            backgroundColor:
+                                consumed === false
+                                    ? colors.secondary
+                                    : colors.background,
+                            borderColor: colors.secondary,
+                            borderWidth: consumed === false ? 0 : 1,
+                        }}
+                        textStyle={{
+                            color:
+                                consumed === false
+                                    ? colors.background
+                                    : colors.secondary,
+                        }}
+                    />
+                    <Button
+                        title="Oui"
+                        onPress={() => handleButtonPress(true, handleNext)}
+                        disabled={isLoading}
+                        style={{
+                            backgroundColor:
+                                consumed === true
+                                    ? colors.text
+                                    : colors.background,
+                            borderColor: colors.text,
+                            borderWidth: consumed === true ? 0 : 1,
+                        }}
+                        textStyle={{
+                            color:
+                                consumed === true
+                                    ? colors.background
+                                    : colors.text,
+                        }}
+                    />
+                </View>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 

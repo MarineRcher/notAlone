@@ -6,6 +6,9 @@ import Button from "../../components/button";
 import journalService from "../../api/journalService";
 import { NavigationParams, ResumeJourneyWord } from "../../types/journal";
 import BackButton from "../../components/backNavigation";
+import colors from "../../css/colors";
+import { Fonts } from "../../css/font";
+import styles from "./Journal.style";
 
 type Props = NativeStackScreenProps<any, "Resume">;
 
@@ -29,7 +32,6 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
                 const response = await journalService.getResumeJourney();
                 setWords(response.data.resumeJourney);
 
-                // Fixed: Added proper null/undefined checks
                 if (
                     params?.existingData?.resume_journey &&
                     response.data.resumeJourney
@@ -53,7 +55,6 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
     }, [route.params]);
 
     const handleNext = async () => {
-        // Fixed: Added proper validation for required fields
         if (!selectedWord || !journalData || !journalData.journalId) {
             console.error("Missing required data for journal update");
             return;
@@ -61,7 +62,7 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
 
         try {
             await journalService.addResumeJourney({
-                id_journal: journalData.journalId, // Now guaranteed to be a number
+                id_journal: journalData.journalId,
                 id_resume_journey: selectedWord.id_resume_journey,
             });
 
@@ -71,7 +72,6 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
                 existingData: {
                     ...journalData.existingData,
                     journal: {
-                        // Fixed: Ensure id_journal is always present and is a number
                         id_journal: journalData.journalId,
                         ...journalData.existingData?.journal,
                         resume: selectedWord.resume_journey,
@@ -86,7 +86,7 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
     };
 
     return (
-        <View>
+        <View style={styles.page}>
             <BackButton />
             <Mascot
                 mascot="hey"
@@ -96,45 +96,23 @@ const ResumeJourneyScreen = ({ navigation, route }: Props) => {
             {words.length === 0 ? (
                 <ActivityIndicator size="large" color="#00adf5" />
             ) : (
-                <View
-                    style={{
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                        marginVertical: 20,
-                    }}
-                >
+                <View style={styles.wordsList}>
                     {words.map((word) => (
                         <TouchableOpacity
                             key={word.id_resume_journey}
                             onPress={() => setSelectedWord(word)}
                             style={{
-                                padding: 16,
+                                padding: 24,
                                 margin: 8,
-                                borderRadius: 999,
-                                borderWidth: 1,
-                                borderColor:
-                                    selectedWord?.id_resume_journey ===
-                                    word.id_resume_journey
-                                        ? "#00adf5"
-                                        : "#ccc",
+                                borderRadius: 9999,
                                 backgroundColor:
                                     selectedWord?.id_resume_journey ===
                                     word.id_resume_journey
-                                        ? "#00adf5"
-                                        : "#fff",
+                                        ? colors.primary
+                                        : colors.secondaryBackeground,
                             }}
                         >
-                            <Text
-                                style={{
-                                    color:
-                                        selectedWord?.id_resume_journey ===
-                                        word.id_resume_journey
-                                            ? "#fff"
-                                            : "#333",
-                                    fontWeight: "600",
-                                }}
-                            >
+                            <Text style={styles.textWords}>
                                 {word.resume_journey}
                             </Text>
                         </TouchableOpacity>

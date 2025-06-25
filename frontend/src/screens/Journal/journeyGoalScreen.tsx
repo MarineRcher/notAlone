@@ -9,6 +9,8 @@ import { NavigationParams } from "../../types/journal";
 import { AuthContext } from "../../context/AuthContext";
 import Input from "../../components/input";
 import Checkbox from "expo-checkbox";
+import styles from "./Journal.style";
+import colors from "../../css/colors";
 
 type Props = NativeStackScreenProps<any, "Goal">;
 
@@ -89,20 +91,22 @@ const JourneyGoalScreen = ({ navigation, route }: Props) => {
 
     if (!user?.hasPremium) {
         return (
-            <View style={{ padding: 20 }}>
+            <View style={styles.page}>
                 <Mascot
                     mascot="hey"
                     text="Cette fonctionnalité est réservée aux utilisateurs Premium ✨"
                 />
                 <Button
                     title="Passer"
-                    onPress={() => navigation.navigate("Follow", route.params)}
+                    onPress={() =>
+                        navigation.navigate("Main", { screen: "Follow" })
+                    }
                 />
             </View>
         );
     } else {
         return (
-            <View>
+            <View style={styles.page}>
                 <BackButton />
                 <Mascot
                     mascot="woaw"
@@ -110,20 +114,15 @@ const JourneyGoalScreen = ({ navigation, route }: Props) => {
                 />
 
                 {previousGoal && (
-                    <View
-                        style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            marginVertical: 10,
-                        }}
-                    >
+                    <View style={styles.inputLastGoal}>
                         <Checkbox
                             value={goalCompleted}
                             onValueChange={async (value) => {
                                 setGoalCompleted(value);
                                 await handleCheckGoal(value);
                             }}
-                            color={goalCompleted ? "#00adf5" : undefined}
+                            color={colors.primary}
+                            style={styles.checkbox}
                         />
                         <Text style={{ marginLeft: 10 }}>
                             As-tu rempli l’objectif d’hier ? « {previousGoal} »

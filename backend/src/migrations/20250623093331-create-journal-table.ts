@@ -40,6 +40,11 @@ export default {
                 type: DataTypes.BOOLEAN,
                 allowNull: true,
             },
+            have_points: {
+                type: DataTypes.BOOLEAN,
+                allowNull: true,
+                defaultValue: false,
+            },
             created_at: {
                 type: DataTypes.DATEONLY,
                 allowNull: false,

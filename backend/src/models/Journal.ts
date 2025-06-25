@@ -18,6 +18,7 @@ class Journal
     declare next_day_goal?: string | undefined;
     declare actual_day_goal_completed?: boolean | undefined;
     declare created_at: Date;
+    declare have_points?: boolean | undefined;
     declare readonly updatedAt: Date;
 
     static associate(models: any) {
@@ -72,6 +73,11 @@ Journal.init(
         },
         actual_day_goal_completed: {
             type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        have_points: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
             defaultValue: false,
         },
         created_at: {

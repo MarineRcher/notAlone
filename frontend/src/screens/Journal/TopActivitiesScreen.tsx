@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+} from "react-native";
 import { useContext, useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../../components/mascot";
@@ -7,6 +13,8 @@ import journalService from "../../api/journalService";
 import { NavigationParams, Activity } from "../../types/journal";
 import BackButton from "../../components/backNavigation";
 import { AuthContext } from "../../context/AuthContext";
+import colors from "../../css/colors";
+import styles from "./Journal.style";
 
 type Props = NativeStackScreenProps<any, "Activities">;
 
@@ -18,7 +26,18 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
     const [journalData, setJournalData] = useState<NavigationParams | null>(
         null
     );
-
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupData, setPopupData] = useState({
+        message: "",
+        totalPoints: 0,
+    });
+    if (showPopup) {
+        Alert.alert(
+            "Points ajoutés 🎉",
+            `${popupData.message}\nPoints totaux: ${popupData.totalPoints}`,
+            [{ text: "OK", onPress: () => setShowPopup(false) }]
+        );
+    }
     useEffect(() => {
         const params = route.params as NavigationParams;
         if (params) {
@@ -78,6 +97,14 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
                 };
                 navigation.navigate("Goal", updatedData);
             } else {
+                const response = await journalService.addPoints({
+                    id_journal: journalData.journalId,
+                });
+                const { message, totalPoints } = response.data;
+
+                setPopupData({ message, totalPoints });
+                setShowPopup(true);
+
                 navigation.navigate("Main", { screen: "Follow" });
             }
         } catch (error) {
@@ -91,7 +118,7 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
     };
 
     return (
-        <View>
+        <View style={styles.page}>
             <BackButton />
             <Mascot
                 mascot="hey"
@@ -101,14 +128,7 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
             {activities.length === 0 ? (
                 <ActivityIndicator size="large" color="#00adf5" />
             ) : (
-                <View
-                    style={{
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        justifyContent: "center",
-                        marginVertical: 20,
-                    }}
-                >
+                <View style={styles.wordsList}>
                     {activities.map((activity) => (
                         <TouchableOpacity
                             key={activity.id_activity}
@@ -116,32 +136,17 @@ const TopActivitiesScreen = ({ navigation, route }: Props) => {
                                 toggleSelection(activity.id_activity)
                             }
                             style={{
-                                padding: 14,
+                                padding: 24,
                                 margin: 8,
-                                borderRadius: 999,
-                                borderWidth: 1,
-                                borderColor: selectedIds.includes(
-                                    activity.id_activity
-                                )
-                                    ? "#00adf5"
-                                    : "#ccc",
+                                borderRadius: 9999,
                                 backgroundColor: selectedIds.includes(
                                     activity.id_activity
                                 )
-                                    ? "#00adf5"
-                                    : "#fff",
+                                    ? colors.primary
+                                    : colors.secondaryBackeground,
                             }}
                         >
-                            <Text
-                                style={{
-                                    color: selectedIds.includes(
-                                        activity.id_activity
-                                    )
-                                        ? "#fff"
-                                        : "#333",
-                                    fontWeight: "600",
-                                }}
-                            >
+                            <Text style={styles.textWords}>
                                 {activity.activity}
                             </Text>
                         </TouchableOpacity>
