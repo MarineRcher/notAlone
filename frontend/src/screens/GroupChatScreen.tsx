@@ -56,6 +56,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
   const [isLoading, setIsLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
   const [pendingMessages, setPendingMessages] = useState<Map<string, any>>(new Map());
+  const [keyExchangeComplete, setKeyExchangeComplete] = useState<Set<string>>(new Set());
   const socketRef = useRef<Socket | null>(null);
 	const flatListRef = useRef<FlatList>(null);
 
@@ -311,21 +312,33 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
     
     setMessages(prev => [...prev, systemMessage]);
 
-    // Send our sender key distribution to the new member
-    try {
-      console.log('🔑 [LIBSIGNAL] Sending sender key to new member...');
-      const senderKeyBundle = await CryptoAPI.getSenderKeyBundle(groupId);
-      
-      socketRef.current?.emit('sender_key_distribution', {
-        groupId,
-        targetUserId: data.userId,
-        distributionMessage: senderKeyBundle,
-      });
-      
-      console.log('✅ [LIBSIGNAL] Sender key sent to new member');
-      
-    } catch (error: any) {
-      console.error('❌ [LIBSIGNAL] Failed to send sender key:', error);
+    // Only start key exchange if this requires it (new member joining)
+    if (data.requiresKeyExchange) {
+      try {
+        console.log('🔑 [LIBSIGNAL] Starting mutual key exchange with new member...');
+        
+        // 1. Send our sender key to the new member
+        const senderKeyBundle = await CryptoAPI.getSenderKeyBundle(groupId);
+        
+        socketRef.current?.emit('sender_key_distribution', {
+          groupId,
+          targetUserId: data.userId,
+          distributionMessage: senderKeyBundle,
+        });
+        
+        console.log('✅ [LIBSIGNAL] Sent our sender key to new member');
+        
+        // 2. Request the new member's sender key
+        socketRef.current?.emit('request_sender_key', {
+          groupId,
+          fromUserId: data.userId,
+        });
+        
+        console.log('✅ [LIBSIGNAL] Requested sender key from new member');
+        
+      } catch (error: any) {
+        console.error('❌ [LIBSIGNAL] Failed to complete mutual key exchange:', error);
+      }
     }
   };
 
@@ -363,8 +376,12 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
       await CryptoAPI.addGroupMember(groupId, data.distributionMessage);
       console.log('✅ [LIBSIGNAL] Sender key processed successfully');
       
+      // Mark key exchange as complete for this user
+      setKeyExchangeComplete(prev => new Set([...prev, data.fromUserId]));
+      console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
+      
       // Try to decrypt any pending messages from this sender
-        await processPendingMessages(data.fromUserId);
+      await processPendingMessages(data.fromUserId);
       
     } catch (error: any) {
       console.error('❌ [LIBSIGNAL] Failed to process sender key distribution:', error);

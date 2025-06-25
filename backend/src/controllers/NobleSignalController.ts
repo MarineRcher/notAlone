@@ -13,6 +13,7 @@ import {
   EncryptedMessage
 } from "../types/signal";
 import GroupService from "../services/GroupService";
+import Group from "../models/Group";
 
 interface AuthenticatedSocket extends Socket {
   user?: AuthenticatedUser;
@@ -169,7 +170,10 @@ export class NobleSignalController {
 
     // Connection management
     socket.on('disconnect', () => {
-      this.handleDisconnect(socket);
+      // Fire and forget - don't wait for database operations
+      this.handleDisconnect(socket).catch(error => {
+        console.error(`❌ [NOBLE-SIGNAL] Error during disconnect cleanup:`, error);
+      });
     });
 
     console.log(`✅ [NOBLE-SIGNAL] Event handlers set up for ${socket.user?.username}`);
@@ -210,6 +214,39 @@ export class NobleSignalController {
       // Join Socket.IO room
       socket.join(data.groupId);
       
+      // Add user to database group membership
+      let dbGroupId: string | null = data.groupId;
+      if (!isUuid) {
+        // For non-UUID groups, we have the database group ID from earlier
+        try {
+          const result = await this.groupService.findOrCreateGroupByName(data.groupId);
+          dbGroupId = result.groupId;
+        } catch (dbError) {
+          console.error(`❌ [NOBLE-SIGNAL] Failed to find database group: ${dbError}`);
+          console.log(`⚠️ [NOBLE-SIGNAL] Continuing with in-memory only mode`);
+          dbGroupId = null; // Skip database operations
+        }
+      }
+      
+      // Add user to database group
+      if (dbGroupId) {
+        try {
+          // Call GroupService method directly to add user to group
+          await (this.groupService as any).addUserToGroup(dbGroupId, parseInt(socket.user.userId));
+          console.log(`💾 [NOBLE-SIGNAL] Added user to database group: ${dbGroupId}`);
+          
+          // Update group member count in database
+          const group = await Group.findByPk(dbGroupId);
+          if (group) {
+            await group.increment('currentMembers');
+            console.log(`📊 [NOBLE-SIGNAL] Incremented member count for group ${dbGroupId}`);
+          }
+        } catch (dbError) {
+          console.error(`❌ [NOBLE-SIGNAL] Failed to add user to database group: ${dbError}`);
+          console.log(`⚠️ [NOBLE-SIGNAL] Continuing with in-memory only mode`);
+        }
+      }
+      
       // Get current group members
       const groupSockets = this.groups.get(data.groupId)!;
       const members: GroupMemberInfo[] = Array.from(groupSockets)
@@ -224,10 +261,11 @@ export class NobleSignalController {
       // Notify user about current members
       socket.emit('group_members', { members });
 
-      // Notify other members about new join
+      // Notify other members about new join and trigger key exchange
       socket.to(data.groupId).emit('member_joined', {
         userId: socket.user.userId,
-        username: socket.user.username
+        username: socket.user.username,
+        requiresKeyExchange: true
       });
 
       console.log(`✅ [NOBLE-SIGNAL] ${socket.user.username} joined group ${data.groupId}, now has ${members.length} members`);
@@ -255,11 +293,41 @@ export class NobleSignalController {
         // Clean up empty groups
         if (groupSockets.size === 0) {
           this.groups.delete(data.groupId);
+          console.log(`🧹 [NOBLE-SIGNAL] Cleaned up empty in-memory group: ${data.groupId}`);
         }
       }
       
       // Leave Socket.IO room
       socket.leave(data.groupId);
+      
+      // Update database and handle group cleanup if empty
+      try {
+        let dbGroupId = data.groupId;
+        
+        // For non-UUID groups, we need to find the actual database group ID
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.groupId);
+        if (!isUuid) {
+          try {
+            const result = await this.groupService.findOrCreateGroupByName(data.groupId);
+            dbGroupId = result.groupId;
+            console.log(`🔧 [NOBLE-SIGNAL] Using database group ID ${dbGroupId} for leave operation`);
+          } catch (findError) {
+            console.error(`❌ [NOBLE-SIGNAL] Failed to find database group for ${data.groupId}: ${findError}`);
+            console.log(`⚠️ [NOBLE-SIGNAL] Skipping database cleanup for non-UUID group`);
+            return; // Skip database operations
+          }
+        }
+        
+        const success = await this.groupService.leaveGroup(parseInt(socket.user.userId), dbGroupId);
+        if (success) {
+          console.log(`💾 [NOBLE-SIGNAL] Database updated: user left group ${data.groupId} (DB ID: ${dbGroupId})`);
+        } else {
+          console.log(`⚠️ [NOBLE-SIGNAL] User may not have been in database group ${data.groupId}`);
+        }
+      } catch (dbError) {
+        console.error(`❌ [NOBLE-SIGNAL] Failed to update database for leave group: ${dbError}`);
+        console.log(`⚠️ [NOBLE-SIGNAL] Continuing with in-memory cleanup only`);
+      }
       
       // Notify other members
       socket.to(data.groupId).emit('member_left', {
@@ -417,29 +485,59 @@ export class NobleSignalController {
     }
   }
 
-  private handleDisconnect(socket: AuthenticatedSocket): void {
+  private async handleDisconnect(socket: AuthenticatedSocket): Promise<void> {
     if (!socket.user) return;
 
     console.log(`🔌 [NOBLE-SIGNAL] ${socket.user.username} disconnected`);
 
     // Remove from all groups
-    this.groups.forEach((groupSockets, groupId) => {
+    const groupsToUpdate: string[] = [];
+    
+    for (const [groupId, groupSockets] of this.groups.entries()) {
       if (groupSockets.has(socket.id)) {
         groupSockets.delete(socket.id);
+        groupsToUpdate.push(groupId);
         
         // Notify other group members
         socket.to(groupId).emit('member_left', {
-          userId: socket.user!.userId,
-          username: socket.user!.username
+          userId: socket.user.userId,
+          username: socket.user.username
         });
         
         // Clean up empty groups
         if (groupSockets.size === 0) {
           this.groups.delete(groupId);
-          console.log(`🧹 [NOBLE-SIGNAL] Cleaned up empty group: ${groupId}`);
+          console.log(`🧹 [NOBLE-SIGNAL] Cleaned up empty in-memory group: ${groupId}`);
         }
       }
-    });
+    }
+    
+    // Update database for each group the user was in
+    for (const groupId of groupsToUpdate) {
+      try {
+        let dbGroupId = groupId;
+        
+        // For non-UUID groups, find the actual database group ID
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId);
+        if (!isUuid) {
+          try {
+            const result = await this.groupService.findOrCreateGroupByName(groupId);
+            dbGroupId = result.groupId;
+            console.log(`🔧 [NOBLE-SIGNAL] Using database group ID ${dbGroupId} for disconnect cleanup`);
+          } catch (findError) {
+            console.error(`❌ [NOBLE-SIGNAL] Failed to find database group for ${groupId}: ${findError}`);
+            continue; // Skip this group and continue with others
+          }
+        }
+        
+        const success = await this.groupService.leaveGroup(parseInt(socket.user.userId), dbGroupId);
+        if (success) {
+          console.log(`💾 [NOBLE-SIGNAL] Database updated: user disconnected from group ${groupId} (DB ID: ${dbGroupId})`);
+        }
+      } catch (dbError) {
+        console.error(`❌ [NOBLE-SIGNAL] Failed to update database on disconnect for group ${groupId}: ${dbError}`);
+      }
+    }
 
     // Remove from mappings
     this.socketToUser.delete(socket.id);

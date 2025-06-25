@@ -112,6 +112,9 @@ const mockTokens = {
 # Run the Noble Signal Protocol test suite
 cd backend
 node tests/manual/test-noble-signal.js
+
+# Test group cleanup functionality
+node tests/manual/test-group-cleanup.js
 ```
 
 ### Test Coverage
@@ -120,6 +123,27 @@ node tests/manual/test-noble-signal.js
 - ✅ Encrypted message relay
 - ✅ Sender key distribution
 - ✅ Error handling and cleanup
+- ✅ Automatic group deletion when empty
+
+## Group Lifecycle Management
+
+### Automatic Cleanup
+When a group becomes empty (all members leave or disconnect), the backend automatically:
+1. **Removes Group**: Deletes the group from the database
+2. **Cleans Messages**: Removes all associated encrypted messages
+3. **Clears Memberships**: Removes all group member relationships
+4. **Cache Cleanup**: Clears Redis cache entries
+
+### Supported Group ID Formats
+- **UUID Groups**: Full database integration with cleanup
+- **Named Groups**: Maps to UUID groups for database operations
+- **Mixed Support**: Handles both formats transparently
+
+### Database Consistency
+- User leaving explicitly triggers cleanup check
+- User disconnect automatically triggers cleanup check  
+- Group member count is always kept accurate
+- Empty groups are immediately deleted
 
 ## Security Features
 
@@ -128,6 +152,7 @@ node tests/manual/test-noble-signal.js
 - **Sender Key Distribution**: Facilitates secure key exchange
 - **Group Management**: Handles membership and connections
 - **Message Storage**: Stores encrypted messages for offline users
+- **Automatic Cleanup**: Removes empty groups and associated data
 
 ### What the Backend Does NOT Do
 - **Decryption**: Never sees plaintext messages
