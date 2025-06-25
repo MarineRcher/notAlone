@@ -151,7 +151,6 @@ export class SignalGroupController {
     socket.on('group_message', (data: { 
       groupId: string; 
       encryptedMessage: GroupMessage; 
-      originalContent?: string; 
     }) => {
       console.log(`🔄 Received group_message event from ${socket.user?.username}`);
       this.handleGroupMessage(socket, data);
@@ -169,6 +168,11 @@ export class SignalGroupController {
     // Request sender keys for group
     socket.on('request_sender_keys', (data: { groupId: string }) => {
       this.handleRequestSenderKeys(socket, data.groupId);
+    });
+
+    // Request specific sender key
+    socket.on('request_sender_key', (data: { groupId: string; fromUserId: string }) => {
+      this.handleRequestSpecificSenderKey(socket, data);
     });
 
     // Device info exchange for initial key setup
@@ -262,7 +266,6 @@ export class SignalGroupController {
   private handleGroupMessage(socket: AuthenticatedSocket, data: {
     groupId: string;
     encryptedMessage: GroupMessage;
-    originalContent?: string;
   }): void {
     if (!socket.user) {
       console.log(`❌ Group message failed - No authenticated user`);
@@ -280,7 +283,6 @@ export class SignalGroupController {
     console.log(`   Group: ${data.groupId}`);
     console.log(`   Message ID: ${data.encryptedMessage.messageId}`);
     console.log(`   Timestamp: ${new Date(data.encryptedMessage.timestamp).toISOString()}`);
-    console.log(`   Original content (debug): "${data.originalContent || 'N/A'}"`);
     console.log(`   Encrypted payload length: ${data.encryptedMessage.encryptedPayload?.length || 0} chars`);
     console.log(`   Group has ${groupMembers.size} total members`);
 
@@ -307,6 +309,8 @@ export class SignalGroupController {
     });
 
     console.log(`📤 Message relayed to ${relayedCount}/${groupMembers.size - 1} other members`);
+    console.log(`🔍 [DEBUG] Group ${data.groupId} members:`, Array.from(groupMembers));
+    console.log(`🔍 [DEBUG] Socket mapping for reference:`, Array.from(this.socketToUser.entries()));
     console.log(`=== END MESSAGE TRANSIT ===`);
   }
 
@@ -343,6 +347,27 @@ export class SignalGroupController {
       groupId,
       fromUserId: socket.user.userId,
     });
+  }
+
+  private handleRequestSpecificSenderKey(socket: AuthenticatedSocket, data: {
+    groupId: string;
+    fromUserId: string;
+  }): void {
+    if (!socket.user) return;
+
+    console.log(`🔑 ${socket.user.username} requesting sender key from specific user ${data.fromUserId}`);
+
+    // Find the target user's socket and request their sender key
+    const targetSocketId = this.findSocketByUserId(data.fromUserId);
+    if (targetSocketId) {
+      this.io.to(targetSocketId).emit('request_sender_key', {
+        groupId: data.groupId,
+        fromUserId: socket.user.userId,
+      });
+      console.log(`✅ Sender key request sent to ${data.fromUserId}`);
+    } else {
+      console.log(`❌ Target user ${data.fromUserId} not found for sender key request`);
+    }
   }
 
   private handleDeviceInfoExchange(socket: AuthenticatedSocket, data: {
@@ -455,11 +480,17 @@ export class SignalGroupController {
   }
 
   private findSocketByUserId(userId: string): string | null {
+    console.log(`🔍 [DEBUG] Looking for user ${userId} in socket mapping...`);
+    console.log(`🔍 [DEBUG] Current socket mapping:`, Array.from(this.socketToUser.entries()));
+    
     for (const [socketId, mappedUserId] of this.socketToUser.entries()) {
       if (mappedUserId === userId) {
+        console.log(`🔍 [DEBUG] ✅ Found user ${userId} at socket ${socketId}`);
         return socketId;
       }
     }
+    
+    console.log(`🔍 [DEBUG] ❌ User ${userId} not found in socket mapping`);
     return null;
   }
 

@@ -15,7 +15,7 @@ import { useAuth } from '../hooks/useAuth';
 import styles from './GroupChatScreen.style';
 import io, { Socket } from 'socket.io-client';
 import { apiConfig } from '../config/api';
-import { nobleSignalProtocol } from '../crypto/noble-crypto';
+import { CryptoAPI } from '../crypto';
 
 // Simple test crypto functions for debugging (keeping as fallback)
 const testCrypto = {
@@ -102,6 +102,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('Connecting...');
+  const [pendingMessages, setPendingMessages] = useState<Map<string, any>>(new Map());
   const socketRef = useRef<Socket | null>(null);
 	const flatListRef = useRef<FlatList>(null);
 
@@ -116,23 +117,57 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		};
 	}, [user]);
 
+  // Clean up old pending messages (older than 5 minutes)
+  useEffect(() => {
+    const cleanup = setInterval(() => {
+      const now = Date.now();
+      setPendingMessages(prev => {
+        const newMap = new Map(prev);
+        let removed = 0;
+        
+        newMap.forEach((messageData, pendingId) => {
+          if (now - messageData.timestamp > 5 * 60 * 1000) { // 5 minutes
+            newMap.delete(pendingId);
+            removed++;
+          }
+        });
+        
+        if (removed > 0) {
+          console.log(`🧹 Cleaned up ${removed} old pending messages`);
+        }
+        
+        return newMap;
+      });
+    }, 60000); // Check every minute
+
+    return () => clearInterval(cleanup);
+  }, []);
+
   const initializeGroupChat = async () => {
     try {
+      console.log('🔑 [KEY EXCHANGE] ===== INITIALIZING GROUP CHAT =====');
+      console.log('🔑 [KEY EXCHANGE] User ID:', user!.id.toString());
+      console.log('🔑 [KEY EXCHANGE] Group ID:', groupId);
+      
       setIsLoading(true);
       setConnectionStatus('Initializing encryption...');
 
       // Use real Noble Signal Protocol crypto
       console.log('🔐 Using Noble Signal Protocol (real E2EE)...');
-      await nobleSignalProtocol.initialize();
+      console.log('🔑 [KEY EXCHANGE] Initializing crypto API...');
+      await CryptoAPI.initialize();
+      console.log('🔑 [KEY EXCHANGE] ✅ Crypto API initialized');
       
       // Check if group exists or create new one
       try {
-        await nobleSignalProtocol.createGroup(groupId, user!.id.toString());
-        console.log('✅ Created new group session');
+        console.log('🔑 [KEY EXCHANGE] Creating/joining group session...');
+        await CryptoAPI.createGroup(groupId, user!.id.toString());
+        console.log('🔑 [KEY EXCHANGE] ✅ Created new group session');
       } catch (error: any) {
         if (error.message === 'GROUP_EXISTS') {
-          console.log('✅ Using existing group session');
+          console.log('🔑 [KEY EXCHANGE] ✅ Using existing group session');
         } else {
+          console.error('🔑 [KEY EXCHANGE] ❌ Group creation error:', error);
           throw error;
         }
       }
@@ -140,14 +175,17 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
       setConnectionStatus('Connecting to server...');
       
       // Initialize socket connection
+      console.log('🔑 [KEY EXCHANGE] Initializing socket connection...');
       await initializeSocket();
+      console.log('🔑 [KEY EXCHANGE] ✅ Socket connection established');
       
       setIsInitialized(true);
       setIsLoading(false);
       setConnectionStatus('Connected');
+      console.log('🔑 [KEY EXCHANGE] ===== GROUP CHAT INITIALIZATION COMPLETE =====');
       
 		} catch (error) {
-      console.error('❌ Failed to initialize group chat:', error);
+      console.error('🔑 [KEY EXCHANGE] ❌ Failed to initialize group chat:', error);
       setConnectionStatus('Connection failed');
       Alert.alert('Error', 'Failed to initialize secure group chat');
       setIsLoading(false);
@@ -202,6 +240,10 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
         await handleSenderKeyBundle(data);
       });
 
+      socket.on('request_sender_key', async (data) => {
+        await handleSenderKeyRequest(data);
+      });
+
       // Timeout for connection
       setTimeout(() => {
         if (!socket.connected) {
@@ -213,28 +255,81 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 
   const handleIncomingMessage = async (data: any) => {
     try {
-      // Decrypt the message using Noble Signal Protocol
-      const decryptedContent = await nobleSignalProtocol.decryptGroupMessage(groupId, data);
-      
-      const message: Message = {
-			id: data.messageId,
-        senderId: data.senderId,
-        senderName: data.senderName,
-			content: decryptedContent,
-        timestamp: data.timestamp,
-        isEncrypted: true,
-        isOwn: data.senderId === user!.id.toString(),
-      };
+      // Check if we have the sender's key - if not, request it
+      if (data.senderId !== user!.id.toString()) {
+        try {
+          // Convert Base64 strings back to ArrayBuffers for decryption
+          const deserializedMessage = {
+            ...data,
+            encryptedPayload: new Uint8Array(atob(data.encryptedPayload).split('').map(c => c.charCodeAt(0))).buffer,
+            signature: new Uint8Array(atob(data.signature).split('').map(c => c.charCodeAt(0))).buffer,
+          };
+          
+          // Try to decrypt the message using Noble Signal Protocol
+          const decryptedContent = await CryptoAPI.receiveGroupMessage(groupId, deserializedMessage);
+          
+          const message: Message = {
+            id: data.messageId,
+            senderId: data.senderId,
+            senderName: data.senderName,
+            content: decryptedContent,
+            timestamp: data.timestamp,
+            isEncrypted: true,
+            isOwn: false,
+          };
 
-      setMessages(prev => [...prev, message]);
-      
-      // Auto-scroll to bottom
-		setTimeout(() => {
-			flatListRef.current?.scrollToEnd({ animated: true });
-		}, 100);
+          setMessages(prev => [...prev, message]);
+          
+          // Auto-scroll to bottom
+          setTimeout(() => {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+          
+        } catch (decryptError: any) {
+          console.error('❌ Failed to decrypt message - missing sender key:', decryptError);
+          
+          console.log('🔑 [KEY EXCHANGE] ===== MESSAGE DECRYPT FAILED - REQUESTING KEY =====');
+          console.log('🔑 [KEY EXCHANGE] Message from:', data.senderId);
+          console.log('🔑 [KEY EXCHANGE] Message ID:', data.messageId);
+          console.log('🔑 [KEY EXCHANGE] Decrypt error:', decryptError.message);
+          
+          // Store the encrypted message data for later decryption
+          const pendingId = `pending_${data.senderId}_${data.timestamp}`;
+          console.log('🔑 [KEY EXCHANGE] Storing message as pending:', pendingId);
+          
+          setPendingMessages(prev => {
+            const newMap = new Map(prev);
+            newMap.set(pendingId, data);
+            console.log('🔑 [KEY EXCHANGE] Total pending messages:', newMap.size);
+            return newMap;
+          });
+          
+          // Request sender key from the sender
+          console.log('🔑 [KEY EXCHANGE] Requesting sender key from:', data.senderId);
+          socketRef.current?.emit('request_sender_key', {
+            groupId,
+            fromUserId: data.senderId,
+          });
+          console.log('🔑 [KEY EXCHANGE] ✅ Key request sent to backend');
+          
+          // Show pending message
+          const pendingMessage: Message = {
+            id: pendingId,
+            senderId: data.senderId,
+            senderName: data.senderName,
+            content: '🔄 Waiting for decryption key...',
+            timestamp: data.timestamp,
+            isEncrypted: false,
+            isOwn: false,
+          };
+          
+          setMessages(prev => [...prev, pendingMessage]);
+          console.log('🔑 [KEY EXCHANGE] ===== PENDING MESSAGE CREATED =====');
+        }
+      }
       
     } catch (error) {
-      console.error('❌ Failed to decrypt message:', error);
+      console.error('❌ Failed to process incoming message:', error);
       
       // Show error message
       const errorMessage: Message = {
@@ -253,6 +348,12 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 
   const handleMemberJoined = async (data: any) => {
     console.log('👤 Member joined:', data.username);
+    console.log('🔑 [KEY EXCHANGE] New member joined - initiating key share');
+    console.log('🔑 [KEY EXCHANGE] Target member:', {
+      userId: data.userId,
+      username: data.username,
+      myUserId: user!.id.toString()
+    });
     
     // Update members list
     setMembers(prev => [
@@ -277,16 +378,38 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
     
     setMessages(prev => [...prev, systemMessage]);
 
-        // Share our sender key bundle with the new member
+    // Share our sender key bundle with the new member
     try {
-      const myBundle = await nobleSignalProtocol.getSenderKeyBundle(groupId);
+      console.log('🔑 [KEY EXCHANGE] Generating sender key bundle for new member...');
+      const myBundle = await CryptoAPI.getSenderKeyBundle(groupId);
+      console.log('🔑 [KEY EXCHANGE] Generated bundle:', {
+        hasBundle: !!myBundle,
+        bundleKeys: myBundle ? Object.keys(myBundle) : null,
+        groupId: groupId
+      });
+      
+      // Serialize ArrayBuffers in the bundle
+      const serializedBundle = {
+        ...myBundle,
+        signingKey: btoa(String.fromCharCode(...new Uint8Array(myBundle.signingKey))),
+        chainKey: btoa(String.fromCharCode(...new Uint8Array(myBundle.chainKey))),
+      };
+      
+      console.log('🔑 [KEY EXCHANGE] Emitting share_sender_key event...');
       socketRef.current?.emit('share_sender_key', {
         groupId,
         targetUserId: data.userId,
-        bundle: myBundle,
+        bundle: serializedBundle,
       });
-    } catch (error) {
-      console.error('❌ Failed to share sender key:', error);
+      console.log('🔑 [KEY EXCHANGE] ✅ Key share event sent to backend for user:', data.userId);
+      
+    } catch (error: any) {
+      console.error('🔑 [KEY EXCHANGE] ❌ Failed to share sender key:', error);
+      console.error('🔑 [KEY EXCHANGE] Error details:', {
+        message: error.message,
+        stack: error.stack,
+        targetUserId: data.userId
+      });
     }
   };
 
@@ -310,33 +433,213 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
     setMessages(prev => [...prev, systemMessage]);
 
     // Remove member from crypto session
-    nobleSignalProtocol.removeGroupMember(groupId, data.userId).catch(error => {
+    CryptoAPI.removeGroupMember(groupId, data.userId).catch((error: any) => {
       console.error('❌ Failed to remove member from crypto session:', error);
     });
   };
 
   const handleSenderKeyBundle = async (data: any) => {
-        try {
-      console.log('🔑 Received sender key bundle from:', data.fromUserId);
-      await nobleSignalProtocol.addGroupMember(groupId, data.bundle);
-    } catch (error) {
-      console.error('❌ Failed to process sender key bundle:', error);
+    try {
+      console.log('🔑 [KEY EXCHANGE] ===== RECEIVED SENDER KEY BUNDLE =====');
+      console.log('🔑 [KEY EXCHANGE] From user:', data.fromUserId);
+      console.log('🔑 [KEY EXCHANGE] Group ID:', data.groupId);
+      console.log('🔑 [KEY EXCHANGE] Bundle data:', {
+        hasBundle: !!data.bundle,
+        bundleKeys: data.bundle ? Object.keys(data.bundle) : null,
+        bundleValues: data.bundle ? Object.keys(data.bundle).reduce((acc, key) => {
+          acc[key] = typeof data.bundle[key];
+          return acc;
+        }, {} as any) : null
+      });
+      
+      // Deserialize ArrayBuffers from the bundle
+      const deserializedBundle = {
+        ...data.bundle,
+        signingKey: new Uint8Array(atob(data.bundle.signingKey).split('').map(c => c.charCodeAt(0))).buffer,
+        chainKey: new Uint8Array(atob(data.bundle.chainKey).split('').map(c => c.charCodeAt(0))).buffer,
+      };
+      
+      console.log('🔑 [KEY EXCHANGE] Adding group member to crypto system...');
+      await CryptoAPI.addGroupMember(groupId, deserializedBundle);
+      console.log('🔑 [KEY EXCHANGE] ✅ Successfully added group member to crypto system');
+      
+      // Check how many pending messages we have for this sender
+      const pendingCount = Array.from(pendingMessages.entries()).filter(([_, msgData]) => 
+        msgData.senderId === data.fromUserId
+      ).length;
+      console.log('🔑 [KEY EXCHANGE] Found', pendingCount, 'pending messages from this sender');
+      
+      // Try to decrypt any pending messages from this sender
+      if (pendingCount > 0) {
+        console.log('🔑 [KEY EXCHANGE] Attempting to decrypt pending messages from:', data.fromUserId);
+        await processPendingMessages(data.fromUserId);
+      } else {
+        console.log('🔑 [KEY EXCHANGE] No pending messages to decrypt');
+      }
+      
+      console.log('🔑 [KEY EXCHANGE] ===== KEY EXCHANGE COMPLETE =====');
+      
+    } catch (error: any) {
+      console.error('🔑 [KEY EXCHANGE] ❌ Failed to process sender key bundle:', error);
+      console.error('🔑 [KEY EXCHANGE] Error details:', {
+        message: error.message,
+        stack: error.stack,
+        fromUserId: data.fromUserId,
+        hasBundle: !!data.bundle
+      });
     }
+  };
+
+  const handleSenderKeyRequest = async (data: any) => {
+    try {
+      console.log('🔑 [KEY EXCHANGE] ===== KEY REQUEST RECEIVED =====');
+      console.log('🔑 [KEY EXCHANGE] Requested by user:', data.fromUserId);
+      console.log('🔑 [KEY EXCHANGE] Group ID:', data.groupId);
+      console.log('🔑 [KEY EXCHANGE] My user ID:', user!.id.toString());
+      
+      console.log('🔑 [KEY EXCHANGE] Generating my sender key bundle...');
+      const myBundle = await CryptoAPI.getSenderKeyBundle(groupId);
+      console.log('🔑 [KEY EXCHANGE] Generated bundle:', {
+        hasBundle: !!myBundle,
+        bundleKeys: myBundle ? Object.keys(myBundle) : null,
+        groupId: groupId
+      });
+      
+      // Serialize ArrayBuffers in the bundle
+      const serializedBundle = {
+        ...myBundle,
+        signingKey: btoa(String.fromCharCode(...new Uint8Array(myBundle.signingKey))),
+        chainKey: btoa(String.fromCharCode(...new Uint8Array(myBundle.chainKey))),
+      };
+      
+      console.log('🔑 [KEY EXCHANGE] Sending key bundle to requester...');
+      socketRef.current?.emit('share_sender_key', {
+        groupId,
+        targetUserId: data.fromUserId,
+        bundle: serializedBundle,
+      });
+      console.log('🔑 [KEY EXCHANGE] ✅ Key bundle sent to:', data.fromUserId);
+      console.log('🔑 [KEY EXCHANGE] ===== KEY REQUEST RESPONSE COMPLETE =====');
+      
+    } catch (error: any) {
+      console.error('🔑 [KEY EXCHANGE] ❌ Failed to share sender key on request:', error);
+      console.error('🔑 [KEY EXCHANGE] Error details:', {
+        message: error.message,
+        stack: error.stack,
+        requesterId: data.fromUserId
+      });
+    }
+  };
+
+  const processPendingMessages = async (senderId: string) => {
+    console.log('🔑 [KEY EXCHANGE] ===== PROCESSING PENDING MESSAGES =====');
+    console.log('🔑 [KEY EXCHANGE] Sender ID:', senderId);
+    
+    const messagesToProcess: Array<[string, any]> = [];
+    
+    // Find all pending messages from this sender
+    pendingMessages.forEach((messageData, pendingId) => {
+      if (messageData.senderId === senderId) {
+        messagesToProcess.push([pendingId, messageData]);
+      }
+    });
+
+    console.log('🔑 [KEY EXCHANGE] Found', messagesToProcess.length, 'messages to process');
+    console.log('🔑 [KEY EXCHANGE] Message IDs:', messagesToProcess.map(([id]) => id));
+
+    for (const [pendingId, messageData] of messagesToProcess) {
+      try {
+        console.log('🔑 [KEY EXCHANGE] Attempting to decrypt pending message:', pendingId);
+        console.log('🔑 [KEY EXCHANGE] Message data:', {
+          messageId: messageData.messageId as string,
+          senderId: messageData.senderId as string,
+          timestamp: messageData.timestamp as number,
+          hasEncryptedPayload: !!messageData.encryptedPayload
+        });
+        
+        // Convert Base64 strings back to ArrayBuffers for decryption
+        const deserializedMessage = {
+          ...messageData,
+          encryptedPayload: new Uint8Array(atob(messageData.encryptedPayload).split('').map(c => c.charCodeAt(0))).buffer,
+          signature: new Uint8Array(atob(messageData.signature).split('').map(c => c.charCodeAt(0))).buffer,
+        };
+        
+        // Try to decrypt the message now that we have the sender key
+        const decryptedContent = await CryptoAPI.receiveGroupMessage(groupId, deserializedMessage);
+        console.log('🔑 [KEY EXCHANGE] ✅ Successfully decrypted message:', pendingId);
+        console.log('🔑 [KEY EXCHANGE] Decrypted content length:', decryptedContent.length);
+        
+        // Update the message in the UI
+        setMessages(prev => prev.map(msg => {
+          if (msg.id === pendingId) {
+            console.log('🔑 [KEY EXCHANGE] Updating UI message:', pendingId);
+            return {
+              ...msg,
+              content: decryptedContent,
+              isEncrypted: true,
+            };
+          }
+          return msg;
+        }));
+        
+        // Remove from pending messages
+        setPendingMessages(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(pendingId);
+          console.log('🔑 [KEY EXCHANGE] Removed from pending. Remaining:', newMap.size);
+          return newMap;
+        });
+        
+        console.log('🔑 [KEY EXCHANGE] ✅ Message processing complete:', pendingId);
+        
+      } catch (error: any) {
+        console.error('🔑 [KEY EXCHANGE] ❌ Still cannot decrypt message:', pendingId, error);
+        console.error('🔑 [KEY EXCHANGE] Decrypt error details:', {
+          message: error.message,
+          stack: error.stack,
+          messageId: messageData.messageId
+        });
+      }
+    }
+    
+    console.log('🔑 [KEY EXCHANGE] ===== PENDING MESSAGE PROCESSING COMPLETE =====');
   };
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !isInitialized) return;
 
     try {
-      // Encrypt message using Noble Signal Protocol
-      const encryptedMessage = await nobleSignalProtocol.encryptGroupMessage(groupId, newMessage.trim());
+      console.log('🔑 [KEY EXCHANGE] ===== SENDING ENCRYPTED MESSAGE =====');
+      console.log('🔑 [KEY EXCHANGE] Message length:', newMessage.trim().length);
+      console.log('🔑 [KEY EXCHANGE] Group ID:', groupId);
+      console.log('🔑 [KEY EXCHANGE] Sender ID:', user!.id.toString());
       
+      // Encrypt message using Noble Signal Protocol
+      console.log('🔑 [KEY EXCHANGE] Encrypting message...');
+      const encryptedMessage = await CryptoAPI.sendGroupMessage(groupId, newMessage.trim());
+      console.log('🔑 [KEY EXCHANGE] ✅ Message encrypted successfully');
+      console.log('🔑 [KEY EXCHANGE] Encrypted message details:', {
+        messageId: encryptedMessage.messageId,
+        timestamp: encryptedMessage.timestamp,
+        hasEncryptedPayload: !!encryptedMessage.encryptedPayload,
+        payloadLength: encryptedMessage.encryptedPayload?.length || 0
+      });
+      
+      // Convert ArrayBuffers to Base64 for transmission
+      const serializedMessage = {
+        ...encryptedMessage,
+        encryptedPayload: btoa(String.fromCharCode(...new Uint8Array(encryptedMessage.encryptedPayload))),
+        signature: btoa(String.fromCharCode(...new Uint8Array(encryptedMessage.signature))),
+      };
+
       // Send encrypted message via socket
+      console.log('🔑 [KEY EXCHANGE] Sending encrypted message via socket...');
+      console.log('🔑 [KEY EXCHANGE] Serialized payload length:', serializedMessage.encryptedPayload.length);
       socketRef.current?.emit('group_message', {
         groupId,
-        encryptedMessage,
-        originalContent: newMessage.trim(), // For debugging - remove in production
+        encryptedMessage: serializedMessage,
       });
+      console.log('🔑 [KEY EXCHANGE] ✅ Encrypted message sent to backend');
 
       // Add to local messages
       const message: Message = {
@@ -351,14 +654,19 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 
       setMessages(prev => [...prev, message]);
       setNewMessage('');
+      console.log('🔑 [KEY EXCHANGE] ===== MESSAGE SEND COMPLETE =====');
       
       // Auto-scroll to bottom
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
       
-		} catch (error) {
-      console.error('❌ Failed to send message:', error);
+		} catch (error: any) {
+      console.error('🔑 [KEY EXCHANGE] ❌ Failed to send message:', error);
+      console.error('🔑 [KEY EXCHANGE] Send error details:', {
+        message: error.message,
+        stack: error.stack
+      });
       Alert.alert('Error', 'Failed to send encrypted message');
     }
   };

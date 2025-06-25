@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1750839965908" clover="3.2.0">
+  <project timestamp="1750839965908" name="All files">
+    <metrics statements="46" coveredstatements="46" conditionals="12" coveredconditionals="11" methods="12" coveredmethods="12" elements="70" coveredelements="69" complexity="0" loc="46" ncloc="46" packages="1" files="1" classes="1"/>
+    <file name="key-exchange.ts" path="/home/david/Dev/notAlone/frontend/src/crypto/key-exchange.ts">
+      <metrics statements="46" coveredstatements="46" conditionals="12" coveredconditionals="11" methods="12" coveredmethods="12"/>
+      <line num="18" count="13" type="cond" truecount="2" falsecount="0"/>
+      <line num="19" count="1" type="stmt"/>
+      <line num="22" count="12" type="stmt"/>
+      <line num="26" count="13" type="stmt"/>
+      <line num="35" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="36" count="1" type="stmt"/>
+      <line num="39" count="9" type="stmt"/>
+      <line num="40" count="9" type="stmt"/>
+      <line num="57" count="1" type="stmt"/>
+      <line num="58" count="1" type="stmt"/>
+      <line num="60" count="1" type="stmt"/>
+      <line num="74" count="12" type="stmt"/>
+      <line num="82" count="1" type="stmt"/>
+      <line num="91" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="92" count="2" type="stmt"/>
+      <line num="94" count="1" type="stmt"/>
+      <line num="103" count="4" type="stmt"/>
+      <line num="127" count="1" type="stmt"/>
+      <line num="130" count="1" type="stmt"/>
+      <line num="133" count="1" type="stmt"/>
+      <line num="136" count="1" type="stmt"/>
+      <line num="137" count="1" type="stmt"/>
+      <line num="138" count="1" type="stmt"/>
+      <line num="139" count="1" type="stmt"/>
+      <line num="142" count="1" type="stmt"/>
+      <line num="166" count="1" type="stmt"/>
+      <line num="169" count="1" type="stmt"/>
+      <line num="172" count="1" type="stmt"/>
+      <line num="175" count="1" type="stmt"/>
+      <line num="176" count="1" type="stmt"/>
+      <line num="177" count="1" type="stmt"/>
+      <line num="178" count="1" type="stmt"/>
+      <line num="181" count="1" type="stmt"/>
+      <line num="211" count="2" type="stmt"/>
+      <line num="213" count="2" type="stmt"/>
+      <line num="214" count="5" type="stmt"/>
+      <line num="215" count="5" type="stmt"/>
+      <line num="216" count="5" type="stmt"/>
+      <line num="218" count="5" type="stmt"/>
+      <line num="219" count="5" type="stmt"/>
+      <line num="222" count="2" type="stmt"/>
+      <line num="235" count="1" type="stmt"/>
+      <line num="243" count="1" type="stmt"/>
+      <line num="259" count="1" type="stmt"/>
+      <line num="268" count="1" type="stmt"/>
+      <line num="276" count="1" type="stmt"/>
+    </file>
+  </project>
+</coverage>

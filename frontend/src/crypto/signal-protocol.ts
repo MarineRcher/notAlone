@@ -39,7 +39,7 @@ export class SignalProtocolManager {
     // Load or generate identity key
     this.identityKey = await signalStorage.loadIdentityKeyPair();
     if (!this.identityKey) {
-      await this.generateIdentityKey();
+      this.generateIdentityKey();
     }
 
     // Load or generate registration ID
@@ -56,16 +56,39 @@ export class SignalProtocolManager {
   /**
    * Generate new identity key
    */
-  private async generateIdentityKey(): Promise<void> {
-    const keyPair = await generateKeyPair();
+  private generateIdentityKey(): void {
+    console.log(`🔑 [DEVICE IDENTITY] ===== GENERATING DEVICE IDENTITY KEY =====`);
+    const keyPair = generateKeyPair();
+    
+    const deviceId = this.generateUUID();
+    console.log(`🔑 [DEVICE IDENTITY] Device ID: ${deviceId}`);
     
     this.identityKey = {
-      keyId: crypto.randomUUID(),
+      keyId: deviceId,
       publicKey: keyPair.publicKey,
       privateKey: keyPair.privateKey,
     };
 
-    await signalStorage.storeIdentityKeyPair(this.identityKey);
+    const publicKeyPreview = Array.from(new Uint8Array(keyPair.publicKey).slice(0, 4))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('').toUpperCase();
+    
+    console.log(`🔑 [DEVICE IDENTITY] ✅ Identity key created for device ${deviceId}`);
+    console.log(`🔑 [DEVICE IDENTITY] Public key preview: ${publicKeyPreview}`);
+    console.log(`🔑 [DEVICE IDENTITY] Storing to persistent storage...`);
+
+    signalStorage.storeIdentityKeyPair(this.identityKey);
+    console.log(`🔑 [DEVICE IDENTITY] ✅ Identity key stored to storage`);
+    console.log(`🔑 [DEVICE IDENTITY] ===== DEVICE IDENTITY SETUP COMPLETE =====`);
+  }
+
+  /**
+   * Generate a simple UUID (for environments without crypto.randomUUID)
+   */
+  private generateUUID(): string {
+    const bytes = new Uint8Array(generateRandomBytes(16));
+    const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
   }
 
   /**
@@ -88,15 +111,24 @@ export class SignalProtocolManager {
   /**
    * Get device info for key exchange
    */
-  async getDeviceInfo(): Promise<DeviceInfo> {
+  getDeviceInfo(): DeviceInfo {
     if (!this.identityKey || !this.registrationId) {
       throw new SignalError('Protocol not initialized', 'NOT_INITIALIZED');
     }
 
+    console.log(`🔑 [DEVICE INFO] ===== GENERATING DEVICE INFO FOR KEY EXCHANGE =====`);
+    console.log(`🔑 [DEVICE INFO] Device ID: ${this.identityKey.keyId}`);
+    console.log(`🔑 [DEVICE INFO] Registration ID: ${this.registrationId}`);
+
     // Generate pre-keys (simplified - in practice you'd generate many)
-    const preKeyPair = await generateKeyPair();
-    const signedPreKeyPair = await generateKeyPair();
-    const signingKey = await generateSigningKeyPair();
+    console.log(`🔑 [DEVICE INFO] Generating one-time pre-key...`);
+    const preKeyPair = generateKeyPair();
+    
+    console.log(`🔑 [DEVICE INFO] Generating signed pre-key...`);
+    const signedPreKeyPair = generateKeyPair();
+    
+    console.log(`🔑 [DEVICE INFO] Generating signing key for pre-key signature...`);
+    const signingKey = generateSigningKeyPair();
 
     const preKeyBundle: PreKeyBundle = {
       identityKey: this.identityKey.publicKey,
@@ -111,12 +143,17 @@ export class SignalProtocolManager {
       },
     };
 
-    return {
+    const deviceInfo = {
       deviceId: this.identityKey.keyId,
       registrationId: this.registrationId,
       identityKey: this.identityKey.publicKey,
       preKeys: [preKeyBundle],
     };
+
+    console.log(`🔑 [DEVICE INFO] ✅ Device info bundle created with ${deviceInfo.preKeys.length} pre-key(s)`);
+    console.log(`🔑 [DEVICE INFO] ===== DEVICE INFO READY FOR EXCHANGE =====`);
+
+    return deviceInfo;
   }
 
   /**
@@ -173,14 +210,11 @@ export class SignalProtocolManager {
 
     // For simplicity, we'll need the local signed pre-key
     // In practice, this would be retrieved based on the message
-    const localSignedPreKey = await generateKeyPair();
+    const localSignedPreKey = generateKeyPair();
 
     const ratchet = await DoubleRatchet.initializeAsReceiver(
       this.identityKey,
-      {
-        publicKey: localSignedPreKey.publicKey,
-        privateKey: localSignedPreKey.privateKey,
-      },
+      localSignedPreKey,
       remoteIdentityKey,
       initialMessage
     );
@@ -209,7 +243,8 @@ export class SignalProtocolManager {
       throw new NoSessionError(`No session exists for user ${userId}`);
     }
 
-    const plaintextBuffer = new TextEncoder().encode(plaintext);
+    const plaintextBytes = new TextEncoder().encode(plaintext);
+    const plaintextBuffer = plaintextBytes.buffer.slice(plaintextBytes.byteOffset, plaintextBytes.byteOffset + plaintextBytes.byteLength);
     const signalMessage = await session.encryptMessage(plaintextBuffer);
 
     // Update stored session
@@ -267,7 +302,7 @@ export class SignalProtocolManager {
   ): Promise<void> {
     const groupProtocol = await GroupProtocol.createGroup(groupId, myUserId);
     
-    // Process all member bundles
+    // Add all existing members
     for (const bundle of memberBundles) {
       await groupProtocol.processSenderKeyBundle(bundle);
     }
@@ -285,7 +320,7 @@ export class SignalProtocolManager {
   }
 
   /**
-   * Add member to group
+   * Add a member to a group
    */
   async addGroupMember(
     groupId: string,
@@ -306,7 +341,7 @@ export class SignalProtocolManager {
   }
 
   /**
-   * Remove member from group
+   * Remove a member from a group
    */
   async removeGroupMember(groupId: string, userId: string): Promise<void> {
     const groupSession = this.groupSessions.get(groupId);
@@ -314,12 +349,12 @@ export class SignalProtocolManager {
       throw new SignalError(`No group session for ${groupId}`, 'NO_GROUP_SESSION');
     }
 
-    await groupSession.handleMemberLeave(userId);
+    groupSession.removeMember(userId);
     await this.updateStoredGroupSession(groupId, groupSession);
   }
 
   /**
-   * Encrypt message for group
+   * Encrypt a message for a group
    */
   async encryptGroupMessage(groupId: string, plaintext: string): Promise<GroupMessage> {
     const groupSession = this.groupSessions.get(groupId);
@@ -334,7 +369,7 @@ export class SignalProtocolManager {
   }
 
   /**
-   * Decrypt group message
+   * Decrypt a group message
    */
   async decryptGroupMessage(groupId: string, groupMessage: GroupMessage): Promise<string> {
     const groupSession = this.groupSessions.get(groupId);
@@ -387,7 +422,7 @@ export class SignalProtocolManager {
       groupState: groupSession.getGroupState(),
       lastActivity: Date.now(),
     };
-
+    
     await signalStorage.storeGroupSession(groupId, storedGroupSession);
   }
 
@@ -395,23 +430,23 @@ export class SignalProtocolManager {
    * Clear all sessions and data
    */
   async clearAll(): Promise<void> {
-    this.sessions.clear();
-    this.groupSessions.clear();
     this.identityKey = null;
     this.registrationId = null;
+    this.sessions.clear();
+    this.groupSessions.clear();
     
     await signalStorage.clearAll();
   }
 
   /**
-   * Get identity key
+   * Get identity key (for debugging/testing)
    */
   getIdentityKey(): IdentityKeyPair | null {
     return this.identityKey;
   }
 
   /**
-   * Get registration ID
+   * Get registration ID (for debugging/testing)
    */
   getRegistrationId(): number | null {
     return this.registrationId;

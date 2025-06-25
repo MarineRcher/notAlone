@@ -45,7 +45,7 @@ export class GroupProtocol {
     };
 
     const groupProtocol = new GroupProtocol(groupState);
-    await groupProtocol.initializeSenderKey();
+    groupProtocol.initializeSenderKey();
     
     return groupProtocol;
   }
@@ -53,30 +53,43 @@ export class GroupProtocol {
   /**
    * Initialize sender key for this user
    */
-  async initializeSenderKey(): Promise<void> {
+  initializeSenderKey(): void {
+    console.log(`🔑 [GROUP SENDER KEY] ===== INITIALIZING SENDER KEY =====`);
+    console.log(`🔑 [GROUP SENDER KEY] User ID: ${this.groupState.myUserId}`);
+    console.log(`🔑 [GROUP SENDER KEY] Group ID: ${this.groupState.groupId}`);
+    
+    console.log(`🔑 [GROUP SENDER KEY] Generating chain key...`);
     const chainKey: ChainKey = {
       key: generateRandomBytes(32),
       counter: 0,
     };
 
-    const signingKeyPair = await generateSigningKeyPair();
+    const chainKeyPreview = Array.from(new Uint8Array(chainKey.key).slice(0, 4))
+      .map((b: number) => b.toString(16).padStart(2, '0'))
+      .join('').toUpperCase();
+    console.log(`🔑 [GROUP SENDER KEY] ✅ Chain key generated - Preview: ${chainKeyPreview}, Counter: ${chainKey.counter}`);
+
+    console.log(`🔑 [GROUP SENDER KEY] Generating signing key pair...`);
+    const signingKeyPair = generateSigningKeyPair();
     
     const senderKeyState: SenderKeyState = {
       sendingChain: chainKey,
       signingKey: {
-        publicKey: await exportKey(signingKeyPair.publicKey),
-        privateKey: await exportKey(signingKeyPair.privateKey),
+        publicKey: signingKeyPair.publicKey,
+        privateKey: signingKeyPair.privateKey,
       },
       chainKeyHistory: [],
     };
 
     this.groupState.senderKeys.set(this.groupState.myUserId, senderKeyState);
+    console.log(`🔑 [GROUP SENDER KEY] ✅ Sender key state created and stored`);
+    console.log(`🔑 [GROUP SENDER KEY] ===== SENDER KEY INITIALIZATION COMPLETE =====`);
   }
 
   /**
    * Add a member to the group
    */
-  async addMember(userId: string, senderKeyState: SenderKeyState): Promise<void> {
+  addMember(userId: string, senderKeyState: SenderKeyState): void {
     this.groupState.senderKeys.set(userId, senderKeyState);
   }
 
@@ -98,12 +111,13 @@ export class GroupProtocol {
     }
 
     // Derive message keys from current chain key
-    const { nextChainKey, messageKey } = await deriveKeys(mySenderKey.sendingChain.key);
-    const messageKeys = await deriveMessageKeys(messageKey);
+    const { nextChainKey, messageKey } = deriveKeys(mySenderKey.sendingChain.key);
+    const messageKeys = deriveMessageKeys(messageKey);
 
     // Encrypt the message
-    const plaintextBuffer = new TextEncoder().encode(plaintext);
-    const ciphertext = await encrypt(plaintextBuffer, messageKeys.cipherKey, messageKeys.iv);
+    const plaintextBytes = new TextEncoder().encode(plaintext);
+    const plaintextBuffer = plaintextBytes.buffer.slice(plaintextBytes.byteOffset, plaintextBytes.byteOffset + plaintextBytes.byteLength);
+    const ciphertext = encrypt(plaintextBuffer, messageKeys.cipherKey, messageKeys.iv);
 
     // Create message header
     const header = this.createGroupMessageHeader(
@@ -115,12 +129,7 @@ export class GroupProtocol {
     const messagePayload = concatArrayBuffers(header, ciphertext);
 
     // Sign the message
-    const signingKey = await importKey(
-      mySenderKey.signingKey.privateKey,
-      'Ed25519',
-      ['sign']
-    );
-    const signature = await signWithEd25519(messagePayload, signingKey);
+    const signature = signWithEd25519(messagePayload, mySenderKey.signingKey.privateKey);
 
     // Update sender key state
     mySenderKey.sendingChain = {
@@ -167,16 +176,10 @@ export class GroupProtocol {
     const messageCounter = this.extractCounterFromHeader(header);
 
     // Verify signature
-    const signingKey = await importKey(
-      senderKey.signingKey.publicKey,
-      'Ed25519',
-      ['verify']
-    );
-    
-    const isValidSignature = await verifyEd25519Signature(
+    const isValidSignature = verifyEd25519Signature(
       groupMessage.signature,
       groupMessage.encryptedPayload,
-      signingKey
+      senderKey.signingKey.publicKey
     );
 
     if (!isValidSignature) {
@@ -184,13 +187,13 @@ export class GroupProtocol {
     }
 
     // Derive message keys
-    const messageKeys = await this.deriveMessageKeysForCounter(
+    const messageKeys = this.deriveMessageKeysForCounter(
       senderKey,
       messageCounter
     );
 
     // Decrypt message
-    const decryptedBuffer = await decrypt(
+    const decryptedBuffer = decrypt(
       ciphertext,
       messageKeys.cipherKey,
       messageKeys.iv
@@ -202,12 +205,12 @@ export class GroupProtocol {
   /**
    * Get sender key bundle for sharing with new members
    */
-  async getSenderKeyBundle(): Promise<{
+  getSenderKeyBundle(): {
     userId: string;
     signingKey: ArrayBuffer;
     chainKey: ArrayBuffer;
     counter: number;
-  }> {
+  } {
     const mySenderKey = this.groupState.senderKeys.get(this.groupState.myUserId);
     if (!mySenderKey) {
       throw new SignalError('No sender key for current user', 'NO_SENDER_KEY');
@@ -224,12 +227,12 @@ export class GroupProtocol {
   /**
    * Process received sender key bundle
    */
-  async processSenderKeyBundle(bundle: {
+  processSenderKeyBundle(bundle: {
     userId: string;
     signingKey: ArrayBuffer;
     chainKey: ArrayBuffer;
     counter: number;
-  }): Promise<void> {
+  }): void {
     const senderKeyState: SenderKeyState = {
       sendingChain: {
         key: bundle.chainKey,
@@ -246,82 +249,82 @@ export class GroupProtocol {
   }
 
   /**
-   * Advance sender key for forward secrecy
+   * Advance sender key for forward secrecy (rotate keys periodically)
    */
-  async advanceSenderKey(): Promise<void> {
+  advanceSenderKey(): void {
     const mySenderKey = this.groupState.senderKeys.get(this.groupState.myUserId);
     if (!mySenderKey) {
       throw new SignalError('No sender key for current user', 'NO_SENDER_KEY');
     }
 
     // Generate new signing key
-    const newSigningKeyPair = await generateSigningKeyPair();
+    const newSigningKey = generateSigningKeyPair();
     
-    // Generate new chain key
-    const newChainKey: ChainKey = {
-      key: generateRandomBytes(32),
-      counter: 0,
-    };
-
-    // Store old key in history
-    mySenderKey.chainKeyHistory.push({
-      chainKey: mySenderKey.sendingChain,
-      signingKey: mySenderKey.signingKey.publicKey,
-    });
-
-    // Update with new keys
-    mySenderKey.sendingChain = newChainKey;
-    mySenderKey.signingKey = {
-      publicKey: await exportKey(newSigningKeyPair.publicKey),
-      privateKey: await exportKey(newSigningKeyPair.privateKey),
-    };
-
-    // Limit history
-    if (mySenderKey.chainKeyHistory.length > CRYPTO_CONFIG.maxChainKeyHistory) {
-      mySenderKey.chainKeyHistory.shift();
+    // Advance the chain key multiple times for forward secrecy
+    let chainKey = mySenderKey.sendingChain.key;
+    for (let i = 0; i < CRYPTO_CONFIG.ratchetAdvanceThreshold; i++) {
+      const { nextChainKey } = deriveKeys(chainKey);
+      chainKey = nextChainKey;
     }
+
+    // Update sender key
+    mySenderKey.signingKey = {
+      publicKey: newSigningKey.publicKey,
+      privateKey: newSigningKey.privateKey,
+    };
+    mySenderKey.sendingChain = {
+      key: chainKey,
+      counter: 0, // Reset counter with new key
+    };
   }
 
   /**
-   * Handle member leaving the group (forward secrecy)
+   * Handle member leave (called when someone leaves the group)
    */
-  async handleMemberLeave(userId: string): Promise<void> {
-    // Remove the member
+  handleMemberLeave(userId: string): void {
     this.removeMember(userId);
     
-    // Advance our sender key to ensure forward secrecy
-    await this.advanceSenderKey();
+    // Advance our sender key for forward secrecy
+    // This ensures the leaving member can't decrypt future messages
+    this.advanceSenderKey();
   }
 
   /**
    * Create group message header
    */
   private createGroupMessageHeader(counter: number, senderId: string): ArrayBuffer {
-    const senderIdBytes = new TextEncoder().encode(senderId);
     const counterBytes = new Uint32Array([counter]);
-    const senderIdLengthBytes = new Uint32Array([senderIdBytes.length]);
+    const senderIdBytes = new TextEncoder().encode(senderId);
+    const senderIdLength = new Uint32Array([senderIdBytes.length]);
     
     return concatArrayBuffers(
-      senderIdLengthBytes.buffer,
-      senderIdBytes.buffer,
-      counterBytes.buffer
+      counterBytes.buffer,
+      senderIdLength.buffer,
+      senderIdBytes.buffer
     );
   }
 
   /**
-   * Parse group message
+   * Parse group message payload
    */
   private parseGroupMessage(payload: ArrayBuffer): {
     header: ArrayBuffer;
     ciphertext: ArrayBuffer;
   } {
     const view = new DataView(payload);
-    const senderIdLength = view.getUint32(0, true);
-    const headerLength = 4 + senderIdLength + 4; // length + senderId + counter
+    
+    // Read counter (4 bytes)
+    const counter = view.getUint32(0, true);
+    
+    // Read sender ID length (4 bytes)
+    const senderIdLength = view.getUint32(4, true);
+    
+    // Calculate header size
+    const headerSize = 8 + senderIdLength; // counter + length + senderId
     
     return {
-      header: payload.slice(0, headerLength),
-      ciphertext: payload.slice(headerLength),
+      header: payload.slice(0, headerSize),
+      ciphertext: payload.slice(headerSize),
     };
   }
 
@@ -330,40 +333,29 @@ export class GroupProtocol {
    */
   private extractCounterFromHeader(header: ArrayBuffer): number {
     const view = new DataView(header);
-    const senderIdLength = view.getUint32(0, true);
-    return view.getUint32(4 + senderIdLength, true);
+    return view.getUint32(0, true);
   }
 
   /**
    * Derive message keys for specific counter
    */
-  private async deriveMessageKeysForCounter(
+  private deriveMessageKeysForCounter(
     senderKey: SenderKeyState,
     targetCounter: number
-  ): Promise<MessageKeys> {
-    let currentChainKey = senderKey.sendingChain.key;
+  ): MessageKeys {
+    let chainKey = senderKey.sendingChain.key;
     let currentCounter = senderKey.sendingChain.counter;
 
-    // If we need to go backwards, check history
-    if (targetCounter < currentCounter) {
-      for (const historyEntry of senderKey.chainKeyHistory) {
-        if (historyEntry.chainKey.counter === targetCounter) {
-          const { messageKey } = await deriveKeys(historyEntry.chainKey.key);
-          return await deriveMessageKeys(messageKey);
-        }
-      }
-      throw new SignalError('Message key not found in history', 'KEY_NOT_FOUND');
-    }
-
-    // Derive forward to target counter
+    // Advance chain key to target counter
     while (currentCounter < targetCounter) {
-      const { nextChainKey } = await deriveKeys(currentChainKey);
-      currentChainKey = nextChainKey;
+      const { nextChainKey } = deriveKeys(chainKey);
+      chainKey = nextChainKey;
       currentCounter++;
     }
 
-    const { messageKey } = await deriveKeys(currentChainKey);
-    return await deriveMessageKeys(messageKey);
+    // Derive message key from final chain key
+    const { messageKey } = deriveKeys(chainKey);
+    return deriveMessageKeys(messageKey);
   }
 
   /**
@@ -388,7 +380,7 @@ export class GroupProtocol {
   }
 
   /**
-   * Check if user is member
+   * Check if user is a member
    */
   isMember(userId: string): boolean {
     return this.groupState.senderKeys.has(userId);

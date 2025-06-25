@@ -1,8 +1,12 @@
-// Signal Protocol Cryptographic Utilities for React Native
+// Signal Protocol Cryptographic Utilities using Noble Crypto
 
-import * as Crypto from 'expo-crypto';
-import { Buffer } from '@craftzdog/react-native-buffer';
-import 'react-native-get-random-values';
+import { x25519 } from '@noble/curves/ed25519';
+import { ed25519 } from '@noble/curves/ed25519';
+import { sha256 } from '@noble/hashes/sha256';
+import { hmac } from '@noble/hashes/hmac';
+import { hkdf } from '@noble/hashes/hkdf';
+import { chacha20poly1305 } from '@noble/ciphers/chacha';
+import { randomBytes } from '@noble/hashes/utils';
 import { CryptoConfig } from './types';
 
 export const CRYPTO_CONFIG: CryptoConfig = {
@@ -14,305 +18,278 @@ export const CRYPTO_CONFIG: CryptoConfig = {
 
 // Constants
 const KEY_SIZE = 32; // 256 bits
-const IV_SIZE = 12; // 96 bits for AES-GCM
+const IV_SIZE = 12; // 96 bits for ChaCha20Poly1305
 
 /**
- * Generate a new Curve25519 key pair (simulated for React Native)
+ * Generate a new X25519 key pair for ECDH
  */
-export async function generateKeyPair(): Promise<{
+export function generateKeyPair(): {
   publicKey: ArrayBuffer;
   privateKey: ArrayBuffer;
-}> {
-  // Generate 32 random bytes for private key
-  const privateKey = generateRandomBytes(KEY_SIZE);
+} {
+  const keyId = Math.random().toString(36).substring(2, 8).toUpperCase();
+  console.log(`🔑 [X25519 KEYPAIR] Generating new X25519 key pair - KeyID: ${keyId}`);
   
-  // For simplicity, derive public key from private (in real implementation use curve25519)
-  const publicKeyData = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    Buffer.from(privateKey).toString('hex') + 'public'
-  );
+  const privateKey = x25519.utils.randomPrivateKey();
+  console.log(`🔑 [X25519 KEYPAIR] ✅ Generated private key (32 bytes) - KeyID: ${keyId}`);
   
-  const publicKey = Buffer.from(publicKeyData, 'hex').buffer.slice(0, KEY_SIZE);
+  const publicKey = x25519.getPublicKey(privateKey);
+  const publicKeyPreview = Array.from(publicKey.slice(0, 4))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('').toUpperCase();
+  console.log(`🔑 [X25519 KEYPAIR] ✅ Generated public key (32 bytes) - KeyID: ${keyId}, Preview: ${publicKeyPreview}`);
   
   return {
-    publicKey,
-    privateKey,
+    publicKey: new Uint8Array(publicKey).buffer.slice(0),
+    privateKey: new Uint8Array(privateKey).buffer.slice(0),
   };
 }
 
 /**
- * Generate Ed25519 signing key pair (simulated)
+ * Generate Ed25519 signing key pair
  */
-export async function generateSigningKeyPair(): Promise<{
+export function generateSigningKeyPair(): {
   publicKey: ArrayBuffer;
   privateKey: ArrayBuffer;
-}> {
-  const privateKey = generateRandomBytes(KEY_SIZE);
+} {
+  const keyId = Math.random().toString(36).substring(2, 8).toUpperCase();
+  console.log(`🔑 [ED25519 SIGNING] Generating new Ed25519 signing key pair - KeyID: ${keyId}`);
   
-  // Derive public key from private key
-  const publicKeyData = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    Buffer.from(privateKey).toString('hex') + 'signing'
-  );
+  const privateKey = ed25519.utils.randomPrivateKey();
+  console.log(`🔑 [ED25519 SIGNING] ✅ Generated signing private key (32 bytes) - KeyID: ${keyId}`);
   
-  const publicKey = Buffer.from(publicKeyData, 'hex').buffer.slice(0, KEY_SIZE);
+  const publicKey = ed25519.getPublicKey(privateKey);
+  const publicKeyPreview = Array.from(publicKey.slice(0, 4))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('').toUpperCase();
+  console.log(`🔑 [ED25519 SIGNING] ✅ Generated signing public key (32 bytes) - KeyID: ${keyId}, Preview: ${publicKeyPreview}`);
   
   return {
-    publicKey,
-    privateKey,
+    publicKey: new Uint8Array(publicKey).buffer.slice(0),
+    privateKey: new Uint8Array(privateKey).buffer.slice(0),
   };
 }
 
 /**
- * Generate random bytes
+ * Generate cryptographically secure random bytes
  */
 export function generateRandomBytes(length: number): ArrayBuffer {
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  return bytes.buffer;
+  return new Uint8Array(randomBytes(length)).buffer.slice(0);
 }
 
 /**
- * HKDF Key Derivation Function (simplified for React Native)
+ * HKDF Key Derivation Function using SHA-256
  */
-export async function hkdf(
+export function hkdfExpand(
   inputKeyMaterial: ArrayBuffer,
   salt: ArrayBuffer,
   info: ArrayBuffer,
   outputLength: number
-): Promise<ArrayBuffer> {
-  // Simplified HKDF using SHA-256
-  const ikm = Buffer.from(inputKeyMaterial).toString('hex');
-  const saltHex = Buffer.from(salt).toString('hex');
-  const infoHex = Buffer.from(info).toString('hex');
+): ArrayBuffer {
+  const ikm = new Uint8Array(inputKeyMaterial);
+  const saltBytes = new Uint8Array(salt);
+  const infoBytes = new Uint8Array(info);
   
-  const combined = ikm + saltHex + infoHex;
-	const hash = await Crypto.digestStringAsync(
-		Crypto.CryptoDigestAlgorithm.SHA256,
-    combined
-  );
-  
-  const result = Buffer.from(hash, 'hex').buffer;
-  return result.slice(0, outputLength);
+  const result = hkdf(sha256, ikm, saltBytes, infoBytes, outputLength);
+  return result.slice();
 }
 
 /**
  * HMAC-based Key Derivation Function for chain keys
  */
-export async function deriveKeys(chainKey: ArrayBuffer): Promise<{
+export function deriveKeys(chainKey: ArrayBuffer): {
   nextChainKey: ArrayBuffer;
   messageKey: ArrayBuffer;
-}> {
-  const keyHex = Buffer.from(chainKey).toString('hex');
+} {
+  const chainKeyBytes = new Uint8Array(chainKey);
   
-  const nextChainKeyHash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    keyHex + 'chain-key'
-  );
+  // Derive next chain key using HMAC
+  const nextChainKey = hmac(sha256, chainKeyBytes, new TextEncoder().encode('chain'));
   
-  const messageKeyHash = await Crypto.digestStringAsync(
-		Crypto.CryptoDigestAlgorithm.SHA256,
-    keyHex + 'message-key'
-	);
+  // Derive message key using HMAC
+  const messageKey = hmac(sha256, chainKeyBytes, new TextEncoder().encode('message'));
 
-	return {
-    nextChainKey: Buffer.from(nextChainKeyHash, 'hex').buffer.slice(0, KEY_SIZE),
-    messageKey: Buffer.from(messageKeyHash, 'hex').buffer.slice(0, KEY_SIZE),
+  return {
+    nextChainKey: nextChainKey.slice(),
+    messageKey: messageKey.slice(),
   };
 }
 
 /**
- * Derive message keys from chain key
+ * Derive message encryption keys from message key
  */
-export async function deriveMessageKeys(messageKey: ArrayBuffer): Promise<{
+export function deriveMessageKeys(messageKey: ArrayBuffer): {
   cipherKey: ArrayBuffer;
   macKey: ArrayBuffer;
   iv: ArrayBuffer;
-}> {
-  const keyHex = Buffer.from(messageKey).toString('hex');
-  
-  const cipherKeyHash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    keyHex + 'cipher'
+} {
+  // Derive cipher key
+  const cipherKey = hkdfExpand(
+    messageKey,
+    new ArrayBuffer(0),
+    new TextEncoder().encode('cipher'),
+    KEY_SIZE
   );
   
-  const macKeyHash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    keyHex + 'mac'
+  // Derive MAC key
+  const macKey = hkdfExpand(
+    messageKey,
+    new ArrayBuffer(0),
+    new TextEncoder().encode('mac'),
+    KEY_SIZE
   );
   
-  const cipherKey = Buffer.from(cipherKeyHash, 'hex').buffer.slice(0, KEY_SIZE);
-  const macKey = Buffer.from(macKeyHash, 'hex').buffer.slice(0, KEY_SIZE);
+  // Generate random IV
   const iv = generateRandomBytes(IV_SIZE);
 
   return { cipherKey, macKey, iv };
 }
 
 /**
- * Perform Diffie-Hellman key exchange (simplified)
+ * Perform X25519 Diffie-Hellman key exchange
  */
-export async function performDH(
+export function performDH(
   privateKey: ArrayBuffer,
   publicKey: ArrayBuffer
-): Promise<ArrayBuffer> {
-  // Simplified DH using hash combination
-  const privHex = Buffer.from(privateKey).toString('hex');
-  const pubHex = Buffer.from(publicKey).toString('hex');
+): ArrayBuffer {
+  const privKey = new Uint8Array(privateKey);
+  const pubKey = new Uint8Array(publicKey);
   
-  const combined = privHex + pubHex;
-  const sharedSecret = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    combined
-  );
-  
-  return Buffer.from(sharedSecret, 'hex').buffer.slice(0, KEY_SIZE);
+  const sharedSecret = x25519.getSharedSecret(privKey, pubKey);
+  return sharedSecret.slice();
 }
 
 /**
- * Double Ratchet key derivation
+ * Double Ratchet root key derivation using HKDF
  */
-export async function deriveRootKey(
+export function deriveRootKey(
   rootKey: ArrayBuffer,
   dhOutput: ArrayBuffer
-): Promise<{ newRootKey: ArrayBuffer; chainKey: ArrayBuffer }> {
-  const rootHex = Buffer.from(rootKey).toString('hex');
-  const dhHex = Buffer.from(dhOutput).toString('hex');
+): { newRootKey: ArrayBuffer; chainKey: ArrayBuffer } {
+  const salt = new Uint8Array(rootKey);
+  const ikm = new Uint8Array(dhOutput);
+  const info = new TextEncoder().encode('root-key-derivation');
   
-  const combined = rootHex + dhHex + 'root-key-derivation';
-  const derivedHash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    combined
-  );
-  
-  const derivedBytes = Buffer.from(derivedHash, 'hex').buffer;
+  // Derive 64 bytes: 32 for new root key, 32 for chain key
+  const derived = hkdf(sha256, ikm, salt, info, 64);
   
   return {
-    newRootKey: derivedBytes.slice(0, KEY_SIZE),
-    chainKey: derivedBytes.slice(0, KEY_SIZE), // Use same for simplicity
+    newRootKey: derived.slice(0, 32),
+    chainKey: derived.slice(32, 64),
   };
 }
 
 /**
- * AES-GCM encryption (simplified for React Native)
+ * ChaCha20Poly1305 encryption
  */
-export async function encrypt(
+export function encrypt(
   plaintext: ArrayBuffer,
   key: ArrayBuffer,
   iv: ArrayBuffer
-): Promise<ArrayBuffer> {
-  // Simplified encryption using XOR with key-derived stream
-  const plaintextBytes = new Uint8Array(plaintext);
+): ArrayBuffer {
   const keyBytes = new Uint8Array(key);
   const ivBytes = new Uint8Array(iv);
+  const plaintextBytes = new Uint8Array(plaintext);
   
-  // Create key stream from key + IV
-  const keyStreamInput = Buffer.concat([
-    Buffer.from(keyBytes),
-    Buffer.from(ivBytes),
-  ]).toString('hex');
+  const cipher = chacha20poly1305(keyBytes, ivBytes);
+  const ciphertext = cipher.encrypt(plaintextBytes);
   
-  const keyStreamHash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    keyStreamInput
-  );
-  
-  const keyStream = new Uint8Array(Buffer.from(keyStreamHash, 'hex'));
-  
-  // XOR plaintext with key stream
-  const ciphertext = new Uint8Array(plaintextBytes.length);
-  for (let i = 0; i < plaintextBytes.length; i++) {
-    ciphertext[i] = plaintextBytes[i] ^ keyStream[i % keyStream.length];
-  }
-  
-  return ciphertext.buffer;
+  return ciphertext.slice();
 }
 
 /**
- * AES-GCM decryption (simplified for React Native)
+ * ChaCha20Poly1305 decryption
  */
-export async function decrypt(
+export function decrypt(
   ciphertext: ArrayBuffer,
   key: ArrayBuffer,
   iv: ArrayBuffer
-): Promise<ArrayBuffer> {
-  // Same as encrypt since XOR is symmetric
-  return await encrypt(ciphertext, key, iv);
+): ArrayBuffer {
+  const keyBytes = new Uint8Array(key);
+  const ivBytes = new Uint8Array(iv);
+  const ciphertextBytes = new Uint8Array(ciphertext);
+  
+  const cipher = chacha20poly1305(keyBytes, ivBytes);
+  const plaintext = cipher.decrypt(ciphertextBytes);
+  
+  return plaintext.slice();
 }
 
 /**
- * HMAC signing (simplified)
+ * HMAC-SHA256 message authentication
  */
-export async function signMessage(
+export function signMessage(
   message: ArrayBuffer,
   key: ArrayBuffer
-): Promise<ArrayBuffer> {
-  const messageHex = Buffer.from(message).toString('hex');
-  const keyHex = Buffer.from(key).toString('hex');
+): ArrayBuffer {
+  const keyBytes = new Uint8Array(key);
+  const messageBytes = new Uint8Array(message);
   
-  const combined = keyHex + messageHex;
-  const signature = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    combined
-  );
-  
-  return Buffer.from(signature, 'hex').buffer.slice(0, KEY_SIZE);
+  const signature = hmac(sha256, keyBytes, messageBytes);
+  return signature.slice();
 }
 
 /**
- * HMAC verification (simplified)
+ * Verify HMAC-SHA256 signature
  */
-export async function verifySignature(
+export function verifySignature(
   signature: ArrayBuffer,
   message: ArrayBuffer,
   key: ArrayBuffer
-): Promise<boolean> {
-  const expectedSignature = await signMessage(message, key);
+): boolean {
+  const expectedSignature = signMessage(message, key);
   return secureCompare(signature, expectedSignature);
 }
 
 /**
- * Ed25519 signing (simplified)
+ * Ed25519 digital signature
  */
-export async function signWithEd25519(
+export function signWithEd25519(
   message: ArrayBuffer,
   privateKey: ArrayBuffer
-): Promise<ArrayBuffer> {
-  return await signMessage(message, privateKey);
+): ArrayBuffer {
+  const privKey = new Uint8Array(privateKey);
+  const messageBytes = new Uint8Array(message);
+  
+  const signature = ed25519.sign(messageBytes, privKey);
+  return signature.slice();
 }
 
 /**
- * Ed25519 signature verification (simplified)
+ * Verify Ed25519 signature
  */
-export async function verifyEd25519Signature(
+export function verifyEd25519Signature(
   signature: ArrayBuffer,
   message: ArrayBuffer,
   publicKey: ArrayBuffer
-): Promise<boolean> {
-  // In a real implementation, this would use the public key for verification
-  // For simplicity, we'll assume the signature is valid if it's not empty
-  return signature.byteLength > 0;
+): boolean {
+  const sigBytes = new Uint8Array(signature);
+  const messageBytes = new Uint8Array(message);
+  const pubKey = new Uint8Array(publicKey);
+  
+  return ed25519.verify(sigBytes, messageBytes, pubKey);
 }
 
 /**
- * Export key (already ArrayBuffer)
+ * Export key as ArrayBuffer (identity function for our implementation)
  */
-export async function exportKey(key: ArrayBuffer): Promise<ArrayBuffer> {
-  return key;
+export function exportKey(key: ArrayBuffer): ArrayBuffer {
+  return key.slice(0);
 }
 
 /**
- * Import key (return as ArrayBuffer)
+ * Import key from ArrayBuffer (identity function for our implementation)
  */
-export async function importKey(
+export function importKey(
   keyData: ArrayBuffer,
   algorithm: string,
   usages: string[]
-): Promise<ArrayBuffer> {
-  return keyData;
+): ArrayBuffer {
+  return keyData.slice(0);
 }
 
 /**
- * Secure comparison function
+ * Constant-time comparison to prevent timing attacks
  */
 export function secureCompare(a: ArrayBuffer, b: ArrayBuffer): boolean {
   if (a.byteLength !== b.byteLength) {
@@ -331,7 +308,7 @@ export function secureCompare(a: ArrayBuffer, b: ArrayBuffer): boolean {
 }
 
 /**
- * Concatenate ArrayBuffers
+ * Concatenate multiple ArrayBuffers
  */
 export function concatArrayBuffers(...buffers: ArrayBuffer[]): ArrayBuffer {
   const totalLength = buffers.reduce((sum, buf) => sum + buf.byteLength, 0);
@@ -347,30 +324,30 @@ export function concatArrayBuffers(...buffers: ArrayBuffer[]): ArrayBuffer {
 }
 
 /**
- * Generate unique message ID
+ * Generate a unique message ID
  */
 export function generateMessageId(): string {
-  return crypto.randomUUID();
+  const bytes = randomBytes(16);
+  return Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 /**
- * Hash function
+ * SHA-256 hash function
  */
-export async function hash(data: ArrayBuffer): Promise<ArrayBuffer> {
-  const hex = Buffer.from(data).toString('hex');
-  const hashHex = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    hex
-  );
-  return Buffer.from(hashHex, 'hex').buffer;
+export function hash(data: ArrayBuffer): ArrayBuffer {
+  const dataBytes = new Uint8Array(data);
+  const hashBytes = sha256(dataBytes);
+  return hashBytes.slice();
 }
 
 /**
- * Secure wipe (best effort)
+ * Securely wipe an ArrayBuffer (best effort)
  */
 export function secureWipe(buffer: ArrayBuffer): void {
-  const view = new Uint8Array(buffer);
-  for (let i = 0; i < view.length; i++) {
-    view[i] = 0;
+  if (buffer.byteLength > 0) {
+    const view = new Uint8Array(buffer);
+    view.fill(0);
   }
 } 

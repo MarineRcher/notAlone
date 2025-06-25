@@ -5,8 +5,21 @@ export { DoubleRatchet } from './double-ratchet';
 export { GroupProtocol } from './group-protocol';
 export { signalStorage } from './storage';
 
+// Key Exchange Algorithms
+export { 
+  DiffieHellmanKeyExchange,
+  TripleDiffieHellman,
+  KeyDerivation,
+  DH,
+  TripleDH,
+  KDF
+} from './key-exchange';
+
 export * from './types';
 export * from './utils';
+
+// Import for internal use
+import { signalProtocol } from './signal-protocol';
 
 // Main API for easy integration
 export class CryptoAPI {
@@ -76,8 +89,8 @@ export class CryptoAPI {
   /**
    * Get device info for key exchange
    */
-  static async getDeviceInfo(): Promise<any> {
-    return await signalProtocol.getDeviceInfo();
+  static getDeviceInfo(): any {
+    return signalProtocol.getDeviceInfo();
   }
 
   /**

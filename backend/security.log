@@ -663,3 +663,31 @@
 {"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T15:26:35.739Z","user":1005}
 {"ip":"172.16.1.168","level":"info","message":"Tentative de connexion","timestamp":"2025-06-24T15:26:58.048Z","user":"bob"}
 {"ip":"172.16.1.168","level":"info","message":"Connexion réussie","timestamp":"2025-06-24T15:26:58.151Z","user":1002}
+{"ip":"172.16.1.168","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:05:23.645Z","user":"alice"}
+{"ip":"172.16.1.168","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:05:23.743Z","user":1001}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:05:35.995Z","user":"eve"}
+{"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:05:36.083Z","user":1005}
+{"ip":"172.16.1.168","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:20:26.618Z","user":"alice"}
+{"ip":"172.16.1.168","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:20:26.714Z","user":1001}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:21:59.825Z","user":"eve"}
+{"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:21:59.931Z","user":1005}
+{"ip":"172.16.1.168","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T07:22:18.480Z","user":"alice"}
+{"ip":"172.16.1.168","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T07:22:18.570Z","user":1001}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:00:02.229Z","user":"eve"}
+{"ip":"172.16.1.24","level":"warn","message":"Échec de connexion - Mot de passe incorrect","timestamp":"2025-06-25T08:00:02.345Z","user":"eve"}
+{"ip":"172.16.1.166","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:00:21.020Z","user":"alice"}
+{"ip":"172.16.1.166","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:00:21.105Z","user":1001}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:00:37.285Z","user":"eve"}
+{"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:00:37.394Z","user":1005}
+{"ip":"172.16.1.166","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:01:52.518Z","user":"alice"}
+{"ip":"172.16.1.166","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:01:52.629Z","user":1001}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:02:08.102Z","user":"eve"}
+{"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:02:08.233Z","user":1005}
+{"ip":"172.16.1.168","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:12:31.458Z","user":"alice"}
+{"ip":"172.16.1.168","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:12:31.556Z","user":1001}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:12:42.618Z","user":"eve"}
+{"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:12:42.732Z","user":1005}
+{"ip":"172.16.1.24","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:44:41.296Z","user":"eve"}
+{"ip":"172.16.1.24","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:44:41.394Z","user":1005}
+{"ip":"172.16.1.168","level":"info","message":"Tentative de connexion","timestamp":"2025-06-25T08:44:49.983Z","user":"alice"}
+{"ip":"172.16.1.168","level":"info","message":"Connexion réussie","timestamp":"2025-06-25T08:44:50.094Z","user":1001}

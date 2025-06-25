@@ -21,6 +21,10 @@ import {
   importKey,
   generateRandomBytes,
   concatArrayBuffers,
+  encrypt,
+  decrypt,
+  signMessage,
+  verifySignature,
   CRYPTO_CONFIG,
 } from './utils';
 
@@ -39,23 +43,27 @@ export class DoubleRatchet {
     remoteIdentityKey: ArrayBuffer,
     remoteSignedPreKey: ArrayBuffer
   ): Promise<DoubleRatchet> {
-    // Generate initial DH key pair
-    const initialKeyPair = await generateKeyPair();
+    console.log(`🔑 [DOUBLE RATCHET] ===== INITIALIZING AS SENDER =====`);
     
-    // Perform initial DH exchanges for root key (simplified for React Native)
-    const dh1 = await performDH(localIdentityKey.privateKey as ArrayBuffer, remoteSignedPreKey);
-    const dh2 = await performDH(initialKeyPair.privateKey, remoteIdentityKey);
-    const dh3 = await performDH(initialKeyPair.privateKey, remoteSignedPreKey);
+    // Generate initial DH key pair
+    console.log(`🔑 [DOUBLE RATCHET] Generating initial DH ratchet key pair...`);
+    const initialKeyPair = generateKeyPair();
+    
+    // Perform initial DH exchanges for root key
+    const dh1 = performDH(localIdentityKey.privateKey, remoteSignedPreKey);
+    const dh2 = performDH(initialKeyPair.privateKey, remoteIdentityKey);
+    const dh3 = performDH(initialKeyPair.privateKey, remoteSignedPreKey);
     
     // Derive initial root key
     const initialSharedSecret = concatArrayBuffers(dh1, dh2, dh3);
-    const { newRootKey, chainKey } = await deriveRootKey(new ArrayBuffer(32), initialSharedSecret);
+    const initialRootKey = generateRandomBytes(32); // Start with random root key
+    const { newRootKey, chainKey } = deriveRootKey(initialRootKey, initialSharedSecret);
 
     const sessionState: SessionState = {
       localIdentityKey: {
-        keyId: crypto.randomUUID(),
-        publicKey: await exportKey(localIdentityKey.publicKey as CryptoKey),
-        privateKey: await exportKey(localIdentityKey.privateKey as CryptoKey),
+        keyId: generateUUID(),
+        publicKey: exportKey(localIdentityKey.publicKey),
+        privateKey: exportKey(localIdentityKey.privateKey),
       },
       remoteIdentityKey,
       ratchetState: {
@@ -94,20 +102,21 @@ export class DoubleRatchet {
       throw new InvalidKeyError('Initial message missing identity key');
     }
 
-    // Perform initial DH exchanges (simplified for React Native)
-    const dh1 = await performDH(localSignedPreKey.privateKey as ArrayBuffer, remoteIdentityKey);
-    const dh2 = await performDH(localIdentityKey.privateKey as ArrayBuffer, initialMessage.identityKey);
-    const dh3 = await performDH(localSignedPreKey.privateKey as ArrayBuffer, initialMessage.identityKey);
+    // Perform initial DH exchanges
+    const dh1 = performDH(localSignedPreKey.privateKey, remoteIdentityKey);
+    const dh2 = performDH(localIdentityKey.privateKey, initialMessage.identityKey);
+    const dh3 = performDH(localSignedPreKey.privateKey, initialMessage.identityKey);
     
     // Derive initial root key
     const initialSharedSecret = concatArrayBuffers(dh1, dh2, dh3);
-    const { newRootKey } = await deriveRootKey(new ArrayBuffer(32), initialSharedSecret);
+    const initialRootKey = generateRandomBytes(32);
+    const { newRootKey } = deriveRootKey(initialRootKey, initialSharedSecret);
 
     const sessionState: SessionState = {
       localIdentityKey: {
-        keyId: crypto.randomUUID(),
-        publicKey: await exportKey(localIdentityKey.publicKey as CryptoKey),
-        privateKey: await exportKey(localIdentityKey.privateKey as CryptoKey),
+        keyId: generateUUID(),
+        publicKey: exportKey(localIdentityKey.publicKey),
+        privateKey: exportKey(localIdentityKey.privateKey),
       },
       remoteIdentityKey,
       ratchetState: {
@@ -137,26 +146,24 @@ export class DoubleRatchet {
 
     // Ensure we have a sending chain
     if (!this.sessionState.ratchetState.sendingChain) {
-      await this.performDHRatchetStep();
+      this.performDHRatchetStep();
     }
 
     const sendingChain = this.sessionState.ratchetState.sendingChain!;
     
     // Derive message keys from current chain key
-    const { nextChainKey, messageKey } = await deriveKeys(sendingChain.key);
-    const messageKeys = await deriveMessageKeys(messageKey);
+    const { nextChainKey, messageKey } = deriveKeys(sendingChain.key);
+    const messageKeys = deriveMessageKeys(messageKey);
 
     // Encrypt the message
-    const { encrypt } = await import('./utils');
-    const ciphertext = await encrypt(plaintext, messageKeys.cipherKey, messageKeys.iv);
+    const ciphertext = encrypt(plaintext, messageKeys.cipherKey, messageKeys.iv);
 
     // Create message header
     const header = this.createMessageHeader(sendingChain.counter);
     
     // Sign the message
     const messageToSign = concatArrayBuffers(header, ciphertext);
-    const { signMessage } = await import('./utils');
-    const signature = await signMessage(messageToSign, messageKeys.macKey);
+    const signature = signMessage(messageToSign, messageKeys.macKey);
 
     // Update sending chain
     this.sessionState.ratchetState.sendingChain = {
@@ -191,41 +198,39 @@ export class DoubleRatchet {
     }
 
     // Try to decrypt with existing chains
-    const messageKeys = await this.tryExistingChains(header);
+    const messageKeys = this.tryExistingChains(header);
     if (messageKeys) {
-      return await this.decryptWithKeys(ciphertext, messageKeys, signalMessage.signature!);
+      return this.decryptWithKeys(ciphertext, messageKeys, signalMessage.signature!);
     }
 
     // Need to advance DH ratchet
-    await this.performDHRatchetStepForReceiving(header);
+    this.performDHRatchetStepForReceiving(header);
     
     // Try again with new chain
-    const newMessageKeys = await this.tryExistingChains(header);
+    const newMessageKeys = this.tryExistingChains(header);
     if (!newMessageKeys) {
       throw new SignalError('Failed to derive message keys', 'DECRYPT_FAILED');
     }
 
-    return await this.decryptWithKeys(ciphertext, newMessageKeys, signalMessage.signature!);
+    return this.decryptWithKeys(ciphertext, newMessageKeys, signalMessage.signature!);
   }
 
   /**
    * Perform DH ratchet step (sending)
    */
-  private async performDHRatchetStep(): Promise<void> {
+  private performDHRatchetStep(): void {
+    console.log(`🔑 [RATCHET ADVANCE] ===== PERFORMING DH RATCHET STEP (SENDING) =====`);
+    
     // Generate new DH key pair
-    const newKeyPair = await generateKeyPair();
+    console.log(`🔑 [RATCHET ADVANCE] Generating new DH key pair for ratchet step...`);
+    const newKeyPair = generateKeyPair();
     
     if (this.sessionState.ratchetState.dhReceivingKey) {
       // Perform DH with remote's public key
-      const remoteCryptoKey = await importKey(
-        this.sessionState.ratchetState.dhReceivingKey,
-        'ECDH',
-        ['deriveKey', 'deriveBits']
-      );
-      const dhOutput = await performDH(newKeyPair.privateKey, remoteCryptoKey);
+      const dhOutput = performDH(newKeyPair.privateKey, this.sessionState.ratchetState.dhReceivingKey);
       
       // Derive new root key and sending chain key
-      const { newRootKey, chainKey } = await deriveRootKey(
+      const { newRootKey, chainKey } = deriveRootKey(
         this.sessionState.ratchetState.rootKey,
         dhOutput
       );
@@ -233,8 +238,8 @@ export class DoubleRatchet {
       // Update state
       this.sessionState.ratchetState.rootKey = newRootKey;
       this.sessionState.ratchetState.dhSendingKey = {
-        publicKey: await exportKey(newKeyPair.publicKey),
-        privateKey: await exportKey(newKeyPair.privateKey),
+        publicKey: newKeyPair.publicKey,
+        privateKey: newKeyPair.privateKey,
       };
       this.sessionState.ratchetState.sendingChain = {
         key: chainKey,
@@ -247,21 +252,18 @@ export class DoubleRatchet {
   /**
    * Perform DH ratchet step (receiving)
    */
-  private async performDHRatchetStepForReceiving(header: ArrayBuffer): Promise<void> {
+  private performDHRatchetStepForReceiving(header: ArrayBuffer): void {
     const remotePublicKey = this.extractPublicKeyFromHeader(header);
     
     if (this.sessionState.ratchetState.dhSendingKey) {
-      // Perform DH with our private key and remote's new public key
-      const localPrivateKey = await importKey(
+      // Perform DH with remote's new public key
+      const dhOutput = performDH(
         this.sessionState.ratchetState.dhSendingKey.privateKey,
-        'ECDH',
-        ['deriveKey', 'deriveBits']
+        remotePublicKey
       );
-      const remoteKey = await importKey(remotePublicKey, 'ECDH', ['deriveKey', 'deriveBits']);
-      const dhOutput = await performDH(localPrivateKey, remoteKey);
       
       // Derive new root key and receiving chain key
-      const { newRootKey, chainKey } = await deriveRootKey(
+      const { newRootKey, chainKey } = deriveRootKey(
         this.sessionState.ratchetState.rootKey,
         dhOutput
       );
@@ -270,7 +272,7 @@ export class DoubleRatchet {
       this.sessionState.ratchetState.rootKey = newRootKey;
       this.sessionState.ratchetState.dhReceivingKey = remotePublicKey;
       
-      // Store new receiving chain
+      // Create new receiving chain
       const chainId = this.getChainId(remotePublicKey);
       this.sessionState.ratchetState.receivingChains.set(chainId, {
         key: chainKey,
@@ -282,101 +284,114 @@ export class DoubleRatchet {
   /**
    * Try to decrypt with existing chains
    */
-  private async tryExistingChains(header: ArrayBuffer): Promise<MessageKeys | null> {
+  private tryExistingChains(header: ArrayBuffer): MessageKeys | null {
     const remotePublicKey = this.extractPublicKeyFromHeader(header);
     const messageCounter = this.extractCounterFromHeader(header);
     const chainId = this.getChainId(remotePublicKey);
     
-    const receivingChain = this.sessionState.ratchetState.receivingChains.get(chainId);
-    if (!receivingChain) {
+    const chain = this.sessionState.ratchetState.receivingChains.get(chainId);
+    if (!chain) {
       return null;
     }
-
+    
     // Skip messages if necessary
-    if (messageCounter > receivingChain.counter) {
-      await this.skipMessages(chainId, receivingChain, messageCounter);
+    if (messageCounter > chain.counter) {
+      this.skipMessages(chainId, chain, messageCounter);
     }
-
+    
     // Derive message keys
-    let currentChainKey = receivingChain.key;
-    for (let i = receivingChain.counter; i < messageCounter; i++) {
-      const { nextChainKey } = await deriveKeys(currentChainKey);
-      currentChainKey = nextChainKey;
-    }
-
-    const { messageKey } = await deriveKeys(currentChainKey);
-    return await deriveMessageKeys(messageKey);
+    const { nextChainKey, messageKey } = deriveKeys(chain.key);
+    const messageKeys = deriveMessageKeys(messageKey);
+    
+    // Update chain
+    this.sessionState.ratchetState.receivingChains.set(chainId, {
+      key: nextChainKey,
+      counter: chain.counter + 1,
+    });
+    
+    return messageKeys;
   }
 
   /**
-   * Skip messages and store keys for out-of-order delivery
+   * Skip messages to handle out-of-order delivery
    */
-  private async skipMessages(
+  private skipMessages(
     chainId: string,
     chain: ChainKey,
     targetCounter: number
-  ): Promise<void> {
-    if (targetCounter - chain.counter > CRYPTO_CONFIG.maxSkippedMessages) {
-      throw new SignalError('Too many skipped messages', 'TOO_MANY_SKIPPED');
-    }
-
-    let currentChainKey = chain.key;
+  ): void {
+    let currentChain = { ...chain };
+    
     for (let i = chain.counter; i < targetCounter; i++) {
-      const { nextChainKey, messageKey } = await deriveKeys(currentChainKey);
-      const messageKeys = await deriveMessageKeys(messageKey);
+      const { nextChainKey, messageKey } = deriveKeys(currentChain.key);
+      const messageKeys = deriveMessageKeys(messageKey);
       
-      const messageId = `${chainId}:${i}`;
+      // Store skipped message keys
+      const messageId = `${chainId}-${i}`;
       this.sessionState.ratchetState.skippedMessages.set(messageId, messageKeys);
       
-      currentChainKey = nextChainKey;
+      currentChain = {
+        key: nextChainKey,
+        counter: i + 1,
+      };
+      
+             // Limit number of skipped messages
+       if (this.sessionState.ratchetState.skippedMessages.size > CRYPTO_CONFIG.maxSkippedMessages) {
+         // Remove oldest skipped message
+         const firstKey = this.sessionState.ratchetState.skippedMessages.keys().next().value;
+         if (firstKey) {
+           this.sessionState.ratchetState.skippedMessages.delete(firstKey);
+         }
+       }
     }
-
-    // Update chain
-    this.sessionState.ratchetState.receivingChains.set(chainId, {
-      key: currentChainKey,
-      counter: targetCounter,
-    });
+    
+    // Update the chain
+    this.sessionState.ratchetState.receivingChains.set(chainId, currentChain);
   }
 
   /**
-   * Decrypt message with specific keys
+   * Decrypt with specific keys
    */
-  private async decryptWithKeys(
+  private decryptWithKeys(
     ciphertext: ArrayBuffer,
     messageKeys: MessageKeys,
     signature: ArrayBuffer
-  ): Promise<ArrayBuffer> {
+  ): ArrayBuffer {
     // Verify signature
-    const { verifySignature } = await import('./utils');
-    const isValid = await verifySignature(signature, ciphertext, messageKeys.macKey);
-    if (!isValid) {
+    const messageToVerify = ciphertext;
+    const isValidSignature = verifySignature(signature, messageToVerify, messageKeys.macKey);
+    
+    if (!isValidSignature) {
       throw new SignalError('Invalid message signature', 'INVALID_SIGNATURE');
     }
-
-    // Decrypt
-    const { decrypt } = await import('./utils');
-    return await decrypt(ciphertext, messageKeys.cipherKey, messageKeys.iv);
+    
+    // Decrypt the message
+    return decrypt(ciphertext, messageKeys.cipherKey, messageKeys.iv);
   }
 
   /**
    * Create message header
    */
   private createMessageHeader(counter: number): ArrayBuffer {
-    const dhPublicKey = this.sessionState.ratchetState.dhSendingKey?.publicKey || new ArrayBuffer(32);
     const counterBytes = new Uint32Array([counter]);
-    const prevCounterBytes = new Uint32Array([this.sessionState.ratchetState.prevSendingCounter]);
+    const dhPublicKey = this.sessionState.ratchetState.dhSendingKey?.publicKey || new ArrayBuffer(32);
     
-    return concatArrayBuffers(dhPublicKey, counterBytes.buffer, prevCounterBytes.buffer);
+    return concatArrayBuffers(
+      dhPublicKey,
+      counterBytes.buffer
+    );
   }
 
   /**
    * Parse message into header and ciphertext
    */
   private parseMessage(message: ArrayBuffer): { header: ArrayBuffer; ciphertext: ArrayBuffer } {
-    const headerLength = 32 + 4 + 4; // DH key + counter + prev counter
+    // Header: 32 bytes DH public key + 4 bytes counter
+    const headerSize = 36;
+    
     return {
-      header: message.slice(0, headerLength),
-      ciphertext: message.slice(headerLength),
+      header: message.slice(0, headerSize),
+      ciphertext: message.slice(headerSize),
     };
   }
 
@@ -391,28 +406,31 @@ export class DoubleRatchet {
    * Extract counter from header
    */
   private extractCounterFromHeader(header: ArrayBuffer): number {
-    const view = new DataView(header);
-    return view.getUint32(32, true);
+    const counterBytes = new Uint32Array(header.slice(32, 36));
+    return counterBytes[0];
   }
 
   /**
    * Generate chain ID from public key
    */
   private getChainId(publicKey: ArrayBuffer): string {
-    return btoa(String.fromCharCode(...new Uint8Array(publicKey.slice(0, 16))));
+    const bytes = new Uint8Array(publicKey);
+    return Array.from(bytes.slice(0, 8))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
   }
 
   /**
-   * Generate message ID
+   * Generate message ID from header
    */
   private getMessageId(header: ArrayBuffer): string {
     const publicKey = this.extractPublicKeyFromHeader(header);
     const counter = this.extractCounterFromHeader(header);
-    return `${this.getChainId(publicKey)}:${counter}`;
+    return `${this.getChainId(publicKey)}-${counter}`;
   }
 
   /**
-   * Get current session state
+   * Get session state
    */
   getSessionState(): SessionState {
     return this.sessionState;
@@ -424,4 +442,13 @@ export class DoubleRatchet {
   updateSessionState(newState: SessionState): void {
     this.sessionState = newState;
   }
+}
+
+/**
+ * Generate a simple UUID for environments without crypto.randomUUID
+ */
+function generateUUID(): string {
+  const bytes = new Uint8Array(generateRandomBytes(16));
+  const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 } 
