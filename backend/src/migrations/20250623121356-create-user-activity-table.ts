@@ -4,12 +4,14 @@ export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
         await queryInterface.createTable("user_activity", {
             id_activity_user: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             id_user: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "users",
@@ -19,7 +21,8 @@ export default {
                 onDelete: "CASCADE",
             },
             id_journal: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "journal",
@@ -29,7 +32,8 @@ export default {
                 onDelete: "CASCADE",
             },
             id_activity: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "activities",

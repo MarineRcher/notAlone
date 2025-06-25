@@ -1,13 +1,14 @@
 import { QueryInterface, DataTypes } from "sequelize";
-
+import { v4 as uuidv4 } from "uuid";
 export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
         const now = new Date();
         await queryInterface.createTable("resume_journey", {
             id_resume_journey: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             resume_journey: {
                 type: DataTypes.STRING,
@@ -28,18 +29,61 @@ export default {
         });
 
         await queryInterface.addIndex("resume_journey", ["resume_journey"]);
-        await queryInterface.bulkInsert("activities", [
-            { activity: "Lecture", created_at: now, updated_at: now },
-            { activity: "Repos", created_at: now, updated_at: now },
-            { activity: "Marche", created_at: now, updated_at: now },
-            { activity: "Méditation", created_at: now, updated_at: now },
-            { activity: "Thérapie", created_at: now, updated_at: now },
-            { activity: "Cuisine", created_at: now, updated_at: now },
-            { activity: "Travail", created_at: now, updated_at: now },
-            { activity: "Pleurs", created_at: now, updated_at: now },
-            { activity: "Nettoyage", created_at: now, updated_at: now },
-            { activity: "Passion", created_at: now, updated_at: now },
-            { activity: "Sport", created_at: now, updated_at: now },
+        await queryInterface.bulkInsert("resume_journey", [
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Calme",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Joie",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Lutte",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Stress",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Progrès",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Fatigue",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Chute",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Force",
+                created_at: now,
+                updated_at: now,
+            },
+            {
+                id_resume_journey: uuidv4(),
+                resume_journey: "Solitude",
+                created_at: now,
+                updated_at: now,
+            },
         ]);
     },
 

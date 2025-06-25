@@ -9,7 +9,7 @@ class Activities
     extends Model<ActivitiesAttributes, ActivitiesCreationAttributes>
     implements ActivitiesAttributes
 {
-    declare id_activity: number;
+    declare id_activity: string;
     declare activity: string;
 
     declare readonly createdAt: Date;
@@ -19,9 +19,10 @@ class Activities
 Activities.init(
     {
         id_activity: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
         },
         activity: {
             type: DataTypes.STRING,

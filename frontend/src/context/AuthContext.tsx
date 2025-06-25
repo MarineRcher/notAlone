@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { View } from "react-native";
 
 export type User = {
-    id: number;
+    id: string;
     has2FA: boolean;
     notify?: boolean;
     hourNotify?: string;

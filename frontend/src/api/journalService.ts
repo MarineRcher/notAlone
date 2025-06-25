@@ -20,7 +20,7 @@ const journalService = {
         return response;
     },
     addUserDifficulty: async (data: {
-        id_journal?: number;
+        id_journal?: string;
         date: Date;
         difficulty: string;
     }) => {
@@ -34,7 +34,7 @@ const journalService = {
     },
 
     addUserConsumed: async (data: {
-        id_journal: number;
+        id_journal: string;
         consumed: boolean;
     }) => {
         const token = await authHelpers.getToken();
@@ -46,7 +46,7 @@ const journalService = {
         return response;
     },
 
-    addActivities: async (data: { id_journal: number; activities: any[] }) => {
+    addActivities: async (data: { id_journal: string; activities: any[] }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
 
@@ -55,7 +55,7 @@ const journalService = {
         });
         return response;
     },
-    addPoints: async (data: { id_journal: number }) => {
+    addPoints: async (data: { id_journal: string }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
 
@@ -66,8 +66,8 @@ const journalService = {
     },
 
     addResumeJourney: async (data: {
-        id_journal: number;
-        id_resume_journey: number;
+        id_journal: string;
+        id_resume_journey: string;
     }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
@@ -82,7 +82,7 @@ const journalService = {
         return response;
     },
 
-    addGoal: async (data: { id_journal: number; next_day_goal: string }) => {
+    addGoal: async (data: { id_journal: string; next_day_goal: string }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
 
@@ -92,7 +92,7 @@ const journalService = {
         return response;
     },
 
-    addNotes: async (data: { id_journal: number; note: string }) => {
+    addNotes: async (data: { id_journal: string; note: string }) => {
         const token = await authHelpers.getToken();
         if (!token) throw new Error("Token non disponible");
 
@@ -102,7 +102,7 @@ const journalService = {
         return response;
     },
     addCheckedGoal: async (data: {
-        id_journal: number;
+        id_journal: string;
         actual_day_goal_completed: boolean;
     }) => {
         const token = await authHelpers.getToken();

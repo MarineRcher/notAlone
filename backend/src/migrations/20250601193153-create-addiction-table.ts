@@ -1,13 +1,15 @@
 import { QueryInterface, DataTypes } from "sequelize";
-
+import { v4 as uuidv4 } from "uuid";
 export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
         const now = new Date();
+
         await queryInterface.createTable("addictions", {
             id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             addiction: {
                 type: DataTypes.STRING(255),
@@ -30,18 +32,21 @@ export default {
 
         await queryInterface.bulkInsert("addictions", [
             {
+                id: uuidv4(),
                 addiction: "Tabac",
                 phone_number: "3989",
                 created_at: now,
                 updated_at: now,
             },
             {
+                id: uuidv4(),
                 addiction: "Alcool",
                 phone_number: "0969394020",
                 created_at: now,
                 updated_at: now,
             },
             {
+                id: uuidv4(),
                 addiction: "Jeux d'argent",
                 phone_number: "0974751313",
                 created_at: now,

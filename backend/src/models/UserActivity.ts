@@ -9,10 +9,10 @@ class UserActivity
     extends Model<UserActivityAttributes, UserActivityCreationAttributes>
     implements UserActivityAttributes
 {
-    public id_activity_user!: number;
-    public id_activity!: number;
-    public id_journal!: number;
-    public id_user!: number;
+    public id_activity_user!: string;
+    public id_activity!: string;
+    public id_journal!: string;
+    public id_user!: string;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -38,21 +38,25 @@ class UserActivity
 UserActivity.init(
     {
         id_activity_user: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
         },
         id_activity: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
         id_journal: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
         id_user: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
+            defaultValue: DataTypes.UUIDV4,
         },
     },
     {

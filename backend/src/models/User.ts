@@ -19,7 +19,7 @@ class User
     extends Model<UserAttributes, UserCreationAttributes>
     implements UserAttributes
 {
-    public id!: number;
+    public id!: string;
     public login!: string;
     public email!: string;
     public password!: string;
@@ -40,9 +40,10 @@ class User
 User.init(
     {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
         },
         login: {
             type: DataTypes.STRING,

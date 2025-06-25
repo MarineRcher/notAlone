@@ -19,14 +19,14 @@ import DatePicker from "../../components/datePicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 interface Addiction {
-    id: number;
+    id: string;
     addiction: string;
 }
 
 type Props = NativeStackScreenProps<any, any>;
 const AddUserAddictionScreen = ({ navigation }: Props) => {
     const [addictions, setAddictions] = useState<Addiction[]>([]);
-    const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
+    const [selectedAddiction, setSelectedAddiction] = useState<string | null>(
         null
     );
     const [date, setDate] = useState(new Date());
@@ -88,7 +88,6 @@ const AddUserAddictionScreen = ({ navigation }: Props) => {
         if (!validateForm()) return;
 
         setIsLoading(true);
-
         try {
             await addictionService.addUserAddiction({
                 addiction_id: selectedAddiction!,

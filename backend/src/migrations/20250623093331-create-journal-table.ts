@@ -4,12 +4,14 @@ export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
         await queryInterface.createTable("journal", {
             id_journal: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             id_user: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
             },
             difficulty: {
@@ -21,8 +23,9 @@ export default {
                 defaultValue: false,
             },
             id_resume_journey: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 allowNull: true,
+                defaultValue: DataTypes.UUIDV4,
             },
             note: {
                 type: DataTypes.STRING,

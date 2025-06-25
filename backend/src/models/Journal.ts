@@ -9,11 +9,11 @@ class Journal
     extends Model<JournalAttributes, JournalCreationAttributes>
     implements JournalAttributes
 {
-    declare id_journal: number;
-    declare id_user: number;
+    declare id_journal: string;
+    declare id_user: string;
     declare difficulty: "Facile" | "Moyen" | "Dur";
     declare consumed?: boolean;
-    declare id_resume_journey?: number;
+    declare id_resume_journey?: string;
     declare note?: string | undefined;
     declare next_day_goal?: string | undefined;
     declare actual_day_goal_completed?: boolean | undefined;
@@ -38,12 +38,14 @@ class Journal
 Journal.init(
     {
         id_journal: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             primaryKey: true,
-            autoIncrement: true,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
         },
         id_user: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             allowNull: false,
         },
         difficulty: {
@@ -56,8 +58,9 @@ Journal.init(
             defaultValue: false,
         },
         id_resume_journey: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: true,
+            defaultValue: DataTypes.UUIDV4,
         },
         note: {
             type: DataTypes.STRING,

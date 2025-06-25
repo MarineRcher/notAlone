@@ -5,12 +5,14 @@ export default {
         await queryInterface.createTable("addiction_users", {
             // PLURIEL pour cohérence
             id_addiction_user: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             id_addiction: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "addictions",
@@ -20,7 +22,8 @@ export default {
                 onDelete: "CASCADE",
             },
             id_user: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "users",

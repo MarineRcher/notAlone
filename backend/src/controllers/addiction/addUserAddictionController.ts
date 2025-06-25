@@ -20,7 +20,7 @@ import User from "../../models/User";
  * An object indicating whether the input is valid and any corresponding error messages.
  */
 const validateAddictionData = (
-    addiction_id: number,
+    addiction_id: string,
     date: string,
     use_a_day?: number,
     spending_a_day?: number
@@ -31,10 +31,6 @@ const validateAddictionData = (
         use_a_day?: string;
         spending_a_day?: string;
     } = {};
-
-    if (!addiction_id || isNaN(addiction_id)) {
-        errors.addiction_id = "ID d'addiction invalide";
-    }
 
     if (!date || !Date.parse(date)) {
         errors.date = "Format de date invalide (utilisez ISO8601)";
