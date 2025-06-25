@@ -9,8 +9,8 @@ import { addUserNote } from "../controllers/journal/AddUserNoteController";
 import { addUserGoal } from "../controllers/journal/AddUserGoalController";
 import { getResumeJourney } from "../controllers/journal/GetResumeJourneyController";
 import { getActivities } from "../controllers/journal/GetActivitiesController";
-import { addCheckGoal } from "../controllers/journal/AddCheckGoalCheckGoal";
-import { addPoints } from "../controllers/journal/AddPointsJournal";
+import { addCheckGoal } from "../controllers/journal/AddCheckGoalController";
+import { addPoints } from "../controllers/journal/AddPointsController";
 const router = express.Router();
 
 router.post("/getJournal", authMiddleware, getUserJournal);
