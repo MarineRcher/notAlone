@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { addCheckGoal } from "../../../../src/controllers/journal/AddCheckGoalController";
+import { addUserNote } from "../../../../src/controllers/journal/AddUserNoteController";
 import Journal from "../../../../src/models/Journal";
+import logger from "../../../../src/config/logger";
 import { UserAttributes } from "../../../../src/types/users";
 
 jest.mock("../../../../src/models/Journal", () => ({
@@ -8,7 +9,11 @@ jest.mock("../../../../src/models/Journal", () => ({
     update: jest.fn(),
 }));
 
-describe("addCheckGoal", () => {
+jest.mock("../../../../src/config/logger", () => ({
+    error: jest.fn(),
+}));
+
+describe("addUserNote", () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
     let next: NextFunction;
@@ -16,7 +21,7 @@ describe("addCheckGoal", () => {
     beforeEach(() => {
         req = {
             user: {
-                id: "1",
+                id: "user-abc",
                 login: "testuser",
                 email: "test@example.com",
                 password: "hashed_password",
@@ -31,8 +36,8 @@ describe("addCheckGoal", () => {
                 points: 0,
             } as UserAttributes,
             body: {
-                id_journal: "1",
-                actual_day_goal_completed: true,
+                id_journal: "journal-xyz",
+                note: "C'était une bonne journée",
             },
         };
 
@@ -42,6 +47,11 @@ describe("addCheckGoal", () => {
         };
 
         next = jest.fn();
+
+        (Journal.findOne as jest.Mock).mockResolvedValue({
+            id_journal: "journal-xyz",
+        });
+        (Journal.update as jest.Mock).mockResolvedValue([1]);
     });
 
     afterEach(() => {
@@ -51,57 +61,74 @@ describe("addCheckGoal", () => {
     it("should return 401 if user is not authenticated", async () => {
         req.user = undefined;
 
-        await addCheckGoal(req as Request, res as Response, next);
+        await addUserNote(req as Request, res as Response, next);
 
         expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith({ message: "Non autorisé" });
     });
 
+    it("should return 404 if user has 2FA (premium required)", async () => {
+        req.user!.has2FA = true;
+
+        await addUserNote(req as Request, res as Response, next);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Version premium obligatoire",
+        });
+    });
+
     it("should return 404 if journal not found", async () => {
         (Journal.findOne as jest.Mock).mockResolvedValue(null);
 
-        await addCheckGoal(req as Request, res as Response, next);
+        await addUserNote(req as Request, res as Response, next);
 
         expect(Journal.findOne).toHaveBeenCalledWith({
             where: {
-                id_journal: "1",
-                id_user: "1",
+                id_journal: "journal-xyz",
+                id_user: "user-abc",
             },
         });
+
         expect(res.status).toHaveBeenCalledWith(404);
         expect(res.json).toHaveBeenCalledWith({
             message: "Journal non trouvé",
         });
     });
 
-    it("should update journal and return 200 if journal exists", async () => {
-        (Journal.findOne as jest.Mock).mockResolvedValue({ id_journal: "1" });
-        (Journal.update as jest.Mock).mockResolvedValue([1]);
-
-        await addCheckGoal(req as Request, res as Response, next);
+    it("should update note and return 200 if journal exists", async () => {
+        await addUserNote(req as Request, res as Response, next);
 
         expect(Journal.update).toHaveBeenCalledWith(
-            { actual_day_goal_completed: true },
+            { note: "C'était une bonne journée" },
             {
                 where: {
-                    id_journal: "1",
-                    id_user: "1",
+                    id_journal: "journal-xyz",
+                    id_user: "user-abc",
                 },
             }
         );
 
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            message:
-                "Objectif état de l'objectif remplit / non remplit enregistré avec succès",
+            message: "Notes de la journée enregistrée avec succès",
         });
     });
 
-    it("should call next with error on exception", async () => {
-        const error = new Error("DB exploded");
+    it("should log and call next on unexpected error", async () => {
+        const error = new Error("Boom");
         (Journal.findOne as jest.Mock).mockRejectedValue(error);
 
-        await addCheckGoal(req as Request, res as Response, next);
+        await addUserNote(req as Request, res as Response, next);
+
+        expect(logger.error).toHaveBeenCalledWith(
+            "Erreur lors de l'enregistrement des notes de la journée de l'utilisateur",
+            expect.objectContaining({
+                error: "Boom",
+                user_id: "user-abc",
+                body: req.body,
+            })
+        );
 
         expect(next).toHaveBeenCalledWith(error);
     });

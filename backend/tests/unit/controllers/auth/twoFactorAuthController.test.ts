@@ -28,10 +28,10 @@ describe("2FA Controller", () => {
 
     describe("generate2FASecret", () => {
         it("should return 200 and QR code for valid user", async () => {
-            const mockReq = { user: { id: 1 } } as Request;
+            const mockReq = { user: { id: "1" } } as Request;
 
             (User.findByPk as jest.Mock).mockResolvedValue({
-                id: 1,
+                id: "1",
                 email: "user@example.com",
             });
             (
@@ -58,7 +58,7 @@ describe("2FA Controller", () => {
         });
 
         it("should return 404 if user not found", async () => {
-            const mockReq = { user: { id: 999 } } as Request;
+            const mockReq = { user: { id: "999" } } as Request;
             (User.findByPk as jest.Mock).mockResolvedValue(null);
 
             await generate2FASecret(mockReq, mockRes, mockNext);
@@ -76,7 +76,7 @@ describe("2FA Controller", () => {
             const decoded = {
                 setupPhase: true,
                 secret: "SECRET",
-                userId: 1,
+                userId: "1",
             };
 
             (jwt.verify as jest.Mock).mockReturnValue(decoded);
@@ -85,13 +85,13 @@ describe("2FA Controller", () => {
             );
 
             (User.findByPk as jest.Mock).mockResolvedValue({
-                id: 1,
+                id: "1",
                 login: "user1",
                 notify: true,
                 hourNotify: "08:00",
                 hasPremium: true,
             });
-            (User.update as jest.Mock).mockResolvedValue([1]);
+            (User.update as jest.Mock).mockResolvedValue(["1"]);
 
             await verify2FASetup(mockReq, mockRes, mockNext);
 
@@ -101,7 +101,7 @@ describe("2FA Controller", () => {
                     has2FA: true,
                 },
                 {
-                    where: { id: 1 },
+                    where: { id: "1" },
                 }
             );
 
@@ -144,9 +144,9 @@ describe("2FA Controller", () => {
                 ip: "127.0.0.1",
             } as Request;
 
-            const decoded = { requiresTwoFactor: true, id: 1 };
+            const decoded = { requiresTwoFactor: true, id: "1" };
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "user1",
                 password: "secret",
                 twoFactorSecret: "SECRET",
@@ -176,9 +176,9 @@ describe("2FA Controller", () => {
                 ip: "127.0.0.1",
             } as Request;
 
-            const decoded = { requiresTwoFactor: true, id: 1 };
+            const decoded = { requiresTwoFactor: true, id: "1" };
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "user1",
                 password: "secret",
                 twoFactorSecret: "SECRET",
@@ -198,11 +198,11 @@ describe("2FA Controller", () => {
     describe("disable2FA", () => {
         it("should disable 2FA successfully", async () => {
             const mockReq = {
-                body: { userId: 1, otp: "123456" },
+                body: { userId: "1", otp: "123456" },
             } as Request;
 
             const mockUser = {
-                id: 1,
+                id: "1",
                 twoFactorSecret: "SECRET",
                 has2FA: true,
             };
@@ -219,7 +219,7 @@ describe("2FA Controller", () => {
 
         it("should return 404 if user not found", async () => {
             const mockReq = {
-                body: { userId: 99, otp: "123456" },
+                body: { userId: "99", otp: "123456" },
             } as Request;
 
             (User.findByPk as jest.Mock).mockResolvedValue(null);
@@ -234,7 +234,7 @@ describe("2FA Controller", () => {
             } as Request;
 
             const mockUser = {
-                id: 1,
+                id: "1",
                 twoFactorSecret: "SECRET",
                 has2FA: true,
             };

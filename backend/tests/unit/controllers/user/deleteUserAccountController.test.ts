@@ -31,7 +31,7 @@ describe("deleteUserAccount controller", () => {
     });
 
     it("should return 404 if user not found (nothing deleted)", async () => {
-        const req = { user: { id: 1 } } as Request;
+        const req = { user: { id: "1" } } as Request;
         const res = mockRes();
         (AddictionUser.destroy as jest.Mock).mockResolvedValue(1);
         (User.destroy as jest.Mock).mockResolvedValue(0); // no rows deleted
@@ -39,9 +39,9 @@ describe("deleteUserAccount controller", () => {
         await deleteUserAccount(req, res, mockNext);
 
         expect(AddictionUser.destroy).toHaveBeenCalledWith({
-            where: { id_user: 1 },
+            where: { id_user: "1" },
         });
-        expect(User.destroy).toHaveBeenCalledWith({ where: { id: 1 } });
+        expect(User.destroy).toHaveBeenCalledWith({ where: { id: "1" } });
         expect(res.status).toHaveBeenCalledWith(404);
         expect(res.json).toHaveBeenCalledWith({
             message: "Utilisateur introuvable",
@@ -49,7 +49,7 @@ describe("deleteUserAccount controller", () => {
     });
 
     it("should return 200 if user is successfully deleted", async () => {
-        const req = { user: { id: 1 } } as Request;
+        const req = { user: { id: "1" } } as Request;
         const res = mockRes();
         (AddictionUser.destroy as jest.Mock).mockResolvedValue(1);
         (User.destroy as jest.Mock).mockResolvedValue(1); // one row deleted
@@ -57,9 +57,9 @@ describe("deleteUserAccount controller", () => {
         await deleteUserAccount(req, res, mockNext);
 
         expect(AddictionUser.destroy).toHaveBeenCalledWith({
-            where: { id_user: 1 },
+            where: { id_user: "1" },
         });
-        expect(User.destroy).toHaveBeenCalledWith({ where: { id: 1 } });
+        expect(User.destroy).toHaveBeenCalledWith({ where: { id: "1" } });
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             message: "Compte et données associées supprimés",
@@ -67,7 +67,7 @@ describe("deleteUserAccount controller", () => {
     });
 
     it("should call next() on unexpected error", async () => {
-        const req = { user: { id: 1 } } as Request;
+        const req = { user: { id: "1" } } as Request;
         const res = mockRes();
         const error = new Error("Unexpected");
 

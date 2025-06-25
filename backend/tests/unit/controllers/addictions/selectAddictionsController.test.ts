@@ -22,8 +22,8 @@ describe("selectAddictions Controller", () => {
     describe("Successful cases", () => {
         test("should return addictions with 201 status when found", async () => {
             const mockAddictions = [
-                { id: 1, name: "Café", severity: 3 },
-                { id: 2, name: "Réseaux sociaux", severity: 2 },
+                { id: "1", name: "Café" },
+                { id: "2", name: "Réseaux sociaux" },
             ];
 
             (Addiction.findAll as jest.Mock).mockResolvedValue(mockAddictions);

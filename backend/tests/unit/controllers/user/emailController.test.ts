@@ -30,7 +30,7 @@ describe("changeEmail controller", () => {
 
     it("should return 400 if newEmail is missing", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             body: {},
         } as Request;
         const res = mockRes();
@@ -45,7 +45,7 @@ describe("changeEmail controller", () => {
 
     it("should return 400 if newEmail format is invalid", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             body: { newEmail: "bad-email" },
         } as Request;
         const res = mockRes();
@@ -60,7 +60,7 @@ describe("changeEmail controller", () => {
 
     it("should return 404 if user is not found", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             body: { newEmail: "test@example.com" },
         } as Request;
         const res = mockRes();
@@ -77,12 +77,12 @@ describe("changeEmail controller", () => {
 
     it("should return 409 if email is already in use", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             body: { newEmail: "test@example.com" },
         } as Request;
         const res = mockRes();
 
-        (User.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+        (User.findByPk as jest.Mock).mockResolvedValue({ id: "1" });
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 2,
             email: "test@example.com",
@@ -98,12 +98,12 @@ describe("changeEmail controller", () => {
 
     it("should update email successfully and return 200", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             body: { newEmail: "new@example.com" },
         } as Request;
         const res = mockRes();
 
-        (User.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+        (User.findByPk as jest.Mock).mockResolvedValue({ id: "1" });
         (User.findOne as jest.Mock).mockResolvedValue(null);
         (User.update as jest.Mock).mockResolvedValue([1]);
 
@@ -111,7 +111,7 @@ describe("changeEmail controller", () => {
 
         expect(User.update).toHaveBeenCalledWith(
             { email: "new@example.com" },
-            { where: { id: 1 } }
+            { where: { id: "1" } }
         );
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
@@ -121,7 +121,7 @@ describe("changeEmail controller", () => {
 
     it("should handle unexpected errors and call next()", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             body: { newEmail: "new@example.com" },
         } as Request;
         const res = mockRes();

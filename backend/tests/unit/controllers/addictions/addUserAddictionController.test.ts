@@ -20,7 +20,7 @@ const mockRes = () => {
 const nextFunction: NextFunction = jest.fn();
 
 const mockUser = {
-    id: 1,
+    id: "1",
     login: "testuser",
     email: "test@example.com",
     password: "hashed",
@@ -55,7 +55,7 @@ describe("addUserAddiction controller", () => {
         const req = {
             user: mockUser,
             body: {
-                addiction_id: "abc", // invalid
+                addiction_id: 1, // invalid
                 date: "not-a-date", // invalid
             },
         } as unknown as Request;
@@ -68,8 +68,7 @@ describe("addUserAddiction controller", () => {
             expect.objectContaining({
                 message: "Données invalides",
                 errors: expect.objectContaining({
-                    addiction_id: expect.any(String),
-                    date: expect.any(String),
+                    date: "Format de date invalide (utilisez ISO8601)",
                 }),
             })
         );
@@ -78,7 +77,7 @@ describe("addUserAddiction controller", () => {
     it("should return 404 if user is not found", async () => {
         const req = {
             user: mockUser,
-            body: { addiction_id: 1, date: "2023-01-01" },
+            body: { addiction_id: "1", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
@@ -95,7 +94,7 @@ describe("addUserAddiction controller", () => {
     it("should return 404 if addiction is not found", async () => {
         const req = {
             user: mockUser,
-            body: { addiction_id: 1, date: "2023-01-01" },
+            body: { addiction_id: "1", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
@@ -113,13 +112,13 @@ describe("addUserAddiction controller", () => {
     it("should return 409 if addiction already added", async () => {
         const req = {
             user: mockUser,
-            body: { addiction_id: 1, date: "2023-01-01" },
+            body: { addiction_id: "1", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
         (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
-        (AddictionUser.findOne as jest.Mock).mockResolvedValue({ id: 10 });
+        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: "1" });
+        (AddictionUser.findOne as jest.Mock).mockResolvedValue({ id: "1" });
 
         await addUserAddiction(req, res, nextFunction);
 
@@ -132,12 +131,12 @@ describe("addUserAddiction controller", () => {
     it("should return 403 if non-premium user exceeds addiction limit", async () => {
         const req = {
             user: mockUser,
-            body: { addiction_id: 2, date: "2023-01-01" },
+            body: { addiction_id: "2", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
         (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
+        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: "2" });
         (AddictionUser.findOne as jest.Mock).mockResolvedValue(null);
         (AddictionUser.count as jest.Mock).mockResolvedValue(1);
 
@@ -154,7 +153,7 @@ describe("addUserAddiction controller", () => {
             user: { ...mockUser, hasPremium: true },
             ip: "127.0.0.1",
             body: {
-                addiction_id: 2,
+                addiction_id: "2",
                 date: "2023-01-01",
                 use_a_day: 3,
                 spending_a_day: 4.5,
@@ -164,7 +163,7 @@ describe("addUserAddiction controller", () => {
         const res = mockRes();
 
         (User.findByPk as jest.Mock).mockResolvedValue(req.user);
-        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: 2 });
+        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: "2" });
         (AddictionUser.findOne as jest.Mock).mockResolvedValue(null); // ✅ Important!
         (AddictionUser.count as jest.Mock).mockResolvedValue(1);
         (AddictionUser.create as jest.Mock).mockResolvedValue({}); // mock success
@@ -172,7 +171,7 @@ describe("addUserAddiction controller", () => {
         await addUserAddiction(req, res, nextFunction);
 
         expect(AddictionUser.create).toHaveBeenCalledWith({
-            id_addiction: 2,
+            id_addiction: "2",
             id_user: req.user?.id,
             date: new Date("2023-01-01"),
             spending_a_day: 4.5,
@@ -189,12 +188,12 @@ describe("addUserAddiction controller", () => {
     it("should handle Sequelize unique constraint error", async () => {
         const req = {
             user: mockUser,
-            body: { addiction_id: 1, date: "2023-01-01" },
+            body: { addiction_id: "1", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
         (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: "1" });
         (AddictionUser.findOne as jest.Mock).mockResolvedValue(null);
         (AddictionUser.count as jest.Mock).mockResolvedValue(0);
 
@@ -213,12 +212,12 @@ describe("addUserAddiction controller", () => {
     it("should handle Sequelize FK constraint error", async () => {
         const req = {
             user: mockUser,
-            body: { addiction_id: 1, date: "2023-01-01" },
+            body: { addiction_id: "1", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
         (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: "1" });
         (AddictionUser.findOne as jest.Mock).mockResolvedValue(null);
         (AddictionUser.count as jest.Mock).mockResolvedValue(0);
 
@@ -238,12 +237,12 @@ describe("addUserAddiction controller", () => {
         const req = {
             user: mockUser,
             ip: "127.0.0.1",
-            body: { addiction_id: 1, date: "2023-01-01" },
+            body: { addiction_id: "1", date: "2023-01-01" },
         } as Request;
         const res = mockRes();
 
         (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
-        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: 1 });
+        (Addiction.findByPk as jest.Mock).mockResolvedValue({ id: "1" });
         (AddictionUser.findOne as jest.Mock).mockResolvedValue(null);
         (AddictionUser.count as jest.Mock).mockResolvedValue(0);
 

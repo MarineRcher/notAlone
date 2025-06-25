@@ -67,7 +67,7 @@ describe("addAddiction controller", () => {
 
         const res = mockRes();
         (Addiction.create as jest.Mock).mockResolvedValue({
-            id: 1,
+            id: "1",
             addiction: "Nicotin",
             phoneNumber: "+33612345678",
         });

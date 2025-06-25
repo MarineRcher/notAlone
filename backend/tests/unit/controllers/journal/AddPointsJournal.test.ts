@@ -20,7 +20,7 @@ describe("addPoints", () => {
     let next: NextFunction;
 
     const mockUser = {
-        id: 1,
+        id: "1",
         increment: jest.fn(),
         reload: jest.fn(),
         dataValues: { points: 100 },
@@ -29,7 +29,7 @@ describe("addPoints", () => {
     beforeEach(() => {
         req = {
             user: {
-                id: 1,
+                id: "1",
                 login: "testuser",
                 email: "test@example.com",
                 password: "hashed_password",
@@ -44,7 +44,7 @@ describe("addPoints", () => {
                 points: 0,
             } as UserAttributes,
             body: {
-                id_journal: 1,
+                id_journal: "1",
             },
         };
 
@@ -142,7 +142,7 @@ describe("addPoints", () => {
             "Erreur lors de l'ajout de points de l'utilisateur",
             expect.objectContaining({
                 error: "Boom",
-                user_id: 1,
+                user_id: "1",
                 body: req.body,
             })
         );

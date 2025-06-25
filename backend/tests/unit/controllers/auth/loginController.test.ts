@@ -151,7 +151,7 @@ describe("Login Controller", () => {
             };
 
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "user",
                 email: "user@example.com",
                 password: "hashedpassword",
@@ -162,7 +162,7 @@ describe("Login Controller", () => {
 
             (User.findOne as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-            (User.update as jest.Mock).mockResolvedValue([1]);
+            (User.update as jest.Mock).mockResolvedValue(["1"]);
 
             await login(
                 mockRequest as Request,
@@ -195,7 +195,7 @@ describe("Login Controller", () => {
             };
 
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "user",
                 email: "user@example.com",
                 password: "hashedpassword",
@@ -206,7 +206,7 @@ describe("Login Controller", () => {
 
             (User.findOne as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(false);
-            (User.update as jest.Mock).mockResolvedValue([1]);
+            (User.update as jest.Mock).mockResolvedValue(["1"]);
 
             await login(
                 mockRequest as Request,
@@ -233,7 +233,7 @@ describe("Login Controller", () => {
             futureDate.setMinutes(futureDate.getMinutes() + 10); // 10 minutes in the future
 
             const mockUser = {
-                id: 2,
+                id: "2",
                 login: "blocked",
                 email: "blocked@example.com",
                 password: "hashedpassword",
@@ -265,7 +265,7 @@ describe("Login Controller", () => {
             };
 
             const mockUser = {
-                id: 3,
+                id: "3",
                 login: "user2fa",
                 email: "user2fa@example.com",
                 password: "hashedpassword",
@@ -286,7 +286,7 @@ describe("Login Controller", () => {
 
             expect(jwt.sign).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    id: 3,
+                    id: "3",
                     requiresTwoFactor: true,
                 }),
                 "test-secret",
@@ -309,7 +309,7 @@ describe("Login Controller", () => {
             };
 
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "user",
                 email: "user@example.com",
                 password: "hashedpassword",
@@ -321,7 +321,7 @@ describe("Login Controller", () => {
             (User.findOne as jest.Mock).mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
             (jwt.sign as jest.Mock).mockReturnValue("valid-token-123");
-            (User.update as jest.Mock).mockResolvedValue([1]);
+            (User.update as jest.Mock).mockResolvedValue(["1"]);
 
             await login(
                 mockRequest as Request,
@@ -331,7 +331,7 @@ describe("Login Controller", () => {
 
             expect(jwt.sign).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    id: 1,
+                    id: "1",
                     login: "user",
                 }),
                 "test-secret",
@@ -360,7 +360,7 @@ describe("Login Controller", () => {
             };
 
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "user",
                 email: "user@example.com",
                 password: "hashedpassword",

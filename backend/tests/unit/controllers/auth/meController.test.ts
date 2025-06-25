@@ -14,7 +14,7 @@ describe("meController", () => {
     beforeEach(() => {
         req = {
             user: {
-                id: 1,
+                id: "1",
                 login: "testuser",
                 email: "test@example.com",
                 password: "hashedPassword",
@@ -48,7 +48,7 @@ describe("meController", () => {
         it("devrait renvoyer les informations de l'utilisateur connecté avec le statut 200", async () => {
             // Arrange
             const mockUser = {
-                id: 1,
+                id: "1",
                 login: "testuser",
                 email: "test@example.com",
                 hasPremium: false,
@@ -72,7 +72,7 @@ describe("meController", () => {
             await getCurrentUser(req as Request, res as Response, next);
 
             // Assert
-            expect(User.findByPk).toHaveBeenCalledWith(1, {
+            expect(User.findByPk).toHaveBeenCalledWith("1", {
                 attributes: { exclude: ["password"] },
             });
             expect(res.status).toHaveBeenCalledWith(200);
@@ -104,7 +104,7 @@ describe("meController", () => {
             await getCurrentUser(req as Request, res as Response, next);
 
             // Assert
-            expect(User.findByPk).toHaveBeenCalledWith(1, {
+            expect(User.findByPk).toHaveBeenCalledWith("1", {
                 attributes: { exclude: ["password"] },
             });
             expect(res.status).toHaveBeenCalledWith(404);
@@ -123,7 +123,7 @@ describe("meController", () => {
             await getCurrentUser(req as Request, res as Response, next);
 
             // Assert
-            expect(User.findByPk).toHaveBeenCalledWith(1, {
+            expect(User.findByPk).toHaveBeenCalledWith("1", {
                 attributes: { exclude: ["password"] },
             });
             expect(res.status).not.toHaveBeenCalled();
