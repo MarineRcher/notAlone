@@ -33,7 +33,7 @@ const Mascot: React.FC<MascotSpeechProps> = ({
 	style,
 	textStyle,
 	speechBubbleStyle,
-}) => 
+}) =>
 {
 	return (
 		<View style={[styles.container, style]}>

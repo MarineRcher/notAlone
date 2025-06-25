@@ -29,127 +29,128 @@ import HelpScreen from "../screens/HelpScreen";
 
 const Tab = createBottomTabNavigator();
 
-const BottomTabNavigator = () => {
-    return (
-        <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-                tabBarStyle: {
-                    backgroundColor: colors.background,
-                    height: 80,
-                    paddingVertical: 5,
-                },
-                tabBarActiveTintColor: colors.text,
-                tabBarInactiveTintColor: colors.text,
-                tabBarLabelStyle: {
-                    fontFamily: Fonts.quicksand.bold,
-                    fontSize: 12,
-                    fontWeight: "600",
-                },
-            }}
-        >
-            <Tab.Screen
-                name="Accueil"
-                component={HomeScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            ActiveIcon={HomeIconActive}
-                            InactiveIcon={HomeIcon}
-                        />
-                    ),
-                    tabBarLabel: ({ focused, color }) => (
-                        <TabLabel
-                            focused={focused}
-                            color={color}
-                            label="Accueil"
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Follow"
-                component={FollowScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            ActiveIcon={BookIconActive}
-                            InactiveIcon={BookIcon}
-                        />
-                    ),
-                    tabBarLabel: ({ focused, color }) => (
-                        <TabLabel
-                            focused={focused}
-                            color={color}
-                            label="Suivi"
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Forêt"
-                component={ForestScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            ActiveIcon={MapIconActive}
-                            InactiveIcon={MapIcon}
-                        />
-                    ),
-                    tabBarLabel: ({ focused, color }) => (
-                        <TabLabel
-                            focused={focused}
-                            color={color}
-                            label="Forêt"
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Aide"
-                component={HelpScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            ActiveIcon={ResourceIconActive}
-                            InactiveIcon={ResourceIcon}
-                        />
-                    ),
-                    tabBarLabel: ({ focused, color }) => (
-                        <TabLabel
-                            focused={focused}
-                            color={color}
-                            label="Aide"
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Compte"
-                component={UserScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            ActiveIcon={UserIconActive}
-                            InactiveIcon={UserIcon}
-                        />
-                    ),
-                    tabBarLabel: ({ focused, color }) => (
-                        <TabLabel
-                            focused={focused}
-                            color={color}
-                            label="Compte"
-                        />
-                    ),
-                }}
-            />
-        </Tab.Navigator>
-    );
+const BottomTabNavigator = () =>
+{
+	return (
+		<Tab.Navigator
+			screenOptions={{
+				headerShown: false,
+				tabBarStyle: {
+					backgroundColor: colors.background,
+					height: 80,
+					paddingVertical: 5,
+				},
+				tabBarActiveTintColor: colors.text,
+				tabBarInactiveTintColor: colors.text,
+				tabBarLabelStyle: {
+					fontFamily: Fonts.quicksand.bold,
+					fontSize: 12,
+					fontWeight: "600",
+				},
+			}}
+		>
+			<Tab.Screen
+				name="Accueil"
+				component={HomeScreen}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<TabIcon
+							focused={focused}
+							ActiveIcon={HomeIconActive}
+							InactiveIcon={HomeIcon}
+						/>
+					),
+					tabBarLabel: ({ focused, color }) => (
+						<TabLabel
+							focused={focused}
+							color={color}
+							label="Accueil"
+						/>
+					),
+				}}
+			/>
+			<Tab.Screen
+				name="Follow"
+				component={FollowScreen}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<TabIcon
+							focused={focused}
+							ActiveIcon={BookIconActive}
+							InactiveIcon={BookIcon}
+						/>
+					),
+					tabBarLabel: ({ focused, color }) => (
+						<TabLabel
+							focused={focused}
+							color={color}
+							label="Suivi"
+						/>
+					),
+				}}
+			/>
+			<Tab.Screen
+				name="Forêt"
+				component={ForestScreen}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<TabIcon
+							focused={focused}
+							ActiveIcon={MapIconActive}
+							InactiveIcon={MapIcon}
+						/>
+					),
+					tabBarLabel: ({ focused, color }) => (
+						<TabLabel
+							focused={focused}
+							color={color}
+							label="Forêt"
+						/>
+					),
+				}}
+			/>
+			<Tab.Screen
+				name="Aide"
+				component={HelpScreen}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<TabIcon
+							focused={focused}
+							ActiveIcon={ResourceIconActive}
+							InactiveIcon={ResourceIcon}
+						/>
+					),
+					tabBarLabel: ({ focused, color }) => (
+						<TabLabel
+							focused={focused}
+							color={color}
+							label="Aide"
+						/>
+					),
+				}}
+			/>
+			<Tab.Screen
+				name="Compte"
+				component={UserScreen}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<TabIcon
+							focused={focused}
+							ActiveIcon={UserIconActive}
+							InactiveIcon={UserIcon}
+						/>
+					),
+					tabBarLabel: ({ focused, color }) => (
+						<TabLabel
+							focused={focused}
+							color={color}
+							label="Compte"
+						/>
+					),
+				}}
+			/>
+		</Tab.Navigator>
+	);
 };
 
 export default BottomTabNavigator;

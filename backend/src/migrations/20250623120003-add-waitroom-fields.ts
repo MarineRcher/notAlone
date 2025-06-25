@@ -1,14 +1,14 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { QueryInterface, DataTypes } from "sequelize";
 
 export async function up(queryInterface: QueryInterface): Promise<void> {
   // Add new columns to groups table
-  await queryInterface.addColumn('groups', 'status', {
-    type: DataTypes.ENUM('waiting', 'active', 'sealed', 'inactive'),
+  await queryInterface.addColumn("groups", "status", {
+    type: DataTypes.ENUM("waiting", "active", "sealed", "inactive"),
     allowNull: false,
-    defaultValue: 'waiting',
+    defaultValue: "waiting",
   });
 
-  await queryInterface.addColumn('groups', 'min_members_to_start', {
+  await queryInterface.addColumn("groups", "min_members_to_start", {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 3,
@@ -21,6 +21,6 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
 }
 
 export async function down(queryInterface: QueryInterface): Promise<void> {
-  await queryInterface.removeColumn('groups', 'status');
-  await queryInterface.removeColumn('groups', 'min_members_to_start');
+  await queryInterface.removeColumn("groups", "status");
+  await queryInterface.removeColumn("groups", "min_members_to_start");
 } 

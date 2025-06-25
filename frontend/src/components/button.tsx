@@ -28,7 +28,7 @@ const Button: React.FC<CustomButtonProps> = ({
 	disabled = false,
 	textStyle,
 	danger = false,
-}) => 
+}) =>
 {
 	const buttonStyle = danger
 		? styles.dangerButton

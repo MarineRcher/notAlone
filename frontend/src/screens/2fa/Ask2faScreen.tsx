@@ -6,8 +6,9 @@ import BackButton from "../../components/backNavigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const Ask2faScreen = ({ navigation, route }: Props) => {
-    const isFromRegistration = route?.params?.isFromRegistration || false;
+const Ask2faScreen = ({ navigation, route }: Props) =>
+{
+	const isFromRegistration = route?.params?.isFromRegistration || false;
 
 	return (
 		<ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -24,13 +25,15 @@ const Ask2faScreen = ({ navigation, route }: Props) => {
 						type="secondary"
 						title="Non"
 						onPress={() =>
-{
+						{
 							if (navigation)
-{
+							{
 								if (isFromRegistration)
-{
+								{
 									navigation.navigate("AddUserAddiction");
-								} else {
+								}
+								else
+								{
 									navigation.navigate("Main");
 								}
 							}

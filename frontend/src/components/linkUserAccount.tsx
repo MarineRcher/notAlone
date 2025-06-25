@@ -7,7 +7,7 @@ interface link {
 	onPress: (event: GestureResponderEvent) => void;
 }
 
-const LinkPremium: React.FC<link> = ({ title, onPress }) => 
+const LinkPremium: React.FC<link> = ({ title, onPress }) =>
 {
 	return (
 		<TouchableOpacity onPress={onPress} style={[styles.baseLink]}>

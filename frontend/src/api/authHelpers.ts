@@ -6,31 +6,31 @@ interface DecodedToken {
 }
 
 export const authHelpers = {
-	saveToken: async (token: string) => 
-{
+	saveToken: async (token: string) =>
+	{
 		await SecureStore.setItemAsync("jwt", token);
 	},
 
-	getToken: async () => 
-{
+	getToken: async () =>
+	{
 		const token = await SecureStore.getItemAsync("jwt");
 
 		return token;
 	},
 
-	deleteToken: async () => 
-{
+	deleteToken: async () =>
+	{
 		await SecureStore.deleteItemAsync("jwt");
 	},
 
-	isTokenValid: async (): Promise<boolean> => 
-{
-		try 
-{
+	isTokenValid: async (): Promise<boolean> =>
+	{
+		try
+		{
 			const token = await SecureStore.getItemAsync("jwt");
 
 			if (!token)
-{
+			{
 				return false;
 			}
 
@@ -39,20 +39,22 @@ export const authHelpers = {
 
 			// Check if token is expired (with 30 second buffer)
 			return !!(decoded.exp && decoded.exp > currentTime + 30);
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.log("Error validating token:", error);
 			return false;
 		}
 	},
 
-	getValidToken: async (): Promise<string | null> => 
-{
-		try 
-{
+	getValidToken: async (): Promise<string | null> =>
+	{
+		try
+		{
 			const token = await SecureStore.getItemAsync("jwt");
 
 			if (!token)
-{
+			{
 				return null;
 			}
 
@@ -60,15 +62,17 @@ export const authHelpers = {
 			const currentTime = Date.now() / 1000;
 
 			// Check if token is expired
-			if (!decoded.exp || decoded.exp <= currentTime) 
-{
+			if (!decoded.exp || decoded.exp <= currentTime)
+			{
 				// Token is expired, remove it
 				await SecureStore.deleteItemAsync("jwt");
 				return null;
 			}
 
 			return token;
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.log("Error getting valid token:", error);
 			// Invalid token, remove it
 			await SecureStore.deleteItemAsync("jwt");

@@ -2,14 +2,14 @@ import express from "express";
 import { changeEmail } from "../controllers/user/emailController";
 import { deleteUserAccount } from "../controllers/user/deleteUserAccountController";
 import {
-    activateNotifications,
-    deactivateNotifications,
-    setNotificationHour,
+	activateNotifications,
+	deactivateNotifications,
+	setNotificationHour,
 } from "../controllers/user/notificationController";
 import { authMiddleware } from "../middleware/authMiddleware";
 import {
-    activatePremium,
-    deactivatePremium,
+	activatePremium,
+	deactivatePremium,
 } from "../controllers/user/PremiumController";
 
 const router = express.Router();

@@ -19,18 +19,21 @@ EXPO_PUBLIC_SOCKET_URL=http://172.20.10.2:3000
 ## Different Environments
 
 ### Local Development
+
 ```bash
 EXPO_PUBLIC_API_BASE_URL=http://localhost:3000
 EXPO_PUBLIC_SOCKET_URL=http://localhost:3000
 ```
 
 ### Mobile Development (with your computer's IP)
+
 ```bash
 EXPO_PUBLIC_API_BASE_URL=http://192.168.1.155:3000
 EXPO_PUBLIC_SOCKET_URL=http://192.168.1.155:3000
 ```
 
 ### Production
+
 ```bash
 EXPO_PUBLIC_API_BASE_URL=https://your-api-domain.com
 EXPO_PUBLIC_SOCKET_URL=https://your-socket-domain.com
@@ -48,12 +51,12 @@ EXPO_PUBLIC_SOCKET_URL=https://your-socket-domain.com
 For quick development switching, you can also use the `setDevelopmentConfig` function:
 
 ```typescript
-import { setDevelopmentConfig } from './src/config/api';
+import { setDevelopmentConfig } from "./src/config/api";
 
 // Only works in development mode
 setDevelopmentConfig({
-  API_BASE_URL: 'http://localhost:3000',
-  SOCKET_URL: 'http://localhost:3000',
+	API_BASE_URL: "http://localhost:3000",
+	SOCKET_URL: "http://localhost:3000",
 });
 ```
 
@@ -67,4 +70,4 @@ The following files now use the centralized configuration:
 
 ## Note
 
-In Expo/React Native, environment variables must be prefixed with `EXPO_PUBLIC_` to be available in the client-side code. 
+In Expo/React Native, environment variables must be prefixed with `EXPO_PUBLIC_` to be available in the client-side code.

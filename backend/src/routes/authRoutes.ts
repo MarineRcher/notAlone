@@ -4,10 +4,10 @@ import { login } from "../controllers/auth/loginController";
 import { changePassword } from "../controllers/auth/passwordController";
 import { refreshToken } from "../controllers/auth/refreshTokenController";
 import {
-    generate2FASecret,
-    verify2FASetup,
-    verify2FALogin,
-    disable2FA,
+	generate2FASecret,
+	verify2FASetup,
+	verify2FALogin,
+	disable2FA,
 } from "../controllers/auth/twoFactorAuthController";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { getCurrentUser } from "../controllers/auth/meController";

@@ -19,17 +19,18 @@ import TimePicker from "../components/timePicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const UserScreen = ({ navigation }: Props) => {
-    const { user, updateNotificationSettings } = useContext(AuthContext);
-    const { setUser } = useContext(AuthContext);
-    const [isEditingTime, setIsEditingTime] = useState(false);
-    const [showPicker, setShowPicker] = useState(false);
-    const [time, setTime] = useState(new Date());
+const UserScreen = ({ navigation }: Props) =>
+{
+	const { user, updateNotificationSettings } = useContext(AuthContext);
+	const { setUser } = useContext(AuthContext);
+	const [isEditingTime, setIsEditingTime] = useState(false);
+	const [showPicker, setShowPicker] = useState(false);
+	const [time, setTime] = useState(new Date());
 
 	useEffect(() =>
-{
+	{
 		if (user?.hourNotify)
-{
+		{
 			const [hours, minutes] = user.hourNotify.split(":").map(Number);
 			const newDate = new Date();
 
@@ -40,22 +41,24 @@ const UserScreen = ({ navigation }: Props) => {
 	}, [user?.hourNotify]);
 
 	const handleLogout = () =>
-{
+	{
 		Alert.alert("Se déconnecter", "Es-tu sûr de vouloir te déconnecter ?", [
 			{ text: "Annuler", style: "cancel" },
 			{
 				text: "Déconnexion",
 				style: "destructive",
 				onPress: async () =>
-{
+				{
 					try
-{
+					{
 						await authService.logout();
 						navigation.reset({
 							index: 0,
 							routes: [{ name: "Login" }],
 						});
-					} catch (error) {
+					}
+					catch (error)
+					{
 						Alert.alert("Erreur", "La déconnexion a échoué");
 					}
 				},
@@ -64,19 +67,21 @@ const UserScreen = ({ navigation }: Props) => {
 	};
 
 	const handleDeactivatePremium = async () =>
-{
+	{
 		try
-{
+		{
 			const response = await userService.deactivatePremium();
 
 			if (response.token)
-{
+			{
 				const decoded = jwtDecode<User>(response.token);
 
 				setUser(decoded);
 			}
 			Alert.alert("Succès", "Version premium desactive");
-		} catch (error) {
+		}
+		catch (error)
+		{
 			Alert.alert(
 				"Erreur",
 				"La deactivation de la version premium a échoué"
@@ -84,7 +89,7 @@ const UserScreen = ({ navigation }: Props) => {
 		}
 	};
 	const handleDeleteUserAccount = () =>
-{
+	{
 		Alert.alert(
 			"Supprimer le compte",
 			"Cette action est irréversible. Es-tu sûr de vouloir supprimer ton compte ?",
@@ -94,15 +99,17 @@ const UserScreen = ({ navigation }: Props) => {
 					text: "Supprimer",
 					style: "destructive",
 					onPress: async () =>
-{
+					{
 						try
-{
+						{
 							await userService.deleteUserAccount();
 							navigation.reset({
 								index: 0,
 								routes: [{ name: "Register" }],
 							});
-						} catch (error) {
+						}
+						catch (error)
+						{
 							Alert.alert("Erreur", "La suppression a échoué");
 						}
 					},
@@ -112,26 +119,30 @@ const UserScreen = ({ navigation }: Props) => {
 	};
 
 	const toggleNotifications = async () =>
-{
+	{
 		try
-{
+		{
 			if (user?.notify)
-{
+			{
 				await userService.deactivateNotifications();
 				updateNotificationSettings(false);
-			} else {
+			}
+			else
+			{
 				await userService.activateNotifications();
 				updateNotificationSettings(true);
 			}
-		} catch (error) {
+		}
+		catch (error)
+		{
 			Alert.alert("Erreur", "Opération échouée");
 		}
 	};
 
 	const saveNotificationTime = async () =>
-{
+	{
 		try
-{
+		{
 			const hours = time.getHours().toString().padStart(2, "0");
 			const minutes = time.getMinutes().toString().padStart(2, "0");
 			const timeString = `${hours}:${minutes}`;
@@ -140,7 +151,9 @@ const UserScreen = ({ navigation }: Props) => {
 			updateNotificationSettings(user?.notify || true, timeString);
 			setIsEditingTime(false);
 			Alert.alert("Succès", "Heure de notification mise à jour");
-		} catch (error) {
+		}
+		catch (error)
+		{
 			Alert.alert("Erreur", "Format d'heure invalide");
 		}
 	};
@@ -190,8 +203,8 @@ const UserScreen = ({ navigation }: Props) => {
 					<Link
 						onPress={toggleNotifications}
 						title={
-							(user?.notify ? "Désactiver" : "Activer") +
-							" les notifications"
+							(user?.notify ? "Désactiver" : "Activer")
+							+ " les notifications"
 						}
 					/>
 

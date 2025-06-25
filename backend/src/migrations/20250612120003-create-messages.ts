@@ -2,7 +2,7 @@ import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
   async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.createTable('messages', {
+    await queryInterface.createTable("messages", {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -13,28 +13,28 @@ export default {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: 'groups',
-          key: 'id'
+          model: "groups",
+          key: "id"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       senderId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'users',
-          key: 'id'
+          model: "users",
+          key: "id"
         },
-        onDelete: 'CASCADE'
+        onDelete: "CASCADE"
       },
       encryptedContent: {
         type: DataTypes.TEXT,
         allowNull: false,
-        comment: 'Serialized encrypted message from frontend'
+        comment: "Serialized encrypted message from frontend"
       },
       messageType: {
-        type: DataTypes.ENUM('text', 'system', 'key_exchange'),
-        defaultValue: 'text',
+        type: DataTypes.ENUM("text", "system", "key_exchange"),
+        defaultValue: "text",
         allowNull: false
       },
       timestamp: {
@@ -58,12 +58,12 @@ export default {
     });
 
     // Create indexes
-    await queryInterface.addIndex('messages', ['groupId', 'timestamp']);
-    await queryInterface.addIndex('messages', ['senderId']);
-    await queryInterface.addIndex('messages', ['messageType']);
+    await queryInterface.addIndex("messages", ["groupId", "timestamp"]);
+    await queryInterface.addIndex("messages", ["senderId"]);
+    await queryInterface.addIndex("messages", ["messageType"]);
   },
 
   async down(queryInterface: QueryInterface) {
-    await queryInterface.dropTable('messages');
+    await queryInterface.dropTable("messages");
   }
 }; 

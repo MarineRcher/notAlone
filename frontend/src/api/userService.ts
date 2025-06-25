@@ -2,12 +2,12 @@ import apiClient from "./apiClient";
 import { authHelpers } from "./authHelpers";
 
 const userService = {
-	activatePremium: async () => 
-{
+	activatePremium: async () =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 
@@ -16,17 +16,17 @@ const userService = {
 		});
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response.data;
 	},
-	deactivatePremium: async () => 
-{
+	deactivatePremium: async () =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 
@@ -35,17 +35,17 @@ const userService = {
 		});
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response.data;
 	},
-	activateNotifications: async () => 
-{
+	activateNotifications: async () =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 
@@ -54,13 +54,13 @@ const userService = {
 		});
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response.data;
 	},
-	deactivateNotifications: async () => 
-{
+	deactivateNotifications: async () =>
+	{
 		const token = await authHelpers.getToken();
 		const response = await apiClient.post(
 			"/users/deactivateNotifs",
@@ -71,17 +71,17 @@ const userService = {
 		);
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response.data;
 	},
-	hourNotifications: async (data: { hour: string }) => 
-{
+	hourNotifications: async (data: { hour: string }) =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 
@@ -90,17 +90,17 @@ const userService = {
 		});
 
 		if (response.data.token)
-{
+		{
 			await authHelpers.saveToken(response.data.token);
 		}
 		return response.data;
 	},
-	changeEmail: async (data: { newEmail: string }) => 
-{
+	changeEmail: async (data: { newEmail: string }) =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 
@@ -110,12 +110,12 @@ const userService = {
 
 		return response.data;
 	},
-	deleteUserAccount: async () => 
-{
+	deleteUserAccount: async () =>
+	{
 		const token = await authHelpers.getToken();
 
 		if (!token)
-{
+		{
 			throw new Error("Token non disponible");
 		}
 

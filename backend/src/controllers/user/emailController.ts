@@ -7,8 +7,8 @@ import User from "../../models/User";
  * @returns {boolean} `true` if the email is in a valid format, otherwise `false`.
  */
 const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	return emailRegex.test(email);
 };
 /**
  * Express controller to change the authenticated user's email address.
@@ -28,57 +28,57 @@ const validateEmail = (email: string) => {
  * @returns {Promise<void>} A promise that resolves when the process is complete.
  */
 export const changeEmail = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    try {
-        const user_id = req.user?.id;
+	try {
+		const user_id = req.user?.id;
 
-        if (!user_id) {
-            res.status(401).json({ message: "Non autorisé" });
-            return;
-        }
+		if (!user_id) {
+			res.status(401).json({ message: "Non autorisé" });
+			return;
+		}
 
-        const { newEmail } = req.body;
+		const { newEmail } = req.body;
 
-        // Validation des paramètres
-        if (!newEmail) {
-            res.status(400).json({
-                message: "Le nouveau email est requis",
-            });
-            return;
-        }
+		// Validation des paramètres
+		if (!newEmail) {
+			res.status(400).json({
+				message: "Le nouveau email est requis",
+			});
+			return;
+		}
 
-        // Validation du format d'email
-        if (!validateEmail(newEmail)) {
-            res.status(400).json({
-                message: "Format d'email invalide",
-            });
-            return;
-        }
+		// Validation du format d'email
+		if (!validateEmail(newEmail)) {
+			res.status(400).json({
+				message: "Format d'email invalide",
+			});
+			return;
+		}
 
-        // Récupération de l'utilisateur
-        const user = await User.findByPk(user_id);
+		// Récupération de l'utilisateur
+		const user = await User.findByPk(user_id);
 
-        if (!user) {
-            res.status(404).json({ message: "Utilisateur introuvable" });
-            return;
-        }
+		if (!user) {
+			res.status(404).json({ message: "Utilisateur introuvable" });
+			return;
+		}
 
-        // Vérification si le nouvel email existe déjà
-        const emailExists = await User.findOne({ where: { email: newEmail } });
+		// Vérification si le nouvel email existe déjà
+		const emailExists = await User.findOne({ where: { email: newEmail } });
 
-        if (emailExists) {
-            res.status(409).json({ message: "L'email est déjà utilisé" });
-            return;
-        }
+		if (emailExists) {
+			res.status(409).json({ message: "L'email est déjà utilisé" });
+			return;
+		}
 
-        // Mise à jour de l'email
-        await User.update({ email: newEmail }, { where: { id: user_id } });
+		// Mise à jour de l'email
+		await User.update({ email: newEmail }, { where: { id: user_id } });
 
-        res.status(200).json({ message: "Email modifié avec succès" });
-    } catch (error) {
-        next(error);
-    }
+		res.status(200).json({ message: "Email modifié avec succès" });
+	} catch (error) {
+		next(error);
+	}
 };

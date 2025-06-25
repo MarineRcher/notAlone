@@ -15,22 +15,22 @@ import Addiction from "../../models/Addiction";
  * @returns {Promise<void>} A promise that resolves when the response is sent or error handling is triggered.
  */
 export const selectAddictions = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    try {
-        const addictions = await Addiction.findAll();
-        if (addictions && addictions.length > 0) {
-            res.status(201).json({
-                addictions,
-            });
-        } else {
-            res.status(400).json({
-                message: "Aucune addiction",
-            });
-        }
-    } catch (error) {
-        next(error);
-    }
+	try {
+		const addictions = await Addiction.findAll();
+		if (addictions && addictions.length > 0) {
+			res.status(201).json({
+				addictions,
+			});
+		} else {
+			res.status(400).json({
+				message: "Aucune addiction",
+			});
+		}
+	} catch (error) {
+		next(error);
+	}
 };

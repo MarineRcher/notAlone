@@ -25,7 +25,7 @@ const Input: React.FC<CustomInputProps> = ({
 	editable = true,
 	placeholder = "",
 	...props
-}) => 
+}) =>
 {
 	const isDisabled = !editable;
 

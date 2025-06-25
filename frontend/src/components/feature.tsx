@@ -7,7 +7,7 @@ type FeatureProps = {
 	feature: string;
 };
 
-const Feature: React.FC<FeatureProps> = ({ feature }) => 
+const Feature: React.FC<FeatureProps> = ({ feature }) =>
 {
 	return (
 		<View style={styles.featureContainer}>

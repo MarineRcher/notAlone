@@ -17,22 +17,22 @@ import Input from "../../components/input";
 import Button from "../../components/button";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-
 type Props = NativeStackScreenProps<any, any>;
-const ChangeEmailScreen = ({ navigation }: Props) => {
-    const [newEmail, setNewEmail] = useState("");
-    const [loading, setLoading] = useState(false);
+const ChangeEmailScreen = ({ navigation }: Props) =>
+{
+	const [newEmail, setNewEmail] = useState("");
+	const [loading, setLoading] = useState(false);
 
 	const handleChangeEmail = async () =>
-{
+	{
 		if (!newEmail)
-{
+		{
 			Alert.alert("Erreur", "Veuillez saisir une adresse e-mail.");
 			return;
 		}
 
 		if (!validator.isEmail(newEmail))
-{
+		{
 			Alert.alert("Erreur", "Le format de l'e-mail est invalide.");
 			return;
 		}
@@ -40,17 +40,21 @@ const ChangeEmailScreen = ({ navigation }: Props) => {
 		setLoading(true);
 
 		try
-{
+		{
 			await userService.changeEmail({ newEmail });
 			navigation.goBack();
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.error("Erreur changement email :", error);
 
 			const message
 				= error?.response?.data?.message || "Une erreur est survenue.";
 
 			Alert.alert("Erreur", message);
-		} finally {
+		}
+		finally
+		{
 			setLoading(false);
 		}
 	};

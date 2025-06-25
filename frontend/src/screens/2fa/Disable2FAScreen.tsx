@@ -22,19 +22,20 @@ import { ApiError } from "../../types/auth";
 
 type Props = NativeStackScreenProps<any, any>;
 
-const Disable2FAScreen = ({ navigation }: Props) => {
-    const [otp, setOtp] = useState("");
-    const [userId, setUserId] = useState<number | null>(null);
-    const { setUser } = useContext(AuthContext);
+const Disable2FAScreen = ({ navigation }: Props) =>
+{
+	const [otp, setOtp] = useState("");
+	const [userId, setUserId] = useState<number | null>(null);
+	const { setUser } = useContext(AuthContext);
 
 	useEffect(() =>
-{
+	{
 		const fetchUserId = async () =>
-{
+		{
 			const token = await authHelpers.getToken();
 
 			if (!token)
-{
+			{
 				Alert.alert("Erreur", "Vous devez être connecté");
 				navigation.navigate("Login");
 				return;
@@ -50,44 +51,47 @@ const Disable2FAScreen = ({ navigation }: Props) => {
 	}, []);
 
 	const handleDisable = async () =>
-{
+	{
 		if (!validator.isNumeric(otp) || otp.length !== 6)
-{
+		{
 			Alert.alert("Erreur", "Le code doit être à 6 chiffres");
 			return;
 		}
 
 		if (!userId)
-{
+		{
 			Alert.alert("Erreur", "Utilisateur non identifié");
 			return;
 		}
 
 		try
-{
+		{
 			const response = await authService.disable2FA({
 				userId: userId.toString(),
 				otp,
 			});
 
 			if (response?.data?.token)
-{
+			{
 				await authHelpers.saveToken(response.data.token);
 				const decoded = jwtDecode<User>(response.data.token);
 
 				setUser(decoded);
 			}
 
-            Alert.alert("Succès", "2FA désactivée");
-            navigation.goBack();
-        } catch (error) {
-            const apiError = error as ApiError;
-            Alert.alert(
-                "Erreur",
-                apiError?.response?.data?.message || "Échec de la désactivation"
-            );
-        }
-    };
+			Alert.alert("Succès", "2FA désactivée");
+			navigation.goBack();
+		}
+		catch (error)
+		{
+			const apiError = error as ApiError;
+
+			Alert.alert(
+				"Erreur",
+				apiError?.response?.data?.message || "Échec de la désactivation"
+			);
+		}
+	};
 
 	return (
 		<ScrollView contentContainerStyle={styles.scrollContainer}>

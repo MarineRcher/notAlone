@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		alignItems: "center",
 		paddingTop: 70,
-        paddingBottom: 10,
+		paddingBottom: 10,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.secondary,
 		marginBottom: 10,
@@ -262,4 +262,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default styles; 
+export default styles;

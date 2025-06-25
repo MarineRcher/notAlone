@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import {
 	View,
 	Text,
@@ -8,7 +8,6 @@ import {
 	Alert,
 } from "react-native";
 import userService from "../../api/userService";
-import { useContext } from "react";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext, User } from "../../context/AuthContext";
 import styles from "../form.style";
@@ -18,31 +17,36 @@ import BackButton from "../../components/backNavigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const AskNotificationsScreen = ({ navigation }: Props) => {
-    const [loading, setLoading] = useState(false);
-    const { setUser } = useContext(AuthContext);
+const AskNotificationsScreen = ({ navigation }: Props) =>
+{
+	const [loading, setLoading] = useState(false);
+	const { setUser } = useContext(AuthContext);
 
 	const handleActivateNotifications = async () =>
-{
+	{
 		setLoading(true);
 		try
-{
+		{
 			const response = await userService.activateNotifications();
 
 			if (response.token)
-{
+			{
 				const decoded = jwtDecode<User>(response.token);
 
 				setUser(decoded);
 			}
 			navigation.navigate("AskNotificationsHour");
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.error(
 				"Erreur lors de l’activation des notifications:",
 				error
 			);
 			Alert.alert("Erreur", "Impossible d'activer les notifications.");
-		} finally {
+		}
+		finally
+		{
 			setLoading(false);
 		}
 	};

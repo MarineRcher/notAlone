@@ -7,14 +7,14 @@ export type Journal = {
 export type JournalResponse = {
     data: {
         journal?: Journal;
-        activities?: Array<{
+        activities?: {
             user_activity: {
                 id_activity: string;
                 id_journal: string;
                 [key: string]: any;
             };
             activity_details: Activity[];
-        }>;
+        }[];
         [key: string]: any;
     };
 };
@@ -48,14 +48,14 @@ export type NavigationParams = {
             actual_day_goal_completed?: boolean | null;
             note?: string | null;
         };
-        activities?: Array<{
+        activities?: {
             user_activity: {
                 id_activity: string;
                 id_journal: string;
                 [key: string]: any;
             };
             activity_details: Activity[];
-        }>;
+        }[];
         resume_journey?: ResumeJourneyWord | null;
         previous_day_goal?: string | null;
         [key: string]: any;

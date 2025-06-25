@@ -7,7 +7,7 @@ type Props = {
 	color: string;
 };
 
-const TabLabel = ({ focused, label, color }: Props) => 
+const TabLabel = ({ focused, label, color }: Props) =>
 {
 	return (
 		<Text

@@ -1,271 +1,338 @@
-import GroupController from '../../../src/controllers/GroupController';
-import GroupService from '../../../src/services/GroupService';
-import RedisService from '../../../src/services/RedisService';
-import { Server, Socket } from 'socket.io';
-import jwt from 'jsonwebtoken';
+import GroupController from "../../../src/controllers/GroupController";
+import GroupService from "../../../src/services/GroupService";
+import RedisService from "../../../src/services/RedisService";
+import { Server, Socket } from "socket.io";
+import jwt from "jsonwebtoken";
 
 // Mock dependencies
-jest.mock('../../../src/services/GroupService');
-jest.mock('../../../src/services/RedisService');
-jest.mock('jsonwebtoken');
+jest.mock("../../../src/services/GroupService");
+jest.mock("../../../src/services/RedisService");
+jest.mock("jsonwebtoken");
 
-const mockedGroupService = GroupService as jest.MockedClass<typeof GroupService>;
-const mockedRedisService = RedisService as jest.MockedClass<typeof RedisService>;
+const mockedGroupService = GroupService as jest.MockedClass<
+	typeof GroupService
+>;
+const mockedRedisService = RedisService as jest.MockedClass<
+	typeof RedisService
+>;
 const mockedJwt = jwt as jest.Mocked<typeof jwt>;
 
 // AuthenticatedSocket interface from controller
 interface AuthenticatedSocket extends Socket {
-  userId?: number;
-  userLogin?: string;
+	userId?: number;
+	userLogin?: string;
 }
 
-describe('GroupController', () => {
-  let groupController: GroupController;
-  let mockSocket: jest.Mocked<AuthenticatedSocket>;
-  let mockIo: jest.Mocked<Server>;
-  let mockGroupServiceInstance: jest.Mocked<GroupService>;
-  let mockRedisServiceInstance: jest.Mocked<RedisService>;
+describe("GroupController", () => {
+	let groupController: GroupController;
+	let mockSocket: jest.Mocked<AuthenticatedSocket>;
+	let mockIo: jest.Mocked<Server>;
+	let mockGroupServiceInstance: jest.Mocked<GroupService>;
+	let mockRedisServiceInstance: jest.Mocked<RedisService>;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    
-    // Mock Server instance
-    mockIo = {
-      to: jest.fn().mockReturnThis(),
-      emit: jest.fn()
-    } as any;
+	beforeEach(() => {
+		jest.clearAllMocks();
 
-    // Mock GroupService instance
-    mockGroupServiceInstance = new mockedGroupService() as jest.Mocked<GroupService>;
-    
-    // Mock RedisService instance
-    mockRedisServiceInstance = new mockedRedisService() as jest.Mocked<RedisService>;
-    
-    // Mock Socket
-    mockSocket = {
-      id: 'test-socket-id',
-      join: jest.fn(),
-      leave: jest.fn(),
-      emit: jest.fn(),
-      to: jest.fn().mockReturnThis(),
-      handshake: {
-        auth: { token: 'valid-token' },
-        query: {}
-      },
-      disconnect: jest.fn(),
-      on: jest.fn(),
-      userId: undefined,
-      userLogin: undefined
-    } as any;
+		// Mock Server instance
+		mockIo = {
+			to: jest.fn().mockReturnThis(),
+			emit: jest.fn(),
+		} as any;
 
-    groupController = new GroupController(mockIo);
-    (groupController as any).groupService = mockGroupServiceInstance;
-    (groupController as any).redisService = mockRedisServiceInstance;
-  });
+		// Mock GroupService instance
+		mockGroupServiceInstance =
+			new mockedGroupService() as jest.Mocked<GroupService>;
 
-  describe('handleConnection', () => {
-    it('should handle successful connection and authentication', () => {
-      // Mock authentication callback with proper typing
-      jest.spyOn(groupController as any, 'authenticateSocket').mockImplementation(
-        (socket: any, callback: any) => {
-          socket.userId = 123;
-          socket.userLogin = 'testuser';
-          callback(true);
-        }
-      );
+		// Mock RedisService instance
+		mockRedisServiceInstance =
+			new mockedRedisService() as jest.Mocked<RedisService>;
 
-      jest.spyOn(groupController as any, 'setupEventHandlers').mockImplementation();
-      mockRedisServiceInstance.storeUserSocket.mockResolvedValue();
+		// Mock Socket
+		mockSocket = {
+			id: "test-socket-id",
+			join: jest.fn(),
+			leave: jest.fn(),
+			emit: jest.fn(),
+			to: jest.fn().mockReturnThis(),
+			handshake: {
+				auth: { token: "valid-token" },
+				query: {},
+			},
+			disconnect: jest.fn(),
+			on: jest.fn(),
+			userId: undefined,
+			userLogin: undefined,
+		} as any;
 
-      groupController.handleConnection(mockSocket);
+		groupController = new GroupController(mockIo);
+		(groupController as any).groupService = mockGroupServiceInstance;
+		(groupController as any).redisService = mockRedisServiceInstance;
+	});
 
-      expect(mockRedisServiceInstance.storeUserSocket).toHaveBeenCalledWith(123, 'test-socket-id');
-      expect(groupController['setupEventHandlers']).toHaveBeenCalledWith(mockSocket);
-    });
+	describe("handleConnection", () => {
+		it("should handle successful connection and authentication", () => {
+			// Mock authentication callback with proper typing
+			jest
+				.spyOn(groupController as any, "authenticateSocket")
+				.mockImplementation((socket: any, callback: any) => {
+					socket.userId = 123;
+					socket.userLogin = "testuser";
+					callback(true);
+				});
 
-    it('should handle authentication failure', () => {
-      // Mock authentication failure with proper typing
-      jest.spyOn(groupController as any, 'authenticateSocket').mockImplementation(
-        (socket: any, callback: any) => {
-          callback(false);
-        }
-      );
+			jest
+				.spyOn(groupController as any, "setupEventHandlers")
+				.mockImplementation();
+			mockRedisServiceInstance.storeUserSocket.mockResolvedValue();
 
-      groupController.handleConnection(mockSocket);
+			groupController.handleConnection(mockSocket);
 
-      expect(mockSocket.disconnect).toHaveBeenCalled();
-    });
-  });
+			expect(mockRedisServiceInstance.storeUserSocket).toHaveBeenCalledWith(
+				123,
+				"test-socket-id",
+			);
+			expect(groupController["setupEventHandlers"]).toHaveBeenCalledWith(
+				mockSocket,
+			);
+		});
 
-  describe('authentication flow', () => {
-    it('should authenticate valid JWT token', () => {
-      const mockDecodedToken = {
-        userId: 123,
-        login: 'testuser',
-        exp: Math.floor(Date.now() / 1000) + 3600
-      };
+		it("should handle authentication failure", () => {
+			// Mock authentication failure with proper typing
+			jest
+				.spyOn(groupController as any, "authenticateSocket")
+				.mockImplementation((socket: any, callback: any) => {
+					callback(false);
+				});
 
-      mockedJwt.verify.mockReturnValue(mockDecodedToken as any);
+			groupController.handleConnection(mockSocket);
 
-      const authenticateSocket = groupController['authenticateSocket'].bind(groupController);
-      const mockCallback = jest.fn();
+			expect(mockSocket.disconnect).toHaveBeenCalled();
+		});
+	});
 
-      authenticateSocket(mockSocket, mockCallback);
+	describe("authentication flow", () => {
+		it("should authenticate valid JWT token", () => {
+			const mockDecodedToken = {
+				userId: 123,
+				login: "testuser",
+				exp: Math.floor(Date.now() / 1000) + 3600,
+			};
 
-      expect(mockSocket.userId).toBe(123);
-      expect(mockSocket.userLogin).toBe('testuser');
-      expect(mockCallback).toHaveBeenCalledWith(true);
-    });
+			mockedJwt.verify.mockReturnValue(mockDecodedToken as any);
 
-    it('should reject invalid token', () => {
-      mockedJwt.verify.mockImplementation(() => {
-        throw new Error('jwt malformed');
-      });
+			const authenticateSocket =
+				groupController["authenticateSocket"].bind(groupController);
+			const mockCallback = jest.fn();
 
-      const authenticateSocket = groupController['authenticateSocket'].bind(groupController);
-      const mockCallback = jest.fn();
+			authenticateSocket(mockSocket, mockCallback);
 
-      authenticateSocket(mockSocket, mockCallback);
+			expect(mockSocket.userId).toBe(123);
+			expect(mockSocket.userLogin).toBe("testuser");
+			expect(mockCallback).toHaveBeenCalledWith(true);
+		});
 
-      expect(mockCallback).toHaveBeenCalledWith(false);
-    });
+		it("should reject invalid token", () => {
+			mockedJwt.verify.mockImplementation(() => {
+				throw new Error("jwt malformed");
+			});
 
-    it('should handle missing token', () => {
-      mockSocket.handshake.auth = {};
+			const authenticateSocket =
+				groupController["authenticateSocket"].bind(groupController);
+			const mockCallback = jest.fn();
 
-      const authenticateSocket = groupController['authenticateSocket'].bind(groupController);
-      const mockCallback = jest.fn();
+			authenticateSocket(mockSocket, mockCallback);
 
-      authenticateSocket(mockSocket, mockCallback);
+			expect(mockCallback).toHaveBeenCalledWith(false);
+		});
 
-      expect(mockCallback).toHaveBeenCalledWith(false);
-    });
-  });
+		it("should handle missing token", () => {
+			mockSocket.handshake.auth = {};
 
-  describe('group operations through socket events', () => {
-    beforeEach(() => {
-      mockSocket.userId = 123;
-      mockSocket.userLogin = 'testuser';
-    });
+			const authenticateSocket =
+				groupController["authenticateSocket"].bind(groupController);
+			const mockCallback = jest.fn();
 
-    it('should handle join_random_group event', async () => {
-      const mockGroupData = {
-        id: 'group-123',
-        name: 'Test Group',
-        currentMembers: 2,
-        maxMembers: 10,
-        members: [
-          { userId: 123, login: 'testuser', publicKey: 'key1', joinedAt: new Date() }
-        ]
-      };
+			authenticateSocket(mockSocket, mockCallback);
 
-      const mockJoinResult = {
-        success: true,
-        message: 'Successfully joined group',
-        group: mockGroupData
-      };
+			expect(mockCallback).toHaveBeenCalledWith(false);
+		});
+	});
 
-      mockGroupServiceInstance.joinRandomGroup.mockResolvedValue(mockJoinResult);
-      mockRedisServiceInstance.storeGroupMemberSocket.mockResolvedValue();
+	describe("group operations through socket events", () => {
+		beforeEach(() => {
+			mockSocket.userId = 123;
+			mockSocket.userLogin = "testuser";
+		});
 
-      // Get the private method
-      const handleJoinRandomGroup = groupController['handleJoinRandomGroup'].bind(groupController);
+		it("should handle join_random_group event", async () => {
+			const mockGroupData = {
+				id: "group-123",
+				name: "Test Group",
+				currentMembers: 2,
+				maxMembers: 10,
+				members: [
+					{
+						userId: 123,
+						login: "testuser",
+						publicKey: "key1",
+						joinedAt: new Date(),
+					},
+				],
+			};
 
-      const result = await handleJoinRandomGroup(mockSocket, { publicKey: 'user-public-key' });
+			const mockJoinResult = {
+				success: true,
+				message: "Successfully joined group",
+				group: mockGroupData,
+			};
 
-      expect(mockGroupServiceInstance.joinRandomGroup).toHaveBeenCalledWith(123, 'user-public-key');
-      expect(result).toEqual(mockJoinResult);
-    });
+			mockGroupServiceInstance.joinRandomGroup.mockResolvedValue(
+				mockJoinResult,
+			);
+			mockRedisServiceInstance.storeGroupMemberSocket.mockResolvedValue();
 
-    it('should handle send_group_message event', async () => {
-      const mockMessage = {
-        id: 'msg-123',
-        groupId: 'group-123',
-        senderId: 123,
-        encryptedContent: 'encrypted-message',
-        timestamp: new Date(),
-        messageType: 'text'
-      };
+			// Get the private method
+			const handleJoinRandomGroup =
+				groupController["handleJoinRandomGroup"].bind(groupController);
 
-      mockGroupServiceInstance.storeMessage.mockResolvedValue(mockMessage as any);
+			const result = await handleJoinRandomGroup(mockSocket, {
+				publicKey: "user-public-key",
+			});
 
-      const handleSendMessage = groupController['handleSendMessage'].bind(groupController);
+			expect(mockGroupServiceInstance.joinRandomGroup).toHaveBeenCalledWith(
+				123,
+				"user-public-key",
+			);
+			expect(result).toEqual(mockJoinResult);
+		});
 
-      const messageData = {
-        groupId: 'group-123',
-        encryptedMessage: 'encrypted-content',
-        messageType: 'text' as const
-      };
+		it("should handle send_group_message event", async () => {
+			const mockMessage = {
+				id: "msg-123",
+				groupId: "group-123",
+				senderId: 123,
+				encryptedContent: "encrypted-message",
+				timestamp: new Date(),
+				messageType: "text",
+			};
 
-      const result = await handleSendMessage(mockSocket, messageData);
+			mockGroupServiceInstance.storeMessage.mockResolvedValue(
+				mockMessage as any,
+			);
 
-      expect(mockGroupServiceInstance.storeMessage).toHaveBeenCalledWith(
-        'group-123',
-        123,
-        'encrypted-content',
-        'text'
-      );
-      expect(result.success).toBe(true);
-      expect(mockIo.to).toHaveBeenCalledWith('group:group-123');
-    });
+			const handleSendMessage =
+				groupController["handleSendMessage"].bind(groupController);
 
-    it('should handle leave_group event', async () => {
-      mockGroupServiceInstance.leaveGroup.mockResolvedValue(true);
-      mockRedisServiceInstance.removeGroupMemberSocket.mockResolvedValue();
+			const messageData = {
+				groupId: "group-123",
+				encryptedMessage: "encrypted-content",
+				messageType: "text" as const,
+			};
 
-      const handleLeaveGroup = groupController['handleLeaveGroup'].bind(groupController);
+			const result = await handleSendMessage(mockSocket, messageData);
 
-      const result = await handleLeaveGroup(mockSocket, { groupId: 'group-123' });
+			expect(mockGroupServiceInstance.storeMessage).toHaveBeenCalledWith(
+				"group-123",
+				123,
+				"encrypted-content",
+				"text",
+			);
+			expect(result.success).toBe(true);
+			expect(mockIo.to).toHaveBeenCalledWith("group:group-123");
+		});
 
-      expect(mockGroupServiceInstance.leaveGroup).toHaveBeenCalledWith(123, 'group-123');
-      expect(result.success).toBe(true);
-    });
-  });
+		it("should handle leave_group event", async () => {
+			mockGroupServiceInstance.leaveGroup.mockResolvedValue(true);
+			mockRedisServiceInstance.removeGroupMemberSocket.mockResolvedValue();
 
-  describe('setupEventHandlers', () => {
-    it('should register all socket event handlers', () => {
-      const setupEventHandlers = groupController['setupEventHandlers'].bind(groupController);
+			const handleLeaveGroup =
+				groupController["handleLeaveGroup"].bind(groupController);
 
-      setupEventHandlers(mockSocket);
+			const result = await handleLeaveGroup(mockSocket, {
+				groupId: "group-123",
+			});
 
-      expect(mockSocket.on).toHaveBeenCalledWith('join_random_group', expect.any(Function));
-      expect(mockSocket.on).toHaveBeenCalledWith('send_group_message', expect.any(Function));
-      expect(mockSocket.on).toHaveBeenCalledWith('leave_group', expect.any(Function));
-      expect(mockSocket.on).toHaveBeenCalledWith('get_group_messages', expect.any(Function));
-      expect(mockSocket.on).toHaveBeenCalledWith('disconnect', expect.any(Function));
-      expect(mockSocket.on).toHaveBeenCalledWith('typing_start', expect.any(Function));
-      expect(mockSocket.on).toHaveBeenCalledWith('typing_stop', expect.any(Function));
-    });
-  });
+			expect(mockGroupServiceInstance.leaveGroup).toHaveBeenCalledWith(
+				123,
+				"group-123",
+			);
+			expect(result.success).toBe(true);
+		});
+	});
 
-  describe('error handling', () => {
-    beforeEach(() => {
-      mockSocket.userId = 123;
-      mockSocket.userLogin = 'testuser';
-    });
+	describe("setupEventHandlers", () => {
+		it("should register all socket event handlers", () => {
+			const setupEventHandlers =
+				groupController["setupEventHandlers"].bind(groupController);
 
-    it('should handle GroupService errors gracefully', async () => {
-      mockGroupServiceInstance.joinRandomGroup.mockRejectedValue(new Error('Service error'));
+			setupEventHandlers(mockSocket);
 
-      const handleJoinRandomGroup = groupController['handleJoinRandomGroup'].bind(groupController);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"join_random_group",
+				expect.any(Function),
+			);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"send_group_message",
+				expect.any(Function),
+			);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"leave_group",
+				expect.any(Function),
+			);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"get_group_messages",
+				expect.any(Function),
+			);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"disconnect",
+				expect.any(Function),
+			);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"typing_start",
+				expect.any(Function),
+			);
+			expect(mockSocket.on).toHaveBeenCalledWith(
+				"typing_stop",
+				expect.any(Function),
+			);
+		});
+	});
 
-      await expect(handleJoinRandomGroup(mockSocket, { publicKey: 'key' }))
-        .rejects.toThrow('Service error');
-    });
+	describe("error handling", () => {
+		beforeEach(() => {
+			mockSocket.userId = 123;
+			mockSocket.userLogin = "testuser";
+		});
 
-    it('should handle message sending errors gracefully', async () => {
-      mockGroupServiceInstance.storeMessage.mockRejectedValue(new Error('Storage error'));
+		it("should handle GroupService errors gracefully", async () => {
+			mockGroupServiceInstance.joinRandomGroup.mockRejectedValue(
+				new Error("Service error"),
+			);
 
-      const handleSendMessage = groupController['handleSendMessage'].bind(groupController);
+			const handleJoinRandomGroup =
+				groupController["handleJoinRandomGroup"].bind(groupController);
 
-      const result = await handleSendMessage(mockSocket, {
-        groupId: 'group-123',
-        encryptedMessage: 'encrypted-content',
-        messageType: 'text' as const
-      });
+			await expect(
+				handleJoinRandomGroup(mockSocket, { publicKey: "key" }),
+			).rejects.toThrow("Service error");
+		});
 
-      expect(result.success).toBe(false);
-      expect(result.message).toBe('Failed to send message');
-    });
-  });
-}); 
+		it("should handle message sending errors gracefully", async () => {
+			mockGroupServiceInstance.storeMessage.mockRejectedValue(
+				new Error("Storage error"),
+			);
+
+			const handleSendMessage =
+				groupController["handleSendMessage"].bind(groupController);
+
+			const result = await handleSendMessage(mockSocket, {
+				groupId: "group-123",
+				encryptedMessage: "encrypted-content",
+				messageType: "text" as const,
+			});
+
+			expect(result.success).toBe(false);
+			expect(result.message).toBe("Failed to send message");
+		});
+	});
+});

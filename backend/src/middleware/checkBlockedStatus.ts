@@ -15,22 +15,22 @@ import { LoginRequestBody } from "../types/users";
  * @param next - Express next function, called to pass control to the next middleware
  */
 export const checkBlockedStatus = async (
-    req: Request<{}, {}, LoginRequestBody>,
-    res: Response,
-    next: NextFunction
+	req: Request<{}, {}, LoginRequestBody>,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    const { loginOrEmail } = req.body;
+	const { loginOrEmail } = req.body;
 
-    const user = await User.findOne({
-        where: { [Op.or]: [{ login: loginOrEmail }, { email: loginOrEmail }] },
-    });
+	const user = await User.findOne({
+		where: { [Op.or]: [{ login: loginOrEmail }, { email: loginOrEmail }] },
+	});
 
-    if (user?.blockedUntil && user.blockedUntil > new Date()) {
-        res.status(429).json({
-            message: "Trop de tentatives. Réessayez plus tard.",
-        });
-        return;
-    }
+	if (user?.blockedUntil && user.blockedUntil > new Date()) {
+		res.status(429).json({
+			message: "Trop de tentatives. Réessayez plus tard.",
+		});
+		return;
+	}
 
-    next();
+	next();
 };

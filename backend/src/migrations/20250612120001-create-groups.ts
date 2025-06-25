@@ -2,7 +2,7 @@ import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
   async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
-    await queryInterface.createTable('groups', {
+    await queryInterface.createTable("groups", {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -51,11 +51,11 @@ export default {
     });
 
     // Create indexes
-    await queryInterface.addIndex('groups', ['is_active', 'is_public']);
-    await queryInterface.addIndex('groups', ['current_members', 'max_members']);
+    await queryInterface.addIndex("groups", ["is_active", "is_public"]);
+    await queryInterface.addIndex("groups", ["current_members", "max_members"]);
   },
 
   async down(queryInterface: QueryInterface) {
-    await queryInterface.dropTable('groups');
+    await queryInterface.dropTable("groups");
   }
 }; 

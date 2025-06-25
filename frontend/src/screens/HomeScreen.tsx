@@ -29,25 +29,26 @@ type AddictionItem = {
 };
 
 type Props = NativeStackScreenProps<any, any>;
-const HomeScreen = ({ navigation }: Props) => {
-    const [addictions, setAddictions] = useState<AddictionItem[]>([]);
-    const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
-        null
-    );
-    const [daysSinceStop, setDaysSinceStop] = useState(0);
-    const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+const HomeScreen = ({ navigation }: Props) =>
+{
+	const [addictions, setAddictions] = useState<AddictionItem[]>([]);
+	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
+		null
+	);
+	const [daysSinceStop, setDaysSinceStop] = useState(0);
+	const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
 
 	const [open, setOpen] = useState(false);
 	const [value, setValue] = useState<number | null>(null);
 	const [items, setItems] = useState<{ label: string; value: number }[]>([]);
 
 	useEffect(() =>
-{
+	{
 		loadUserAddictions();
 	}, []);
 
 	useEffect(() =>
-{
+	{
 		const mappedItems = addictions.map((addiction) => ({
 			label: addiction.addiction,
 			value: addiction.id,
@@ -57,9 +58,9 @@ const HomeScreen = ({ navigation }: Props) => {
 	}, [addictions]);
 
 	const loadUserAddictions = async () =>
-{
+	{
 		try
-{
+		{
 			const response = await addictionService.getUserAddictions();
 			const formatted = response.map((record) => ({
 				id: record.id,
@@ -72,7 +73,7 @@ const HomeScreen = ({ navigation }: Props) => {
 			setAddictions(formatted);
 
 			if (formatted.length > 0)
-{
+			{
 				const defaultId = formatted[0].id;
 
 				setSelectedAddiction(defaultId);
@@ -80,15 +81,17 @@ const HomeScreen = ({ navigation }: Props) => {
 				calculateDaysSinceStop(formatted[0].date);
 				setPhoneNumber(formatted[0].phoneNumber);
 			}
-		} catch (error) {
+		}
+		catch (error)
+		{
 			console.error("Erreur lors du chargement des addictions:", error);
 		}
 	};
 
 	const calculateDaysSinceStop = (stopDate: string | null) =>
-{
+	{
 		if (!stopDate)
-{
+		{
 			setDaysSinceStop(0);
 			return;
 		}
@@ -102,9 +105,9 @@ const HomeScreen = ({ navigation }: Props) => {
 	};
 
 	const handlePhoneCall = () =>
-{
+	{
 		if (!phoneNumber)
-{
+		{
 			Alert.alert(
 				"Aucun numéro",
 				"Aucun numéro de téléphone n'est disponible pour cette addiction."
@@ -115,11 +118,13 @@ const HomeScreen = ({ navigation }: Props) => {
 		const phoneUrl = `tel:${phoneNumber}`;
 
 		Linking.canOpenURL(phoneUrl).then((supported) =>
-{
+		{
 			if (supported)
-{
+			{
 				Linking.openURL(phoneUrl);
-			} else {
+			}
+			else
+			{
 				Alert.alert("Erreur", "Impossible de passer l'appel.");
 			}
 		});
@@ -149,14 +154,14 @@ const HomeScreen = ({ navigation }: Props) => {
 						}}
 						dropDownContainerStyle={styles.dropdownContainer}
 						onChangeValue={(selectedId) =>
-{
+						{
 							setSelectedAddiction(selectedId);
 							const selectedAddictionData = addictions.find(
 								(a) => a.id === selectedId
 							);
 
 							if (selectedAddictionData)
-{
+							{
 								calculateDaysSinceStop(
 									selectedAddictionData.date
 								);
@@ -205,7 +210,7 @@ const HomeScreen = ({ navigation }: Props) => {
 				<Plus width={36} height={36} fill={colors.background} />
 				<TouchableOpacity
 					onPress={() =>
-{
+					{
 						navigation.navigate("AddUserAddiction");
 					}}
 				>

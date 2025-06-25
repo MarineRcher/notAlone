@@ -14,145 +14,180 @@ import colors from "../../css/colors";
 
 type Props = NativeStackScreenProps<any, "Goal">;
 
-const JourneyGoalScreen = ({ navigation, route }: Props) => {
-    const { user } = useContext(AuthContext);
-    const [goal, setGoal] = useState<string>("");
-    const [previousGoal, setPreviousGoal] = useState<string | null>(null);
-    const [goalCompleted, setGoalCompleted] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [journalData, setJournalData] = useState<NavigationParams | null>(
-        null
-    );
+const JourneyGoalScreen = ({ navigation, route }: Props) =>
+{
+	const { user } = useContext(AuthContext);
+	const [goal, setGoal] = useState<string>("");
+	const [previousGoal, setPreviousGoal] = useState<string | null>(null);
+	const [goalCompleted, setGoalCompleted] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [journalData, setJournalData] = useState<NavigationParams | null>(
+		null
+	);
 
-    useEffect(() => {
-        const params = route.params as NavigationParams;
-        if (params) {
-            setJournalData(params);
+	useEffect(() =>
+	{
+		const params = route.params as NavigationParams;
 
-            const currentGoal = params.existingData?.journal?.next_day_goal;
-            if (currentGoal && currentGoal.trim() !== "") {
-                setGoal(currentGoal);
-            }
+		if (params)
+		{
+			setJournalData(params);
 
-            const yesterdayGoal = params.existingData?.previous_day_goal;
-            if (yesterdayGoal) setPreviousGoal(yesterdayGoal);
+			const currentGoal = params.existingData?.journal?.next_day_goal;
 
-            const alreadyCompleted =
-                params.existingData?.journal?.actual_day_goal_completed;
+			if (currentGoal && currentGoal.trim() !== "")
+			{
+				setGoal(currentGoal);
+			}
 
-            if (alreadyCompleted) setGoalCompleted(alreadyCompleted);
-        }
-    }, [route.params]);
+			const yesterdayGoal = params.existingData?.previous_day_goal;
 
-    const handleNext = async () => {
-        if (!goal || !journalData?.journalId) return;
+			if (yesterdayGoal)
+			{
+				setPreviousGoal(yesterdayGoal);
+			}
 
-        setIsLoading(true);
-        try {
-            await journalService.addGoal({
-                id_journal: journalData.journalId,
-                next_day_goal: goal,
-            });
+			const alreadyCompleted
+                = params.existingData?.journal?.actual_day_goal_completed;
 
-            const updatedData: NavigationParams = {
-                ...journalData,
-                currentStep: "note",
-            };
+			if (alreadyCompleted)
+			{
+				setGoalCompleted(alreadyCompleted);
+			}
+		}
+	}, [route.params]);
 
-            navigation.navigate("Note", updatedData);
-        } catch (err) {
-            console.error(
-                "Erreur lors de l'enregistrement de l'objectif:",
-                err
-            );
-        } finally {
-            setIsLoading(false);
-        }
-    };
+	const handleNext = async () =>
+	{
+		if (!goal || !journalData?.journalId)
+		{
+			return;
+		}
 
-    const handleCheckGoal = async (completed: boolean) => {
-        if (!journalData?.journalId) return;
+		setIsLoading(true);
+		try
+		{
+			await journalService.addGoal({
+				id_journal: journalData.journalId,
+				next_day_goal: goal,
+			});
 
-        setIsLoading(true);
-        try {
-            await journalService.addCheckedGoal({
-                id_journal: journalData.journalId,
-                actual_day_goal_completed: completed,
-            });
-        } catch (err) {
-            console.error(
-                "Erreur lors de l'enregistrement de l'objectif:",
-                err
-            );
-        } finally {
-            setIsLoading(false);
-        }
-    };
+			const updatedData: NavigationParams = {
+				...journalData,
+				currentStep: "note",
+			};
 
-    if (!user?.hasPremium) {
-        return (
-            <View style={styles.page}>
-                <Mascot
-                    mascot="hey"
-                    text="Cette fonctionnalité est réservée aux utilisateurs Premium ✨"
-                />
-                <Button
-                    title="Passer"
-                    onPress={() =>
-                        navigation.navigate("Main", { screen: "Follow" })
-                    }
-                />
-            </View>
-        );
-    } else {
-        return (
-            <View style={styles.page}>
-                <BackButton />
-                <Mascot
-                    mascot="woaw"
-                    text="As-tu réussi à atteindre ton objectif d'hier ? Si tu veux, on peut en choisir un nouveau pour aujourd'hui."
-                />
+			navigation.navigate("Note", updatedData);
+		}
+		catch (err)
+		{
+			console.error(
+				"Erreur lors de l'enregistrement de l'objectif:",
+				err
+			);
+		}
+		finally
+		{
+			setIsLoading(false);
+		}
+	};
 
-                {previousGoal && (
-                    <View style={styles.inputLastGoal}>
-                        <Checkbox
-                            value={goalCompleted}
-                            onValueChange={async (value) => {
-                                setGoalCompleted(value);
-                                await handleCheckGoal(value);
-                            }}
-                            color={colors.primary}
-                            style={styles.checkbox}
-                        />
-                        <Text style={{ marginLeft: 10 }}>
+	const handleCheckGoal = async (completed: boolean) =>
+	{
+		if (!journalData?.journalId)
+		{
+			return;
+		}
+
+		setIsLoading(true);
+		try
+		{
+			await journalService.addCheckedGoal({
+				id_journal: journalData.journalId,
+				actual_day_goal_completed: completed,
+			});
+		}
+		catch (err)
+		{
+			console.error(
+				"Erreur lors de l'enregistrement de l'objectif:",
+				err
+			);
+		}
+		finally
+		{
+			setIsLoading(false);
+		}
+	};
+
+	if (!user?.hasPremium)
+	{
+		return (
+			<View style={styles.page}>
+				<Mascot
+					mascot="hey"
+					text="Cette fonctionnalité est réservée aux utilisateurs Premium ✨"
+				/>
+				<Button
+					title="Passer"
+					onPress={() =>
+						navigation.navigate("Main", { screen: "Follow" })
+					}
+				/>
+			</View>
+		);
+	}
+	else
+	{
+		return (
+			<View style={styles.page}>
+				<BackButton />
+				<Mascot
+					mascot="woaw"
+					text="As-tu réussi à atteindre ton objectif d'hier ? Si tu veux, on peut en choisir un nouveau pour aujourd'hui."
+				/>
+
+				{previousGoal && (
+					<View style={styles.inputLastGoal}>
+						<Checkbox
+							value={goalCompleted}
+							onValueChange={async (value) =>
+							{
+								setGoalCompleted(value);
+								await handleCheckGoal(value);
+							}}
+							color={colors.primary}
+							style={styles.checkbox}
+						/>
+						<Text style={{ marginLeft: 10 }}>
                             As-tu rempli l’objectif d’hier ? « {previousGoal} »
-                        </Text>
-                    </View>
-                )}
+						</Text>
+					</View>
+				)}
 
-                <Input
-                    placeholder="Ton objectif de demain..."
-                    value={goal}
-                    onChangeText={setGoal}
-                    multiline
-                    style={{
-                        borderWidth: 1,
-                        borderColor: "#ccc",
-                        borderRadius: 8,
-                        padding: 10,
-                        marginVertical: 20,
-                        minHeight: 80,
-                    }}
-                />
+				<Input
+					placeholder="Ton objectif de demain..."
+					value={goal}
+					onChangeText={setGoal}
+					multiline
+					style={{
+						borderWidth: 1,
+						borderColor: "#ccc",
+						borderRadius: 8,
+						padding: 10,
+						marginVertical: 20,
+						minHeight: 80,
+					}}
+				/>
 
-                <Button
-                    title={isLoading ? "Enregistrement..." : "Suivant"}
-                    onPress={handleNext}
-                    disabled={!goal || isLoading}
-                />
-            </View>
-        );
-    }
+				<Button
+					title={isLoading ? "Enregistrement..." : "Suivant"}
+					onPress={handleNext}
+					disabled={!goal || isLoading}
+				/>
+			</View>
+		);
+	}
 };
 
 export default JourneyGoalScreen;
