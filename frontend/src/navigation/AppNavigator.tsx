@@ -17,6 +17,7 @@ import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
+import GroupChatScreen from "../screens/GroupChatScreen";
 import colors from "../css/colors";
 import AskDifficultyScreen from "../screens/Journal/AskDifficultyScreen";
 import AskConsumedScreen from "../screens/Journal/AskConsumedScreen";
@@ -36,49 +37,50 @@ const MyTheme = {
     },
 };
 
-const AppNavigator = () => {
-    return (
-        <NavigationContainer theme={MyTheme}>
-            <Stack.Navigator>
-                {/* Écrans d'authentification */}
-                <Stack.Screen
-                    name="Register"
-                    component={RegisterScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Login"
-                    component={LoginScreen}
-                    options={{ headerShown: false }}
-                />
+const AppNavigator = () =>
+{
+	return (
+		<NavigationContainer theme={MyTheme}>
+			<Stack.Navigator>
+				{/* Écrans d'authentification */}
+				<Stack.Screen
+					name="Register"
+					component={RegisterScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Login"
+					component={LoginScreen}
+					options={{ headerShown: false }}
+				/>
 
-                {/* Écran principal avec les onglets */}
-                <Stack.Screen
-                    name="Main"
-                    component={BottomTabNavigator}
-                    options={{ headerShown: false }}
-                />
-                {/* Écrans 2FA */}
-                <Stack.Screen
-                    name="Ask2fa"
-                    component={Ask2faScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Enable2FA"
-                    component={Enable2FAScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Disable2FA"
-                    component={Disable2FAScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="TwoFactorLogin"
-                    component={TwoFactorLoginScreen}
-                    options={{ headerShown: false }}
-                />
+				{/* Écran principal avec les onglets */}
+				<Stack.Screen
+					name="Main"
+					component={BottomTabNavigator}
+					options={{ headerShown: false }}
+				/>
+				{/* Écrans 2FA */}
+				<Stack.Screen
+					name="Ask2fa"
+					component={Ask2faScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Enable2FA"
+					component={Enable2FAScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Disable2FA"
+					component={Disable2FAScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="TwoFactorLogin"
+					component={TwoFactorLoginScreen}
+					options={{ headerShown: false }}
+				/>
 
                 {/* user informations */}
                 <Stack.Screen
@@ -119,6 +121,11 @@ const AppNavigator = () => {
                 <Stack.Screen
                     name="Support"
                     component={SupportScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="GroupChat"
+                    component={GroupChatScreen}
                     options={{ headerShown: false }}
                 />
 

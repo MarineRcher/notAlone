@@ -1,0 +1,28 @@
+# Ignore TypeScript and JavaScript files - let ESLint handle them
+*.ts
+*.tsx
+*.js
+*.jsx
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+.expo/
+build/
+
+# Logs
+*.log
+
+coverage/
+.env
+.env.local
+.env.production
+.env.test
+*.d.ts
+babel.config.js
+metro.config.js
+jest.config.ts
+yarn.lock
+package-lock.json 

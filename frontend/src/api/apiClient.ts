@@ -1,9 +1,10 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { authHelpers } from "./authHelpers";
+import { apiConfig } from "../config/api";
 
 interface DecodedToken {
-    exp: number;
+	exp: number;
 }
 
 let isRefreshing = false;
@@ -22,22 +23,24 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 const apiClient = axios.create({
-    baseURL: "http://172.16.1.170:3000/api",
-    timeout: 10000,
-    headers: {
-        "Content-Type": "application/json",
-    },
+	baseURL: apiConfig.apiURL,
+	timeout: apiConfig.timeout,
+	headers: {
+		"Content-Type": "application/json",
+	},
 });
 
 // Intercepteur de requête
 apiClient.interceptors.request.use(
-    async (config) => {
-        const publicRoutes = [
-            "/auth/register",
-            "/auth/login",
-            "/auth/changePassword",
-            "/auth/refresh",
-        ];
+	async (config) =>
+{
+		// Routes qui ne nécessitent pas d'authentification
+		const publicRoutes = [
+			"/auth/register",
+			"/auth/login",
+			"/auth/changePassword",
+			"/auth/refresh",
+		];
 
         // Si c'est une route publique, passer directement
         if (publicRoutes.some((route) => config.url?.startsWith(route))) {
@@ -68,18 +71,19 @@ apiClient.interceptors.request.use(
 
                 isRefreshing = true;
 
-                try {
-                    // Appel direct à l'API de refresh pour éviter la boucle
-                    const response = await axios.post(
-                        "http://192.168.1.155:3000/api/auth/refresh",
-                        {},
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                                "Content-Type": "application/json",
-                            },
-                        }
-                    );
+				try
+{
+					// Appel direct à l'API de refresh pour éviter la boucle
+					const response = await axios.post(
+						`${apiConfig.apiURL}/auth/refresh`,
+						{},
+						{
+							headers: {
+								Authorization: `Bearer ${token}`,
+								"Content-Type": "application/json",
+							},
+						}
+					);
 
                     const newToken = response.data.token;
                     await authHelpers.saveToken(newToken);

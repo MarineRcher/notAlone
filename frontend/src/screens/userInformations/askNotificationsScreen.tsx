@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    ActivityIndicator,
-    Alert,
+	View,
+	Text,
+	ScrollView,
+	TouchableOpacity,
+	ActivityIndicator,
+	Alert,
 } from "react-native";
 import userService from "../../api/userService";
 import { useContext } from "react";
@@ -22,44 +22,50 @@ const AskNotificationsScreen = ({ navigation }: Props) => {
     const [loading, setLoading] = useState(false);
     const { setUser } = useContext(AuthContext);
 
-    const handleActivateNotifications = async () => {
-        setLoading(true);
-        try {
-            const response = await userService.activateNotifications();
-            if (response.token) {
-                const decoded = jwtDecode<User>(response.token);
-                setUser(decoded);
-            }
-            navigation.navigate("AskNotificationsHour");
-        } catch (error) {
-            console.error(
-                "Erreur lors de l’activation des notifications:",
-                error
-            );
-            Alert.alert("Erreur", "Impossible d'activer les notifications.");
-        } finally {
-            setLoading(false);
-        }
-    };
-    return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <BackButton />
+	const handleActivateNotifications = async () =>
+{
+		setLoading(true);
+		try
+{
+			const response = await userService.activateNotifications();
 
-            <View>
-                <Mascot
-                    mascot="hey"
-                    text="Tu veux que je t’envoie un petit coucou de temps en temps pour te soutenir ?"
-                />
-                <View style={styles.buttonRow}>
-                    <Button
-                        title="Non"
-                        onPress={() => navigation.navigate("Main")}
-                    />
-                    <Button title="Oui" onPress={handleActivateNotifications} />
-                </View>
-            </View>
-        </ScrollView>
-    );
+			if (response.token)
+{
+				const decoded = jwtDecode<User>(response.token);
+
+				setUser(decoded);
+			}
+			navigation.navigate("AskNotificationsHour");
+		} catch (error) {
+			console.error(
+				"Erreur lors de l’activation des notifications:",
+				error
+			);
+			Alert.alert("Erreur", "Impossible d'activer les notifications.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return (
+		<ScrollView contentContainerStyle={styles.scrollContainer}>
+			<BackButton />
+
+			<View>
+				<Mascot
+					mascot="hey"
+					text="Tu veux que je t’envoie un petit coucou de temps en temps pour te soutenir ?"
+				/>
+				<View style={styles.buttonRow}>
+					<Button
+						title="Non"
+						onPress={() => navigation.navigate("Main")}
+					/>
+					<Button title="Oui" onPress={handleActivateNotifications} />
+				</View>
+			</View>
+		</ScrollView>
+	);
 };
 
 export default AskNotificationsScreen;

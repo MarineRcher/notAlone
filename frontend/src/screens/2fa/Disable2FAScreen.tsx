@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    Alert,
-    ScrollView,
+	View,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	Alert,
+	ScrollView,
 } from "react-native";
 import { authService } from "../../api/authService";
 import { authHelpers } from "../../api/authHelpers";
@@ -27,45 +27,56 @@ const Disable2FAScreen = ({ navigation }: Props) => {
     const [userId, setUserId] = useState<number | null>(null);
     const { setUser } = useContext(AuthContext);
 
-    useEffect(() => {
-        const fetchUserId = async () => {
-            const token = await authHelpers.getToken();
-            if (!token) {
-                Alert.alert("Erreur", "Vous devez être connecté");
-                navigation.navigate("Login");
-                return;
-            }
+	useEffect(() =>
+{
+		const fetchUserId = async () =>
+{
+			const token = await authHelpers.getToken();
 
-            const decoded = jwtDecode<User>(token);
-            setUser(decoded);
-            setUserId(decoded.id);
-        };
+			if (!token)
+{
+				Alert.alert("Erreur", "Vous devez être connecté");
+				navigation.navigate("Login");
+				return;
+			}
 
-        fetchUserId();
-    }, []);
+			const decoded = jwtDecode<User>(token);
 
-    const handleDisable = async () => {
-        if (!validator.isNumeric(otp) || otp.length !== 6) {
-            Alert.alert("Erreur", "Le code doit être à 6 chiffres");
-            return;
-        }
+			setUser(decoded);
+			setUserId(decoded.id);
+		};
 
-        if (!userId) {
-            Alert.alert("Erreur", "Utilisateur non identifié");
-            return;
-        }
+		fetchUserId();
+	}, []);
 
-        try {
-            const response = await authService.disable2FA({
-                userId: userId.toString(),
-                otp,
-            });
+	const handleDisable = async () =>
+{
+		if (!validator.isNumeric(otp) || otp.length !== 6)
+{
+			Alert.alert("Erreur", "Le code doit être à 6 chiffres");
+			return;
+		}
 
-            if (response?.data?.token) {
-                await authHelpers.saveToken(response.data.token);
-                const decoded = jwtDecode<User>(response.data.token);
-                setUser(decoded);
-            }
+		if (!userId)
+{
+			Alert.alert("Erreur", "Utilisateur non identifié");
+			return;
+		}
+
+		try
+{
+			const response = await authService.disable2FA({
+				userId: userId.toString(),
+				otp,
+			});
+
+			if (response?.data?.token)
+{
+				await authHelpers.saveToken(response.data.token);
+				const decoded = jwtDecode<User>(response.data.token);
+
+				setUser(decoded);
+			}
 
             Alert.alert("Succès", "2FA désactivée");
             navigation.goBack();
@@ -78,29 +89,29 @@ const Disable2FAScreen = ({ navigation }: Props) => {
         }
     };
 
-    return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <BackButton />
-            <View style={styles.container}>
-                <Mascot
-                    mascot="happy"
-                    text="Tu veux ranger ton double des clés ? Assure-toi que ton terrier reste bien gardé."
-                />
-                <View style={styles.formWrapper}>
-                    <Text>
-                        Entrez le code de vérification pour désactiver la 2FA :
-                    </Text>
-                    <Input
-                        placeholder="Entrez le code de vérification"
-                        value={otp}
-                        onChangeText={setOtp}
-                        keyboardType="numeric"
-                    />
-                </View>
-                <Button title="Désactiver" onPress={handleDisable} />
-            </View>
-        </ScrollView>
-    );
+	return (
+		<ScrollView contentContainerStyle={styles.scrollContainer}>
+			<BackButton />
+			<View style={styles.container}>
+				<Mascot
+					mascot="happy"
+					text="Tu veux ranger ton double des clés ? Assure-toi que ton terrier reste bien gardé."
+				/>
+				<View style={styles.formWrapper}>
+					<Text>
+						Entrez le code de vérification pour désactiver la 2FA :
+					</Text>
+					<Input
+						placeholder="Entrez le code de vérification"
+						value={otp}
+						onChangeText={setOtp}
+						keyboardType="numeric"
+					/>
+				</View>
+				<Button title="Désactiver" onPress={handleDisable} />
+			</View>
+		</ScrollView>
+	);
 };
 
 export default Disable2FAScreen;

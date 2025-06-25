@@ -58,27 +58,27 @@ const TwoFactorLoginScreen = ({ route, navigation }: Props) => {
         }
     };
 
-    return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <BackButton />
+	return (
+		<ScrollView contentContainerStyle={styles.scrollContainer}>
+			<BackButton />
 
-            <View style={styles.container}>
-                <Mascot
-                    mascot="super"
-                    text="Un renard avisé sécurise toujours son terrier… "
-                />
-                <View style={styles.formWrapper}>
-                    <Input
-                        placeholder="Entrez le code de vérification"
-                        value={otp}
-                        onChangeText={setOtp}
-                        keyboardType="numeric"
-                    />
-                </View>
-                <Button title="Vérifier" onPress={handleVerify} />
-            </View>
-        </ScrollView>
-    );
+			<View style={styles.container}>
+				<Mascot
+					mascot="super"
+					text="Un renard avisé sécurise toujours son terrier… "
+				/>
+				<View style={styles.formWrapper}>
+					<Input
+						placeholder="Entrez le code de vérification"
+						value={otp}
+						onChangeText={setOtp}
+						keyboardType="numeric"
+					/>
+				</View>
+				<Button title="Vérifier" onPress={handleVerify} />
+			</View>
+		</ScrollView>
+	);
 };
 
 export default TwoFactorLoginScreen;

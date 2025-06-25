@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    Alert,
-    ActivityIndicator,
+	View,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	ScrollView,
+	Alert,
+	ActivityIndicator,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import addictionService from "../../api/addictionService";
@@ -19,8 +19,8 @@ import DatePicker from "../../components/datePicker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 interface Addiction {
-    id: number;
-    addiction: string;
+	id: number;
+	addiction: string;
 }
 
 type Props = NativeStackScreenProps<any, any>;
@@ -49,8 +49,8 @@ const AddUserAddictionScreen = ({ navigation }: Props) => {
             }
         };
 
-        fetchAddictions();
-    }, []);
+		fetchAddictions();
+	}, []);
 
     const handleDateChange = (event, selectedDate) => {
         setShowDatePicker(false);
@@ -81,8 +81,8 @@ const AddUserAddictionScreen = ({ navigation }: Props) => {
             return false;
         }
 
-        return true;
-    };
+		return true;
+	};
 
     const handleSubmit = async () => {
         if (!validateForm()) return;
@@ -99,13 +99,13 @@ const AddUserAddictionScreen = ({ navigation }: Props) => {
                     : undefined,
             });
 
-            navigation.navigate("AskNotifications");
-        } catch (error) {
-            Alert.alert("Erreur", error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+			navigation.navigate("AskNotifications");
+		} catch (error) {
+			Alert.alert("Erreur", error.message);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
     if (fetching) {
         return (

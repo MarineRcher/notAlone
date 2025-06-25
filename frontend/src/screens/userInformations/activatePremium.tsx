@@ -1,12 +1,12 @@
 import React, { useContext, useState } from "react";
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    Alert,
-    ActivityIndicator,
-    StyleSheet,
-    ScrollView,
+	View,
+	Text,
+	TouchableOpacity,
+	Alert,
+	ActivityIndicator,
+	StyleSheet,
+	ScrollView,
 } from "react-native";
 import { AuthContext, User } from "../../context/AuthContext";
 import userService from "../../api/userService";

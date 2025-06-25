@@ -18,11 +18,11 @@ const BackButton = ({ onPress }: BackButtonProps) => {
         }
     };
 
-    return (
-        <TouchableOpacity style={styles.backButton} onPress={handlePress}>
-            <ChevronLeft width={36} height={36} />
-        </TouchableOpacity>
-    );
+	return (
+		<TouchableOpacity style={styles.backButton} onPress={handlePress}>
+			<ChevronLeft width={36} height={36} />
+		</TouchableOpacity>
+	);
 };
 
 export default BackButton;
