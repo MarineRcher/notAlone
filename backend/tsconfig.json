@@ -8,8 +8,10 @@
       "esModuleInterop": true,
       "resolveJsonModule": true,
       "skipLibCheck": true,
-      "rootDir": "./src"
+      "rootDir": "./src",
+      "types": ["node", "jest"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "src/tests"],
+    
     "exclude": ["node_modules"]
   }

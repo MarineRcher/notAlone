@@ -2,7 +2,7 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    roots: ['<rootDir>/tests', '<rootDir>/src'],
+    roots: ['<rootDir>/src/tests', '<rootDir>/src'],
     testMatch: [
         '**/tests/**/*.test.ts',
         '**/tests/**/*.test.js'
@@ -22,7 +22,7 @@ module.exports = {
         'lcov',
         'html'
     ],
-    setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.ts'],
+    setupFilesAfterEnv: ['<rootDir>/src/tests/unit/setup.ts'],
     testTimeout: 10000,
     clearMocks: true,
     resetMocks: true,
