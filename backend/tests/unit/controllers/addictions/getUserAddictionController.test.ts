@@ -5,6 +5,7 @@ import Addiction from "../../../../src/models/Addiction";
 
 jest.mock("../../../../src/models/AddictionUser");
 jest.mock("../../../../src/models/Addiction");
+
 const mockRes = () => {
     const res = {} as Response;
     res.status = jest.fn().mockReturnValue(res);
@@ -31,32 +32,32 @@ describe("getUserAddictions controller", () => {
 
     it("should return formatted addictions for authenticated user", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
         } as Request;
 
         const res = mockRes();
 
         (AddictionUser.findAll as jest.Mock).mockResolvedValue([
             {
-                id_addiction_user: 100,
+                id_addiction_user: "100",
                 date: new Date("2025-06-01T00:00:00.000Z"),
-                id_addiction: 10,
+                id_addiction: "10",
             },
             {
-                id_addiction_user: 101,
+                id_addiction_user: "101",
                 date: new Date("2025-05-01T00:00:00.000Z"),
-                id_addiction: 11,
+                id_addiction: "11",
             },
         ]);
 
         (Addiction.findAll as jest.Mock).mockResolvedValue([
             {
-                id: 10,
+                id: "10",
                 addiction: "Caféine",
                 phoneNumber: "+33612345678",
             },
             {
-                id: 11,
+                id: "11",
                 addiction: "Nicotin",
                 phoneNumber: "+33699999999",
             },
@@ -65,29 +66,29 @@ describe("getUserAddictions controller", () => {
         await getUserAddictions(req, res, mockNext);
 
         expect(AddictionUser.findAll).toHaveBeenCalledWith({
-            where: { id_user: 1 },
+            where: { id_user: "1" },
             order: [["date", "DESC"]],
             raw: true,
         });
 
         expect(Addiction.findAll).toHaveBeenCalledWith({
-            where: { id: [10, 11] },
+            where: { id: ["10", "11"] },
             raw: true,
         });
 
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith([
             {
-                id: 100,
+                id: "100",
                 addiction: "Caféine",
-                addictionId: 10,
+                addictionId: "10",
                 phoneNumber: "+33612345678",
                 date: new Date("2025-06-01T00:00:00.000Z"),
             },
             {
-                id: 101,
+                id: "101",
                 addiction: "Nicotin",
-                addictionId: 11,
+                addictionId: "11",
                 phoneNumber: "+33699999999",
                 date: new Date("2025-05-01T00:00:00.000Z"),
             },
@@ -96,7 +97,7 @@ describe("getUserAddictions controller", () => {
 
     it("should call next() on error", async () => {
         const req = {
-            user: { id: 1 },
+            user: { id: "1" },
             ip: "127.0.0.1",
         } as Request;
 

@@ -18,7 +18,7 @@ const mockRes = (): Partial<Response> => {
 
 describe("Premium Controllers", () => {
     const mockUser = {
-        id: 1,
+        id: "1",
         login: "Athena",
         has2FA: true,
         notify: false,
@@ -73,7 +73,7 @@ describe("Premium Controllers", () => {
             (User.findByPk as jest.Mock).mockResolvedValue(null);
 
             const req = {
-                user: { id: 999 },
+                user: { id: "999" },
             } as Request;
             const res = mockRes();
             const next = jest.fn();

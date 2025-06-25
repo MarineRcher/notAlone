@@ -24,7 +24,7 @@ const mockNext: NextFunction = jest.fn();
 
 describe("Notification Controllers", () => {
     const mockUser = {
-        id: 1,
+        id: "1",
         login: "testuser",
         has2FA: true,
         notify: true,
@@ -50,7 +50,7 @@ describe("Notification Controllers", () => {
         });
 
         it("should return 404 if update count is 0", async () => {
-            const req = { user: { id: 1 }, ip: "127.0.0.1" } as Request;
+            const req = { user: { id: "1" }, ip: "127.0.0.1" } as Request;
             const res = mockRes();
             (User.update as jest.Mock).mockResolvedValue([0]);
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
@@ -62,7 +62,7 @@ describe("Notification Controllers", () => {
         });
 
         it("should activate notifications successfully", async () => {
-            const req = { user: { id: 1 }, ip: "127.0.0.1" } as Request;
+            const req = { user: { id: "1" }, ip: "127.0.0.1" } as Request;
             const res = mockRes();
             (User.update as jest.Mock).mockResolvedValue([1]);
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
@@ -77,7 +77,7 @@ describe("Notification Controllers", () => {
         });
 
         it("should call next() on unexpected error", async () => {
-            const req = { user: { id: 1 }, ip: "127.0.0.1" } as Request;
+            const req = { user: { id: "1" }, ip: "127.0.0.1" } as Request;
             const res = mockRes();
             const error = new Error("DB error");
             (User.update as jest.Mock).mockRejectedValue(error);
@@ -97,7 +97,7 @@ describe("Notification Controllers", () => {
         });
 
         it("should return 404 if user not found", async () => {
-            const req = { user: { id: 1 }, ip: "127.0.0.1" } as Request;
+            const req = { user: { id: "1" }, ip: "127.0.0.1" } as Request;
             const res = mockRes();
             (User.update as jest.Mock).mockResolvedValue([0]);
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
@@ -106,7 +106,7 @@ describe("Notification Controllers", () => {
         });
 
         it("should deactivate notifications successfully", async () => {
-            const req = { user: { id: 1 }, ip: "127.0.0.1" } as Request;
+            const req = { user: { id: "1" }, ip: "127.0.0.1" } as Request;
             const res = mockRes();
             (User.update as jest.Mock).mockResolvedValue([1]);
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
@@ -121,7 +121,7 @@ describe("Notification Controllers", () => {
         });
 
         it("should call next() on error", async () => {
-            const req = { user: { id: 1 }, ip: "127.0.0.1" } as Request;
+            const req = { user: { id: "1" }, ip: "127.0.0.1" } as Request;
             const res = mockRes();
             const error = new Error("Failure");
             (User.update as jest.Mock).mockRejectedValue(error);
@@ -133,7 +133,7 @@ describe("Notification Controllers", () => {
 
     describe("setNotificationHour", () => {
         it("should return 400 if hour is missing", async () => {
-            const req = { user: { id: 1 }, body: {} } as Request;
+            const req = { user: { id: "1" }, body: {} } as Request;
             const res = mockRes();
             (User.findByPk as jest.Mock).mockResolvedValue(mockUser);
             await setNotificationHour(req, res, mockNext);
@@ -145,7 +145,7 @@ describe("Notification Controllers", () => {
 
         it("should return 400 if hour format is invalid", async () => {
             const req = {
-                user: { id: 1 },
+                user: { id: "1" },
                 body: { hour: "99:99" },
             } as Request;
             const res = mockRes();
@@ -159,7 +159,7 @@ describe("Notification Controllers", () => {
 
         it("should return 404 if update fails", async () => {
             const req = {
-                user: { id: 1 },
+                user: { id: "1" },
                 body: { hour: "08:30" },
                 ip: "127.0.0.1",
             } as Request;
@@ -176,7 +176,7 @@ describe("Notification Controllers", () => {
 
         it("should update notification hour successfully", async () => {
             const req = {
-                user: { id: 1 },
+                user: { id: "1" },
                 body: { hour: "08:30" },
                 ip: "127.0.0.1",
             } as Request;
@@ -188,7 +188,7 @@ describe("Notification Controllers", () => {
             expect(User.update).toHaveBeenCalledWith(
                 { hourNotify: "08:30" },
                 {
-                    where: { id: 1, notify: true },
+                    where: { id: "1", notify: true },
                 }
             );
             expect(res.status).toHaveBeenCalledWith(200);
@@ -202,7 +202,7 @@ describe("Notification Controllers", () => {
 
         it("should call next() on DB error", async () => {
             const req = {
-                user: { id: 1 },
+                user: { id: "1" },
                 body: { hour: "08:30" },
                 ip: "127.0.0.1",
             } as Request;
