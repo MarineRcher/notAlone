@@ -55,7 +55,9 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 	const [members, setMembers] = useState<GroupMember[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isWaitingForKeys, setIsWaitingForKeys] = useState(true);
 	const [connectionStatus, setConnectionStatus] = useState('Connecting...');
+	const [keyExchangeStatus, setKeyExchangeStatus] = useState('Initializing encryption...');
 	const [pendingMessages, setPendingMessages] = useState<Map<string, any>>(new Map());
 	const [keyExchangeComplete, setKeyExchangeComplete] = useState<Set<string>>(new Set());
 	const socketRef = useRef<Socket | null>(null);
@@ -109,6 +111,28 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		return () => clearInterval(cleanup);
 	}, []);
 
+	const checkKeyExchangeStatus = (currentMembers: GroupMember[]) => {
+		const otherMembers = currentMembers.filter(m => m.userId !== user!.id.toString());
+		const requiredKeys = otherMembers.length;
+		const completedKeys = keyExchangeComplete.size;
+
+		console.log(`🔑 [KEY-EXCHANGE] Progress: ${completedKeys}/${requiredKeys} keys exchanged`);
+		
+		if (requiredKeys === 0) {
+			// Solo in group, no key exchange needed
+			setIsWaitingForKeys(false);
+			setKeyExchangeStatus('Ready to chat');
+		} else if (completedKeys >= requiredKeys) {
+			// All keys exchanged
+			setIsWaitingForKeys(false);
+			setKeyExchangeStatus('All keys exchanged - Ready to chat');
+		} else {
+			// Still waiting for keys
+			setIsWaitingForKeys(true);
+			setKeyExchangeStatus(`Exchanging keys... (${completedKeys}/${requiredKeys})`);
+		}
+	};
+
 	const initializeGroupChat = async () =>
 	{
 		try
@@ -145,10 +169,11 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			await initializeSocket();
 			console.log('🔑 [LIBSIGNAL] ✅ Socket connection established');
 
-			setIsInitialized(true);
-			setIsLoading(false);
-			setConnectionStatus('Connected - Signal Protocol Active');
-			console.log('🔑 [LIBSIGNAL] ===== GROUP CHAT INITIALIZATION COMPLETE =====');
+					setIsInitialized(true);
+		setIsLoading(false);
+		setConnectionStatus('Connected - Signal Protocol Active');
+		setKeyExchangeStatus('Waiting for all members to join...');
+		console.log('🔑 [LIBSIGNAL] ===== GROUP CHAT INITIALIZATION COMPLETE =====');
 		}
 		catch (error)
 		{
@@ -165,7 +190,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		{
 			const socket = io(apiConfig.socketURL, {
 				auth: {
-					token: `mock_jwt_token_${user!.login}`,
+					token: `mock_jwt_token_${user!.id}`,
 				},
 				transports: ['websocket'],
 			});
@@ -210,6 +235,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			socket.on('group_members', (data) =>
 			{
 				setMembers(data.members);
+				checkKeyExchangeStatus(data.members);
 			});
 
 			socket.on('sender_key_distribution', async (data) =>
@@ -331,14 +357,16 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		console.log('👤 [LIBSIGNAL] Member joined:', data.username);
 
 		// Update members list
-		setMembers(prev => [
-			...prev.filter(m => m.userId !== data.userId),
+		const newMembers = [
+			...members.filter(m => m.userId !== data.userId),
 			{
 				userId: data.userId,
 				username: data.username,
 				isOnline: true,
 			}
-		]);
+		];
+		setMembers(newMembers);
+		checkKeyExchangeStatus(newMembers);
 
 		// Add system message
 		const systemMessage: Message = {
@@ -424,9 +452,14 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			await CryptoAPI.addGroupMember(groupId, data.distributionMessage);
 			console.log('✅ [LIBSIGNAL] Sender key processed successfully');
 
-			// Mark key exchange as complete for this user
-			setKeyExchangeComplete(prev => new Set([...prev, data.fromUserId]));
-			console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
+					// Mark key exchange as complete for this user
+		setKeyExchangeComplete(prev => {
+			const newSet = new Set([...prev, data.fromUserId]);
+			// Update key exchange status after state update
+			setTimeout(() => checkKeyExchangeStatus(members), 0);
+			return newSet;
+		});
+		console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
 
 			// Try to decrypt any pending messages from this sender
 			await processPendingMessages(data.fromUserId);
@@ -548,7 +581,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			const message: Message = {
 				id: encryptedMessage.messageId,
 				senderId: user!.id.toString(),
-				senderName: user!.login || 'You',
+				senderName: 'You',
 				content: newMessage.trim(),
 				timestamp: encryptedMessage.timestamp,
 				isEncrypted: true,
@@ -634,6 +667,37 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
             Setting up end-to-end encryption using @signalapp/libsignal-client...
 					</Text>
 					<Text style={styles.statusText}>{connectionStatus}</Text>
+				</View>
+			</View>
+		);
+	}
+
+	if (isWaitingForKeys && members.length > 1)
+	{
+		return (
+			<View style={styles.welcomeContainer}>
+				<View style={styles.infoContainer}>
+					<Text style={styles.infoTitle}>🔐 Échange de clés en cours</Text>
+					<Text style={styles.infoText}>
+            Établissement du chiffrement de bout en bout avec tous les membres...
+					</Text>
+					<Text style={styles.statusText}>{keyExchangeStatus}</Text>
+					<View style={styles.membersList}>
+						{members.map((member, index) => (
+							<View key={member.userId} style={styles.memberItem}>
+								<Text style={styles.memberText}>
+									{member.userId === user!.id ? '🔵 Vous' : `👤 ${member.username}`}
+								</Text>
+								<Text style={styles.memberStatus}>
+									{member.userId === user!.id 
+										? '✅ Prêt' 
+										: keyExchangeComplete.has(member.userId) 
+											? '✅ Clés échangées' 
+											: '🔄 En attente...'}
+								</Text>
+							</View>
+						))}
+					</View>
 				</View>
 			</View>
 		);

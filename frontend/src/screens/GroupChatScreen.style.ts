@@ -224,10 +224,41 @@ const styles = StyleSheet.create({
 	},
 
 	systemMessageText: {
-		color: colors.secondary,
-		fontSize: 14,
-		fontStyle: 'italic',
+		fontSize: 12,
+		fontFamily: Fonts.quicksand.regular,
+		color: colors.text,
 		textAlign: 'center',
+		fontStyle: 'italic',
+	},
+
+	// Key exchange loading styles
+	membersList: {
+		width: '100%',
+		marginTop: 16,
+	},
+
+	memberItem: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingVertical: 8,
+		paddingHorizontal: 12,
+		backgroundColor: colors.background,
+		borderRadius: 8,
+		marginBottom: 8,
+	},
+
+	memberText: {
+		fontSize: 14,
+		fontFamily: Fonts.quicksand.regular,
+		color: colors.text,
+		flex: 1,
+	},
+
+	memberStatus: {
+		fontSize: 12,
+		fontFamily: Fonts.quicksand.bold,
+		color: colors.secondary,
 	},
 
 	// Message sender styles
