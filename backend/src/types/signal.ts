@@ -20,7 +20,7 @@ export interface SenderKeyBundle {
 
 export interface DeviceInfo {
 	deviceId: string;
-	registrationId: number;
+	registrationId: string;
 	identityKey: number[];
 	signedPreKey: number[];
 	preKeys: number[][];

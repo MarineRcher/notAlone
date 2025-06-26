@@ -15,6 +15,7 @@ interface UserCreationAttributes
 		| "failedLoginAttempts"
 		| "blockedUntil"
 		| "points"
+		| "last_animation_at"
 	> {}
 
 class User
@@ -34,6 +35,7 @@ class User
 	public failedLoginAttempts!: number;
 	public blockedUntil!: Date | null;
 	public points!: number;
+	public last_animation_at!: Date | null;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -107,6 +109,10 @@ User.init(
 			type: DataTypes.INTEGER,
 			defaultValue: 0,
 		},
+		last_animation_at: {
+			type: DataTypes.DATE,
+			allowNull: true
+		}
 	},
 	{
 		sequelize: db,

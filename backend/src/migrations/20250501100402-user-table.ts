@@ -64,6 +64,10 @@ export default {
                 type: DataTypes.INTEGER,
                 defaultValue: 0,
             },
+            last_animation_at: {
+			type: DataTypes.DATE,
+			allowNull: true
+		    },
             created_at: {
                 type: DataTypes.DATE,
                 allowNull: false,

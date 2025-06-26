@@ -12,6 +12,7 @@ export interface UserAttributes {
 	failedLoginAttempts: number;
 	blockedUntil: Date | null;
 	points: number;
+	last_animation_at: Date | null;
 
 	createdAt?: Date;
 	updatedAt?: Date;

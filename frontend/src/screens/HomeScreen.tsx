@@ -6,7 +6,7 @@ import {
 	Linking,
 	Alert,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import Mascot from "../components/mascot";
 import styles from "./HomeScreen.style";
@@ -19,6 +19,7 @@ import colors from "../css/colors";
 import addictionService from "../api/addictionService";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthContext } from "../context/AuthContext";
 
 type AddictionItem = {
 	id: number;
@@ -30,6 +31,7 @@ type AddictionItem = {
 
 type Props = NativeStackScreenProps<any, any>;
 const HomeScreen = ({ navigation }: Props) => {
+	const { user } = useContext(AuthContext);
 	const [addictions, setAddictions] = useState<AddictionItem[]>([]);
 	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
 		null,
