@@ -18,33 +18,33 @@ import { Request, Response, NextFunction } from "express";
  * @returns {Promise<void>} A promise that resolves when the operation completes or an error is handled.
  */
 export const deleteUserAccount = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    try {
-        const user_id = req.user?.id;
+	try {
+		const user_id = req.user?.id;
 
-        if (!user_id) {
-            res.status(401).json({ message: "Non autorisé" });
-            return;
-        }
-        await AddictionUser.destroy({
-            where: { id_user: user_id },
-        });
-        const deleted = await User.destroy({
-            where: { id: user_id },
-        });
+		if (!user_id) {
+			res.status(401).json({ message: "Non autorisé" });
+			return;
+		}
+		await AddictionUser.destroy({
+			where: { id_user: user_id },
+		});
+		const deleted = await User.destroy({
+			where: { id: user_id },
+		});
 
-        if (!deleted) {
-            res.status(404).json({ message: "Utilisateur introuvable" });
-            return;
-        }
+		if (!deleted) {
+			res.status(404).json({ message: "Utilisateur introuvable" });
+			return;
+		}
 
-        res.status(200).json({
-            message: "Compte et données associées supprimés",
-        });
-    } catch (error) {
-        next(error);
-    }
+		res.status(200).json({
+			message: "Compte et données associées supprimés",
+		});
+	} catch (error) {
+		next(error);
+	}
 };

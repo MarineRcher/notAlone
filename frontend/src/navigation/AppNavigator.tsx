@@ -17,105 +17,153 @@ import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
 import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
+import GroupChatScreen from "../screens/GroupChatScreen";
 import colors from "../css/colors";
+import AskDifficultyScreen from "../screens/Journal/AskDifficultyScreen";
+import AskConsumedScreen from "../screens/Journal/AskConsumedScreen";
+import NoteJourneyScreen from "../screens/Journal/NoteJourneyScreen";
+import journeyGoalScreen from "../screens/Journal/journeyGoalScreen";
+import TopActivitiesScreen from "../screens/Journal/TopActivitiesScreen";
+import ResumeJourneyScreen from "../screens/Journal/ResumeJourneyScreen";
+import JourneyGoalScreen from "../screens/Journal/journeyGoalScreen";
+import FollowScreen from "../screens/followScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        background: colors.background,
-    },
+	...DefaultTheme,
+	colors: {
+		...DefaultTheme.colors,
+		background: colors.background,
+	},
 };
 
-const AppNavigator = () => {
-    return (
-        <NavigationContainer theme={MyTheme}>
-            <Stack.Navigator>
-                {/* Écrans d'authentification */}
-                <Stack.Screen
-                    name="Register"
-                    component={RegisterScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Login"
-                    component={LoginScreen}
-                    options={{ headerShown: false }}
-                />
+const AppNavigator = () =>
+{
+	return (
+		<NavigationContainer theme={MyTheme}>
+			<Stack.Navigator>
+				{/* Écrans d'authentification */}
+				<Stack.Screen
+					name="Register"
+					component={RegisterScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Login"
+					component={LoginScreen}
+					options={{ headerShown: false }}
+				/>
 
-                {/* Écran principal avec les onglets */}
-                <Stack.Screen
-                    name="Main"
-                    component={BottomTabNavigator}
-                    options={{ headerShown: false }}
-                />
-                {/* Écrans 2FA */}
-                <Stack.Screen
-                    name="Ask2fa"
-                    component={Ask2faScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Enable2FA"
-                    component={Enable2FAScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Disable2FA"
-                    component={Disable2FAScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="TwoFactorLogin"
-                    component={TwoFactorLoginScreen}
-                    options={{ headerShown: false }}
-                />
+				{/* Écran principal avec les onglets */}
+				<Stack.Screen
+					name="Main"
+					component={BottomTabNavigator}
+					options={{ headerShown: false }}
+				/>
+				{/* Écrans 2FA */}
+				<Stack.Screen
+					name="Ask2fa"
+					component={Ask2faScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Enable2FA"
+					component={Enable2FAScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Disable2FA"
+					component={Disable2FAScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="TwoFactorLogin"
+					component={TwoFactorLoginScreen}
+					options={{ headerShown: false }}
+				/>
 
-                {/* user informations */}
-                <Stack.Screen
-                    name="ActivatePremium"
-                    component={ActivatePremiumScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="ChangeEmail"
-                    component={ChangeEmailScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="ChangePassword"
-                    component={ChangePasswordScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="AskNotifications"
-                    component={AskNotificationsScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="AskNotificationsHour"
-                    component={AskNotificationsHourScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="AddUserAddiction"
-                    component={AddUserAddictionScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="PrivacyPolicy"
-                    component={PrivacyPolicycreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Support"
-                    component={SupportScreen}
-                    options={{ headerShown: false }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
+				{/* user informations */}
+				<Stack.Screen
+					name="ActivatePremium"
+					component={ActivatePremiumScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="ChangeEmail"
+					component={ChangeEmailScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="ChangePassword"
+					component={ChangePasswordScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="AskNotifications"
+					component={AskNotificationsScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="AskNotificationsHour"
+					component={AskNotificationsHourScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="AddUserAddiction"
+					component={AddUserAddictionScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="PrivacyPolicy"
+					component={PrivacyPolicycreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Support"
+					component={SupportScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="GroupChat"
+					component={GroupChatScreen}
+					options={{ headerShown: false }}
+				/>
+
+				{/* journal */}
+
+				<Stack.Screen
+					name="Difficulty"
+					component={AskDifficultyScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Consumed"
+					component={AskConsumedScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Note"
+					component={NoteJourneyScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Goal"
+					component={JourneyGoalScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Activities"
+					component={TopActivitiesScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Resume"
+					component={ResumeJourneyScreen}
+					options={{ headerShown: false }}
+				/>
+			</Stack.Navigator>
+		</NavigationContainer>
+	);
 };
 
 export default AppNavigator;

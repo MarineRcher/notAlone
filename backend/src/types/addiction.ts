@@ -1,5 +1,5 @@
 export interface AddictionAttributes {
-    id: number;
-    addiction: string;
-    phoneNumber: string;
+	id: string;
+	addiction: string;
+	phoneNumber: string;
 }

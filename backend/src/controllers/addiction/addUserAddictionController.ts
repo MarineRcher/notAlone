@@ -20,38 +20,34 @@ import User from "../../models/User";
  * An object indicating whether the input is valid and any corresponding error messages.
  */
 const validateAddictionData = (
-    addiction_id: number,
-    date: string,
-    use_a_day?: number,
-    spending_a_day?: number
+	addiction_id: string,
+	date: string,
+	use_a_day?: number,
+	spending_a_day?: number,
 ) => {
-    const errors: {
-        addiction_id?: string;
-        date?: string;
-        use_a_day?: string;
-        spending_a_day?: string;
-    } = {};
+	const errors: {
+		addiction_id?: string;
+		date?: string;
+		use_a_day?: string;
+		spending_a_day?: string;
+	} = {};
 
-    if (!addiction_id || isNaN(addiction_id)) {
-        errors.addiction_id = "ID d'addiction invalide";
-    }
+	if (!date || !Date.parse(date)) {
+		errors.date = "Format de date invalide (utilisez ISO8601)";
+	}
 
-    if (!date || !Date.parse(date)) {
-        errors.date = "Format de date invalide (utilisez ISO8601)";
-    }
+	if (use_a_day !== undefined && isNaN(use_a_day)) {
+		errors.use_a_day = "Nombre d'utilisations invalide";
+	}
 
-    if (use_a_day !== undefined && isNaN(use_a_day)) {
-        errors.use_a_day = "Nombre d'utilisations invalide";
-    }
+	if (spending_a_day !== undefined && isNaN(spending_a_day)) {
+		errors.spending_a_day = "Montant dépensé invalide";
+	}
 
-    if (spending_a_day !== undefined && isNaN(spending_a_day)) {
-        errors.spending_a_day = "Montant dépensé invalide";
-    }
-
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors,
-    };
+	return {
+		isValid: Object.keys(errors).length === 0,
+		errors,
+	};
 };
 
 /**
@@ -79,129 +75,125 @@ const validateAddictionData = (
  * @returns {Promise<void>} A promise that resolves when processing is complete.
  */
 export const addUserAddiction = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    try {
-        const user_id = req.user?.id;
+	try {
+		const user_id = req.user?.id;
 
-        if (!user_id) {
-            res.status(401).json({ message: "Non autorisé" });
-            return;
-        }
+		if (!user_id) {
+			res.status(401).json({ message: "Non autorisé" });
+			return;
+		}
 
-        const { addiction_id, date, use_a_day, spending_a_day } = req.body;
+		const { addiction_id, date, use_a_day, spending_a_day } = req.body;
 
-        // Validation des données
-        const { isValid, errors } = validateAddictionData(
-            addiction_id,
-            date,
-            use_a_day,
-            spending_a_day
-        );
+		// Validation des données
+		const { isValid, errors } = validateAddictionData(
+			addiction_id,
+			date,
+			use_a_day,
+			spending_a_day,
+		);
 
-        if (!isValid) {
-            res.status(400).json({
-                message: "Données invalides",
-                errors,
-            });
-            return;
-        }
+		if (!isValid) {
+			res.status(400).json({
+				message: "Données invalides",
+				errors,
+			});
+			return;
+		}
 
-        // Vérification de l'existence de l'utilisateur
-        const user = await User.findByPk(user_id);
-        if (!user) {
-            res.status(404).json({
-                message: "Utilisateur introuvable",
-            });
-            return;
-        }
+		// Vérification de l'existence de l'utilisateur
+		const user = await User.findByPk(user_id);
+		if (!user) {
+			res.status(404).json({
+				message: "Utilisateur introuvable",
+			});
+			return;
+		}
 
-        // Vérification de l'existence de l'addiction
-        const addictionExists = await Addiction.findByPk(addiction_id);
-        if (!addictionExists) {
-            res.status(404).json({
-                message: "Addiction introuvable",
-            });
-            return;
-        }
+		// Vérification de l'existence de l'addiction
+		const addictionExists = await Addiction.findByPk(addiction_id);
+		if (!addictionExists) {
+			res.status(404).json({
+				message: "Addiction introuvable",
+			});
+			return;
+		}
 
-        // Vérification si l'addiction existe déjà
-        const existingAddiction = await AddictionUser.findOne({
-            where: {
-                id_user: user_id,
-                id_addiction: addiction_id,
-            },
-        });
+		// Vérification si l'addiction existe déjà
+		const existingAddiction = await AddictionUser.findOne({
+			where: {
+				id_user: user_id,
+				id_addiction: addiction_id,
+			},
+		});
 
-        if (existingAddiction) {
-            res.status(409).json({
-                message: "Vous avez déjà ajouté cette addiction",
-            });
-            return;
-        }
+		if (existingAddiction) {
+			res.status(409).json({
+				message: "Vous avez déjà ajouté cette addiction",
+			});
+			return;
+		}
 
-        // Vérification des limites premium
-        const userAddictionsCount = await AddictionUser.count({
-            where: { id_user: user_id },
-        });
+		// Vérification des limites premium
+		const userAddictionsCount = await AddictionUser.count({
+			where: { id_user: user_id },
+		});
 
-        if (userAddictionsCount > 0 && !user.hasPremium) {
-            res.status(403).json({
-                message:
-                    "Compte premium requis pour ajouter plusieurs addictions",
-            });
-            return;
-        }
+		if (userAddictionsCount > 0 && !user.hasPremium) {
+			res.status(403).json({
+				message: "Compte premium requis pour ajouter plusieurs addictions",
+			});
+			return;
+		}
 
-        // Création de la relation
-        await AddictionUser.create({
-            id_addiction: addiction_id,
-            id_user: user_id,
-            date: new Date(date),
-            spending_a_day,
-            use_a_day,
-        });
+		// Création de la relation
+		await AddictionUser.create({
+			id_addiction: addiction_id,
+			id_user: user_id,
+			date: new Date(date),
+			spending_a_day,
+			use_a_day,
+		});
 
-        logger.info("Addiction ajoutée avec succès", {
-            user: user_id,
-            addiction: addiction_id,
-            ip: req.ip,
-        });
+		logger.info("Addiction ajoutée avec succès", {
+			user: user_id,
+			addiction: addiction_id,
+			ip: req.ip,
+		});
 
-        res.status(201).json({
-            message: "Addiction ajoutée avec succès",
-        });
-    } catch (error) {
-        logger.error("Erreur lors de l'ajout d'une addiction", {
-            error,
-            user_id: req.user?.id,
-            ip: req.ip,
-        });
+		res.status(201).json({
+			message: "Addiction ajoutée avec succès",
+		});
+	} catch (error) {
+		logger.error("Erreur lors de l'ajout d'une addiction", {
+			error,
+			user_id: req.user?.id,
+			ip: req.ip,
+		});
 
-        if (error instanceof Error) {
-            if (
-                "name" in error &&
-                error.name === "SequelizeUniqueConstraintError"
-            ) {
-                res.status(409).json({
-                    message: "Cette addiction est déjà associée à votre compte",
-                });
-                return;
-            }
+		if (error instanceof Error) {
+			if ("name" in error && error.name === "SequelizeUniqueConstraintError") {
+				res.status(409).json({
+					message: "Cette addiction est déjà associée à votre compte",
+				});
+				return;
+			}
 
-            if (
-                "name" in error &&
-                error.name === "SequelizeForeignKeyConstraintError"
-            ) {
-                res.status(404).json({
-                    message: "Addiction introuvable",
-                });
-                return;
-            }
-        }
+			if (
+				"name" in error &&
+				error.name === "SequelizeForeignKeyConstraintError"
+			) {
+				res.status(404).json({
+					message: "Addiction introuvable",
+				});
+				return;
+			}
+		}
 
-        next(error);
-    }
+		next(error);
+	}
 };

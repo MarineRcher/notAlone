@@ -15,21 +15,21 @@ import { revokeToken } from "../../services/JwtServices";
  * @access Private
  */
 export const logout = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ) => {
-    try {
-        const token = req.headers.authorization?.split(" ")[1];
-        if (!token) {
-            res.status(400).json({ message: "Token manquant" });
-            return;
-        }
+	try {
+		const token = req.headers.authorization?.split(" ")[1];
+		if (!token) {
+			res.status(400).json({ message: "Token manquant" });
+			return;
+		}
 
-        await revokeToken(token);
+		await revokeToken(token);
 
-        res.status(200).json({ message: "Déconnexion réussie" });
-    } catch (error) {
-        next(error);
-    }
+		res.status(200).json({ message: "Déconnexion réussie" });
+	} catch (error) {
+		next(error);
+	}
 };

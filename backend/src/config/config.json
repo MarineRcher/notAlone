@@ -1,41 +1,41 @@
 {
-  "development": {
-    "username": "root",
-    "password": "root",
-    "database": "notalone",
-    "host": "db",
-    "port": 5432,
-    "dialect": "postgres",
-    "logging": true,
-    "define": {
-      "timestamps": true,
-      "underscored": true
-    }
-  },
-  "test": {
-    "username": "root",
-    "password": "root",
-    "database": "notalone_test",
-    "host": "db",
-    "port": 5432,
-    "dialect": "postgres",
-    "logging": false,
-    "define": {
-      "timestamps": true,
-      "underscored": true
-    }
-  },
-  "production": {
-    "username": "root",
-    "password": "root",
-    "database": "notalone_prod",
-    "host": "db",
-    "port": 5432,
-    "dialect": "postgres",
-    "logging": false,
-    "define": {
-      "timestamps": true,
-      "underscored": true
-    }
-  }
+	"development": {
+		"username": "root",
+		"password": "root",
+		"database": "notalone",
+		"host": "db",
+		"port": 5432,
+		"dialect": "postgres",
+		"logging": true,
+		"define": {
+			"timestamps": true,
+			"underscored": true
+		}
+	},
+	"test": {
+		"username": "root",
+		"password": "root",
+		"database": "notalone_test",
+		"host": "db",
+		"port": 5432,
+		"dialect": "postgres",
+		"logging": false,
+		"define": {
+			"timestamps": true,
+			"underscored": true
+		}
+	},
+	"production": {
+		"username": "root",
+		"password": "root",
+		"database": "notalone_prod",
+		"host": "db",
+		"port": 5432,
+		"dialect": "postgres",
+		"logging": false,
+		"define": {
+			"timestamps": true,
+			"underscored": true
+		}
+	}
 }

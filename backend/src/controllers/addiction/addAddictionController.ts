@@ -1,22 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import Addiction from "../../models/Addiction";
 const validatePhoneNumber = (phoneNumber: string) => {
-    const errors: { phoneNumber?: string } = {};
+	const errors: { phoneNumber?: string } = {};
 
-    const trimmed = phoneNumber?.trim() ?? "";
+	const trimmed = phoneNumber?.trim() ?? "";
 
-    if (!trimmed || trimmed.length == 4 || trimmed.length > 20) {
-        errors.phoneNumber =
-            "Numéro de téléphone invalide (4 ou 20 caractères)";
-    } else if (!/^[\d+\s\-().]+$/.test(trimmed)) {
-        errors.phoneNumber =
-            "Le numéro de téléphone contient des caractères invalides";
-    }
+	if (!trimmed || trimmed.length == 4 || trimmed.length > 20) {
+		errors.phoneNumber = "Numéro de téléphone invalide (4 ou 20 caractères)";
+	} else if (!/^[\d+\s\-().]+$/.test(trimmed)) {
+		errors.phoneNumber =
+			"Le numéro de téléphone contient des caractères invalides";
+	}
 
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors,
-    };
+	return {
+		isValid: Object.keys(errors).length === 0,
+		errors,
+	};
 };
 
 /**
@@ -29,16 +28,16 @@ const validatePhoneNumber = (phoneNumber: string) => {
  * An object containing a boolean indicating validity and any associated validation errors.
  */
 const validateAddictionInput = (addiction: string) => {
-    const errors: { addiction?: string } = {};
+	const errors: { addiction?: string } = {};
 
-    if (!addiction || addiction.trim().length < 2) {
-        errors.addiction = "Nom d'addiction invalide (min. 2 caractères)";
-    }
+	if (!addiction || addiction.trim().length < 2) {
+		errors.addiction = "Nom d'addiction invalide (min. 2 caractères)";
+	}
 
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors,
-    };
+	return {
+		isValid: Object.keys(errors).length === 0,
+		errors,
+	};
 };
 
 /**
@@ -56,40 +55,40 @@ const validateAddictionInput = (addiction: string) => {
  * @returns {Promise<void>} A promise that resolves when the response is sent or passes control to error middleware.
  */
 export const addAddiction = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ): Promise<void> => {
-    try {
-        const { addiction, phoneNumber } = req.body;
+	try {
+		const { addiction, phoneNumber } = req.body;
 
-        const { isValid: isAddictionValid, errors: addictionErrors } =
-            validateAddictionInput(addiction);
-        const { isValid: isPhoneValid, errors: phoneErrors } =
-            validatePhoneNumber(phoneNumber);
+		const { isValid: isAddictionValid, errors: addictionErrors } =
+			validateAddictionInput(addiction);
+		const { isValid: isPhoneValid, errors: phoneErrors } =
+			validatePhoneNumber(phoneNumber);
 
-        const errors = { ...addictionErrors, ...phoneErrors };
+		const errors = { ...addictionErrors, ...phoneErrors };
 
-        if (!isAddictionValid || !isPhoneValid) {
-            res.status(400).json({ errors });
-            return;
-        }
+		if (!isAddictionValid || !isPhoneValid) {
+			res.status(400).json({ errors });
+			return;
+		}
 
-        await Addiction.create({
-            addiction: addiction.trim(),
-            phoneNumber: phoneNumber.trim(),
-        });
+		await Addiction.create({
+			addiction: addiction.trim(),
+			phoneNumber: phoneNumber.trim(),
+		});
 
-        res.status(201).json({ success: true });
-    } catch (error) {
-        if (error instanceof Error && "name" in error) {
-            if (error.name === "SequelizeUniqueConstraintError") {
-                res.status(409).json({
-                    message: "Cette addiction existe déjà",
-                });
-                return;
-            }
-        }
-        next(error);
-    }
+		res.status(201).json({ success: true });
+	} catch (error) {
+		if (error instanceof Error && "name" in error) {
+			if (error.name === "SequelizeUniqueConstraintError") {
+				res.status(409).json({
+					message: "Cette addiction existe déjà",
+				});
+				return;
+			}
+		}
+		next(error);
+	}
 };

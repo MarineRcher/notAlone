@@ -3,11 +3,16 @@ import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
     async up(queryInterface: QueryInterface, Sequelize: typeof DataTypes) {
+        await queryInterface.sequelize.query(
+            "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
+        );
+
         await queryInterface.createTable("users", {
             id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 primaryKey: true,
-                autoIncrement: true,
+                defaultValue: DataTypes.UUIDV4,
+                allowNull: false,
             },
             login: {
                 type: DataTypes.STRING,
@@ -27,7 +32,7 @@ export default {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
-            has_2fa: {
+            has2_f_a: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false,
             },
@@ -54,6 +59,10 @@ export default {
             blocked_until: {
                 type: DataTypes.DATE,
                 allowNull: true,
+            },
+            points: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0,
             },
             created_at: {
                 type: DataTypes.DATE,

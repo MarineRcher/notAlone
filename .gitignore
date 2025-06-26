@@ -7,7 +7,7 @@ frontend/.env
 .expo/
 dist/
 web-build/
-
+backend/security.log
 # Native
 *.orig.*
 *.jks
@@ -39,3 +39,6 @@ package-lock.json
 pnpm-lock.yaml
 
 backend/logs/
+backend/security.log
+
+.idea/
