@@ -27,6 +27,7 @@ import TopActivitiesScreen from "../screens/Journal/TopActivitiesScreen";
 import ResumeJourneyScreen from "../screens/Journal/ResumeJourneyScreen";
 import JourneyGoalScreen from "../screens/Journal/journeyGoalScreen";
 import FollowScreen from "../screens/followScreen";
+import BreathingScreen from "../screens/resources/BreathingScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -37,8 +38,7 @@ const MyTheme = {
 	},
 };
 
-const AppNavigator = () =>
-{
+const AppNavigator = () => {
 	return (
 		<NavigationContainer theme={MyTheme}>
 			<Stack.Navigator>
@@ -159,6 +159,11 @@ const AppNavigator = () =>
 				<Stack.Screen
 					name="Resume"
 					component={ResumeJourneyScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Breathing"
+					component={BreathingScreen}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>

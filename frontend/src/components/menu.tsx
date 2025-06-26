@@ -25,12 +25,11 @@ import colors from "../css/colors";
 import { Fonts } from "../css/font";
 import TabLabel from "./tabLabel";
 import ForestScreen from "../screens/forestScreen";
-import HelpScreen from "../screens/HelpScreen";
+import ResourcesScreen from "../screens/ResourcesScreen";
 
 const Tab = createBottomTabNavigator();
 
-const BottomTabNavigator = () =>
-{
+const BottomTabNavigator = () => {
 	return (
 		<Tab.Navigator
 			screenOptions={{
@@ -61,11 +60,7 @@ const BottomTabNavigator = () =>
 						/>
 					),
 					tabBarLabel: ({ focused, color }) => (
-						<TabLabel
-							focused={focused}
-							color={color}
-							label="Accueil"
-						/>
+						<TabLabel focused={focused} color={color} label="Accueil" />
 					),
 				}}
 			/>
@@ -81,11 +76,7 @@ const BottomTabNavigator = () =>
 						/>
 					),
 					tabBarLabel: ({ focused, color }) => (
-						<TabLabel
-							focused={focused}
-							color={color}
-							label="Suivi"
-						/>
+						<TabLabel focused={focused} color={color} label="Suivi" />
 					),
 				}}
 			/>
@@ -101,17 +92,13 @@ const BottomTabNavigator = () =>
 						/>
 					),
 					tabBarLabel: ({ focused, color }) => (
-						<TabLabel
-							focused={focused}
-							color={color}
-							label="Forêt"
-						/>
+						<TabLabel focused={focused} color={color} label="Forêt" />
 					),
 				}}
 			/>
 			<Tab.Screen
 				name="Aide"
-				component={HelpScreen}
+				component={ResourcesScreen}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<TabIcon
@@ -121,11 +108,7 @@ const BottomTabNavigator = () =>
 						/>
 					),
 					tabBarLabel: ({ focused, color }) => (
-						<TabLabel
-							focused={focused}
-							color={color}
-							label="Aide"
-						/>
+						<TabLabel focused={focused} color={color} label="Aide" />
 					),
 				}}
 			/>
@@ -141,11 +124,7 @@ const BottomTabNavigator = () =>
 						/>
 					),
 					tabBarLabel: ({ focused, color }) => (
-						<TabLabel
-							focused={focused}
-							color={color}
-							label="Compte"
-						/>
+						<TabLabel focused={focused} color={color} label="Compte" />
 					),
 				}}
 			/>

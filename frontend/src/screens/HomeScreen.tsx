@@ -6,7 +6,7 @@ import {
 	Linking,
 	Alert,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import Mascot from "../components/mascot";
 import styles from "./HomeScreen.style";
@@ -19,27 +19,29 @@ import colors from "../css/colors";
 import addictionService from "../api/addictionService";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthContext } from "../context/AuthContext";
 
 type AddictionItem = {
-	id: string;
+	id: number;
 	addiction: string;
-	addictionId: string;
+	addictionId: number;
 	phoneNumber: string;
 	date: string;
 };
 
 type Props = NativeStackScreenProps<any, any>;
 const HomeScreen = ({ navigation }: Props) => {
+	const { user } = useContext(AuthContext);
 	const [addictions, setAddictions] = useState<AddictionItem[]>([]);
-	const [selectedAddiction, setSelectedAddiction] = useState<string | null>(
+	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
 		null,
 	);
 	const [daysSinceStop, setDaysSinceStop] = useState(0);
 	const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
 
 	const [open, setOpen] = useState(false);
-	const [value, setValue] = useState<string | null>(null);
-	const [items, setItems] = useState<{ label: string; value: string }[]>([]);
+	const [value, setValue] = useState<number | null>(null);
+	const [items, setItems] = useState<{ label: string; value: number }[]>([]);
 
 	useEffect(() => {
 		loadUserAddictions();

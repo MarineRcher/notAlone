@@ -16,8 +16,7 @@ import Input from "../../components/input";
 import Button from "../../components/button";
 
 type Props = NativeStackScreenProps<any, any>;
-const LoginScreen = ({ navigation }: Props) =>
-{
+const LoginScreen = ({ navigation }: Props) => {
 	const [loginOrEmail, setLoginOrEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -26,46 +25,35 @@ const LoginScreen = ({ navigation }: Props) =>
 		password: "",
 	});
 
-	const handleLoginOrEmailChange = (text: string) =>
-	{
+	const handleLoginOrEmailChange = (text: string) => {
 		setLoginOrEmail(text.trim());
 	};
 
-	const handlePasswordChange = (text: string) =>
-	{
+	const handlePasswordChange = (text: string) => {
 		setPassword(text);
 	};
 
-	const validateForm = () =>
-	{
+	const validateForm = () => {
 		let isValid = true;
 		const newErrors = { loginOrEmail: "", password: "" };
 
-		if (!loginOrEmail.trim())
-		{
+		if (!loginOrEmail.trim()) {
 			newErrors.loginOrEmail = "Le login ou l'email est requis";
 			isValid = false;
-		}
-		else if (loginOrEmail.includes("@"))
-		{
-			if (!validator.isEmail(loginOrEmail))
-			{
+		} else if (loginOrEmail.includes("@")) {
+			if (!validator.isEmail(loginOrEmail)) {
 				newErrors.loginOrEmail = "Format d'email invalide";
 				isValid = false;
 			}
-		}
-		else
-		{
-			if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/))
-			{
-				newErrors.loginOrEmail
-					= "Login invalide (caractères autorisés: a-z, 0-9, -, _)";
+		} else {
+			if (!validator.matches(loginOrEmail, /^[a-zA-Z0-9_-]{3,20}$/)) {
+				newErrors.loginOrEmail =
+					"Login invalide (caractères autorisés: a-z, 0-9, -, _)";
 				isValid = false;
 			}
 		}
 
-		if (!password)
-		{
+		if (!password) {
 			newErrors.password = "Le mot de passe est requis";
 			isValid = false;
 		}
@@ -74,46 +62,35 @@ const LoginScreen = ({ navigation }: Props) =>
 		return isValid;
 	};
 
-	const handleLogin = async () =>
-	{
-		if (!validateForm())
-		{
+	const handleLogin = async () => {
+		if (!validateForm()) {
 			return;
 		}
 
 		setIsLoading(true);
 
-		try
-		{
+		try {
 			const response = await authService.login({
 				loginOrEmail,
 				password,
 			});
 
-			if (response.data.requiresTwoFactor)
-			{
+			if (response.data.requiresTwoFactor) {
 				navigation.navigate("TwoFactorLogin", {
 					tempToken: response.data.tempToken,
 				});
-			}
-			else
-			{
+			} else {
 				navigation.navigate("Ask2fa");
 			}
-		}
-		catch (error)
-		{
+		} catch (error) {
 			let errorMessage = "Une erreur est survenue lors de la connexion";
 
-			if (error.response)
-			{
+			if (error.response) {
 				errorMessage = error.response.data.message || errorMessage;
 			}
 
 			Alert.alert("Erreur", errorMessage);
-		}
-		finally
-		{
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -134,40 +111,28 @@ const LoginScreen = ({ navigation }: Props) =>
 							onChangeText={handleLoginOrEmailChange}
 							autoCapitalize="none"
 							error={
-								errors.loginOrEmail ? (
-									<Text>{errors.loginOrEmail}</Text>
-								) : null
+								errors.loginOrEmail ? <Text>{errors.loginOrEmail}</Text> : null
 							}
 						/>
 						<Input
 							placeholder="Entrez votre mot de passe"
 							value={password}
 							onChangeText={handlePasswordChange}
-							error={
-								errors.password ? (
-									<Text>{errors.password}</Text>
-								) : null
-							}
+							error={errors.password ? <Text>{errors.password}</Text> : null}
 							secureTextEntry
 						/>
 					</View>
 
 					<TouchableOpacity
 						style={styles.inlineLinkLogin}
-						onPress={() =>
-							navigation && navigation.navigate("Register")
-						}
+						onPress={() => navigation && navigation.navigate("Register")}
 					>
-						<Text style={styles.text}>
-							Vous n'avez pas de compte ?
-						</Text>
+						<Text style={styles.text}>Vous n'avez pas de compte ?</Text>
 						<Text style={styles.link}>S'inscrire</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={styles.inlineLinkLogin}
-						onPress={() =>
-							navigation && navigation.navigate("ChangePassword")
-						}
+						onPress={() => navigation && navigation.navigate("ChangePassword")}
 					>
 						<Text style={styles.text}>
 							Vous avez oubliez votre mot de passe ?
