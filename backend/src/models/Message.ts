@@ -6,7 +6,7 @@ import Group from "./Group";
 export interface MessageAttributes {
 	id: string;
 	groupId: string;
-	senderId: number;
+	senderId: string;
 	encryptedContent: string; // The serialized encrypted message
 	messageType: "text" | "system" | "key_exchange";
 	timestamp: Date;
@@ -27,7 +27,7 @@ class Message
 {
 	declare id: string;
 	declare groupId: string;
-	declare senderId: number;
+	declare senderId: string;
 	declare encryptedContent: string;
 	declare messageType: "text" | "system" | "key_exchange";
 	declare timestamp: Date;

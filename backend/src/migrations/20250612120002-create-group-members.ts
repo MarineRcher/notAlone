@@ -9,7 +9,7 @@ export default {
         primaryKey: true,
         allowNull: false
       },
-      groupId: {
+      group_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -18,8 +18,8 @@ export default {
         },
         onDelete: "CASCADE"
       },
-      userId: {
-        type: DataTypes.INTEGER,
+      user_id: {
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "users",
@@ -32,42 +32,42 @@ export default {
         defaultValue: "member",
         allowNull: false
       },
-      joinedAt: {
+      joined_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         allowNull: false
       },
-      isActive: {
+      is_active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
         allowNull: false
       },
-      publicKey: {
+      public_key: {
         type: DataTypes.TEXT,
         allowNull: true,
         comment: "Base64 encoded public key for e2ee"
       },
-      lastSeenAt: {
+      last_seen_at: {
         type: DataTypes.DATE,
         allowNull: true
       },
-      createdAt: {
+      created_at: {
         type: DataTypes.DATE,
         allowNull: false
       },
-      updatedAt: {
+      updated_at: {
         type: DataTypes.DATE,
         allowNull: false
       }
     });
 
     // Create indexes
-    await queryInterface.addIndex("group_members", ["groupId", "userId"], {
+    await queryInterface.addIndex("group_members", ["group_id", "user_id"], {
       unique: true,
       name: "unique_group_user"
     });
-    await queryInterface.addIndex("group_members", ["userId", "isActive"]);
-    await queryInterface.addIndex("group_members", ["groupId", "isActive"]);
+    await queryInterface.addIndex("group_members", ["user_id", "is_active"]);
+    await queryInterface.addIndex("group_members", ["group_id", "is_active"]);
   },
 
   async down(queryInterface: QueryInterface) {

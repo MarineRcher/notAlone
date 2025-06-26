@@ -5,8 +5,8 @@
 
 // Default configuration - can be overridden by environment variables
 const defaultConfig = {
-	API_BASE_URL: "http://172.16.1.70:3000",
-	SOCKET_URL: "http://172.16.1.70:3000",
+	API_BASE_URL: "http://172.16.1.170:3000",
+	SOCKET_URL: "http://172.16.1.170:3000",
 };
 
 /**
@@ -21,8 +21,7 @@ export const apiConfig = {
 	socketURL: process.env.EXPO_PUBLIC_SOCKET_URL || defaultConfig.SOCKET_URL,
 
 	// Full API URL with /api path
-	get apiURL()
-	{
+	get apiURL() {
 		return `${this.baseURL}/api`;
 	},
 
@@ -33,10 +32,8 @@ export const apiConfig = {
 /**
  * Development helper to easily switch between different environments
  */
-export const setDevelopmentConfig = (config: Partial<typeof defaultConfig>) =>
-{
-	if (__DEV__)
-	{
+export const setDevelopmentConfig = (config: Partial<typeof defaultConfig>) => {
+	if (__DEV__) {
 		Object.assign(apiConfig, {
 			baseURL: config.API_BASE_URL || apiConfig.baseURL,
 			socketURL: config.SOCKET_URL || apiConfig.socketURL,
@@ -47,8 +44,7 @@ export const setDevelopmentConfig = (config: Partial<typeof defaultConfig>) =>
 /**
  * Network diagnostic helper
  */
-export const getNetworkDiagnostics = () =>
-{
+export const getNetworkDiagnostics = () => {
 	const currentIP = apiConfig.socketURL
 		.replace("http://", "")
 		.replace(":3000", "");
@@ -90,8 +86,7 @@ If connection fails, try these steps:
 };
 
 // Log configuration in development mode
-if (__DEV__)
-{
+if (__DEV__) {
 	console.log("🔧 API Configuration:", {
 		baseURL: apiConfig.baseURL,
 		socketURL: apiConfig.socketURL,

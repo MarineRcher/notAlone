@@ -6,7 +6,7 @@ import Group from "./Group";
 export interface GroupMemberAttributes {
 	id: string;
 	groupId: string;
-	userId: number;
+	userId: string;
 	role: "admin" | "member";
 	joinedAt: Date;
 	isActive: boolean;
@@ -28,7 +28,7 @@ class GroupMember
 {
 	declare id: string;
 	declare groupId: string;
-	declare userId: number;
+	declare userId: string;
 	declare role: "admin" | "member";
 	declare joinedAt: Date;
 	declare isActive: boolean;
@@ -57,7 +57,7 @@ GroupMember.init(
 			onDelete: "CASCADE",
 		},
 		userId: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.UUID,
 			allowNull: false,
 			field: "user_id", // Map to snake_case database column
 			references: {

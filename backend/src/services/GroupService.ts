@@ -13,7 +13,7 @@ export interface JoinGroupResult {
 		currentMembers: number;
 		maxMembers: number;
 		members: Array<{
-			userId: number;
+			userId: string;
 			login: string;
 			publicKey?: string;
 			joinedAt: Date;
@@ -44,7 +44,7 @@ class GroupService {
 	 * Enhanced group joining with waitroom support
 	 */
 	async joinRandomGroupWithWaitroom(
-		userId: number,
+		userId: string,
 		userPublicKey?: string,
 		userLogin?: string,
 	): Promise<JoinGroupResult> {
@@ -220,7 +220,7 @@ class GroupService {
 	/**
 	 * Leave a group - COMPLETELY removes user from group
 	 */
-	async leaveGroup(userId: number, groupId: string): Promise<boolean> {
+	async leaveGroup(userId: string, groupId: string): Promise<boolean> {
 		try {
 			const membership = await GroupMember.findOne({
 				where: {
@@ -359,7 +359,7 @@ class GroupService {
 	 */
 	private async addUserToGroup(
 		groupId: string,
-		userId: number,
+		userId: string,
 		publicKey?: string,
 	): Promise<GroupMember> {
 		console.log("🔍 addUserToGroup called with:", {
@@ -446,7 +446,7 @@ class GroupService {
 	 */
 	async storeMessage(
 		groupId: string,
-		senderId: number,
+		senderId: string,
 		encryptedContent: string,
 		messageType: "text" | "system" | "key_exchange" = "text",
 	): Promise<Message> {

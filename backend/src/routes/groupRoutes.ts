@@ -9,7 +9,7 @@ const groupService = new GroupService();
 
 // Middleware to authenticate JWT tokens
 interface AuthenticatedRequest extends Request {
-	userId?: number;
+	userId?: string;
 	userLogin?: string;
 }
 
@@ -332,7 +332,7 @@ router.get(
 
 			// Find the user's most recent group membership to get their public key
 			const groupMember = await GroupMember.findOne({
-				where: { userId: parseInt(userId), isActive: true },
+				where: { userId: userId, isActive: true },
 				order: [["joinedAt", "DESC"]],
 				attributes: ["publicKey"],
 			});

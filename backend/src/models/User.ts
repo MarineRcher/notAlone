@@ -72,7 +72,7 @@ User.init(
 		has2FA: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
-			field: "has_2fa",
+			field: "has2_f_a",
 		},
 		twoFactorSecret: {
 			type: DataTypes.STRING,

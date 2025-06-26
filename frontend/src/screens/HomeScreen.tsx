@@ -29,11 +29,10 @@ type AddictionItem = {
 };
 
 type Props = NativeStackScreenProps<any, any>;
-const HomeScreen = ({ navigation }: Props) =>
-{
+const HomeScreen = ({ navigation }: Props) => {
 	const [addictions, setAddictions] = useState<AddictionItem[]>([]);
 	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
-		null
+		null,
 	);
 	const [daysSinceStop, setDaysSinceStop] = useState(0);
 	const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
@@ -42,14 +41,12 @@ const HomeScreen = ({ navigation }: Props) =>
 	const [value, setValue] = useState<number | null>(null);
 	const [items, setItems] = useState<{ label: string; value: number }[]>([]);
 
-	useEffect(() =>
-	{
+	useEffect(() => {
 		loadUserAddictions();
 	}, []);
 
-	useEffect(() =>
-	{
-		const mappedItems = addictions.map((addiction) => ({
+	useEffect(() => {
+		const mappedItems = addictions.map(addiction => ({
 			label: addiction.addiction,
 			value: addiction.id,
 		}));
@@ -57,12 +54,10 @@ const HomeScreen = ({ navigation }: Props) =>
 		setItems(mappedItems);
 	}, [addictions]);
 
-	const loadUserAddictions = async () =>
-	{
-		try
-		{
+	const loadUserAddictions = async () => {
+		try {
 			const response = await addictionService.getUserAddictions();
-			const formatted = response.map((record) => ({
+			const formatted = response.map(record => ({
 				id: record.id,
 				addiction: record.addiction ?? "Inconnu",
 				addictionId: record.addictionId,
@@ -72,8 +67,7 @@ const HomeScreen = ({ navigation }: Props) =>
 
 			setAddictions(formatted);
 
-			if (formatted.length > 0)
-			{
+			if (formatted.length > 0) {
 				const defaultId = formatted[0].id;
 
 				setSelectedAddiction(defaultId);
@@ -81,17 +75,13 @@ const HomeScreen = ({ navigation }: Props) =>
 				calculateDaysSinceStop(formatted[0].date);
 				setPhoneNumber(formatted[0].phoneNumber);
 			}
-		}
-		catch (error)
-		{
+		} catch (error) {
 			console.error("Erreur lors du chargement des addictions:", error);
 		}
 	};
 
-	const calculateDaysSinceStop = (stopDate: string | null) =>
-	{
-		if (!stopDate)
-		{
+	const calculateDaysSinceStop = (stopDate: string | null) => {
+		if (!stopDate) {
 			setDaysSinceStop(0);
 			return;
 		}
@@ -104,27 +94,21 @@ const HomeScreen = ({ navigation }: Props) =>
 		setDaysSinceStop(diffDays);
 	};
 
-	const handlePhoneCall = () =>
-	{
-		if (!phoneNumber)
-		{
+	const handlePhoneCall = () => {
+		if (!phoneNumber) {
 			Alert.alert(
 				"Aucun numéro",
-				"Aucun numéro de téléphone n'est disponible pour cette addiction."
+				"Aucun numéro de téléphone n'est disponible pour cette addiction.",
 			);
 			return;
 		}
 
 		const phoneUrl = `tel:${phoneNumber}`;
 
-		Linking.canOpenURL(phoneUrl).then((supported) =>
-		{
-			if (supported)
-			{
+		Linking.canOpenURL(phoneUrl).then(supported => {
+			if (supported) {
 				Linking.openURL(phoneUrl);
-			}
-			else
-			{
+			} else {
 				Alert.alert("Erreur", "Impossible de passer l'appel.");
 			}
 		});
@@ -153,21 +137,15 @@ const HomeScreen = ({ navigation }: Props) =>
 							nestedScrollEnabled: true,
 						}}
 						dropDownContainerStyle={styles.dropdownContainer}
-						onChangeValue={(selectedId) =>
-						{
+						onChangeValue={selectedId => {
 							setSelectedAddiction(selectedId);
 							const selectedAddictionData = addictions.find(
-								(a) => a.id === selectedId
+								a => a.id === selectedId,
 							);
 
-							if (selectedAddictionData)
-							{
-								calculateDaysSinceStop(
-									selectedAddictionData.date
-								);
-								setPhoneNumber(
-									selectedAddictionData.phoneNumber
-								);
+							if (selectedAddictionData) {
+								calculateDaysSinceStop(selectedAddictionData.date);
+								setPhoneNumber(selectedAddictionData.phoneNumber);
 							}
 						}}
 					/>
@@ -199,25 +177,21 @@ const HomeScreen = ({ navigation }: Props) =>
 					</TouchableOpacity>
 					<View style={styles.user}>
 						<User width={36} height={36} />
-						<Text style={styles.squaresText}>
-							Parler avec votre parain
-						</Text>
+						<Text style={styles.squaresText}>Parler avec votre parain</Text>
 					</View>
 				</View>
 			</View>
+			<TouchableOpacity
+				onPress={() => {
+					navigation.navigate("AddUserAddiction");
+				}}
+			>
+				<View style={styles.addiction}>
+					<Plus width={36} height={36} fill={colors.background} />
 
-			<View style={styles.addiction}>
-				<Plus width={36} height={36} fill={colors.background} />
-				<TouchableOpacity
-					onPress={() =>
-					{
-						navigation.navigate("AddUserAddiction");
-					}}
-				>
 					<Text style={styles.userText}>Ajouter une addiction</Text>
-				</TouchableOpacity>
-			</View>
-
+				</View>
+			</TouchableOpacity>
 			<TouchableOpacity style={styles.number} onPress={handlePhoneCall}>
 				<Phone width={36} height={36} />
 				<Text style={styles.squaresText}>Appeler une aide anonyme</Text>

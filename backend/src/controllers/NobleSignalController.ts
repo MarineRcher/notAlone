@@ -84,12 +84,12 @@ export class NobleSignalController {
 		callback: (authenticated: boolean) => void,
 	): void {
 		const loginName = token.replace("mock_jwt_token_", "");
-		const testUsers: Record<string, { id: number; login: string }> = {
-			alice: { id: 1001, login: "alice" },
-			bob: { id: 1002, login: "bob" },
-			charlie: { id: 1003, login: "charlie" },
-			diana: { id: 1004, login: "diana" },
-			eve: { id: 1005, login: "eve" },
+		const testUsers: Record<string, { id: string; login: string }> = {
+			alice: { id: "1001", login: "alice" },
+			bob: { id: "1002", login: "bob" },
+			charlie: { id: "1003", login: "charlie" },
+			diana: { id: "1004", login: "diana" },
+			eve: { id: "1005", login: "eve" },
 		};
 
 		const testUser = testUsers[loginName];
@@ -390,7 +390,7 @@ export class NobleSignalController {
 				}
 
 				const success = await this.groupService.leaveGroup(
-					parseInt(socket.user.userId),
+					socket.user.userId,
 					dbGroupId,
 				);
 				if (success) {
@@ -492,7 +492,7 @@ export class NobleSignalController {
 				try {
 					await this.groupService.storeMessage(
 						dbGroupId,
-						parseInt(socket.user.userId),
+						socket.user.userId,
 						JSON.stringify(data.encryptedMessage),
 						"text",
 					);
@@ -669,7 +669,7 @@ export class NobleSignalController {
 				}
 
 				const success = await this.groupService.leaveGroup(
-					parseInt(socket.user.userId),
+					socket.user.userId,
 					dbGroupId,
 				);
 				if (success) {

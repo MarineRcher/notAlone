@@ -73,7 +73,6 @@ Group.init(
 		currentMembers: {
 			type: DataTypes.INTEGER,
 			defaultValue: 0,
-			field: "current_members", // Map to snake_case database column
 			validate: {
 				min: 0,
 			},

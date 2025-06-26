@@ -9,7 +9,7 @@ export default {
         primaryKey: true,
         allowNull: false
       },
-      groupId: {
+      group_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -18,8 +18,8 @@ export default {
         },
         onDelete: "CASCADE"
       },
-      senderId: {
-        type: DataTypes.INTEGER,
+      sender_id: {
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: "users",
@@ -27,12 +27,12 @@ export default {
         },
         onDelete: "CASCADE"
       },
-      encryptedContent: {
+      encrypted_content: {
         type: DataTypes.TEXT,
         allowNull: false,
         comment: "Serialized encrypted message from frontend"
       },
-      messageType: {
+      message_type: {
         type: DataTypes.ENUM("text", "system", "key_exchange"),
         defaultValue: "text",
         allowNull: false
@@ -42,25 +42,25 @@ export default {
         defaultValue: DataTypes.NOW,
         allowNull: false
       },
-      isDelivered: {
+      is_delivered: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
         allowNull: false
       },
-      createdAt: {
+      created_at: {
         type: DataTypes.DATE,
         allowNull: false
       },
-      updatedAt: {
+      updated_at: {
         type: DataTypes.DATE,
         allowNull: false
       }
     });
 
     // Create indexes
-    await queryInterface.addIndex("messages", ["groupId", "timestamp"]);
-    await queryInterface.addIndex("messages", ["senderId"]);
-    await queryInterface.addIndex("messages", ["messageType"]);
+    await queryInterface.addIndex("messages", ["group_id", "timestamp"]);
+    await queryInterface.addIndex("messages", ["sender_id"]);
+    await queryInterface.addIndex("messages", ["message_type"]);
   },
 
   async down(queryInterface: QueryInterface) {

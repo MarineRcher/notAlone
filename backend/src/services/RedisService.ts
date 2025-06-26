@@ -6,7 +6,7 @@ export interface CachedGroupInfo {
 	currentMembers: number;
 	maxMembers: number;
 	members: Array<{
-		userId: number;
+		userId: string;
 		login: string;
 		publicKey?: string;
 		joinedAt: Date;
@@ -92,7 +92,7 @@ class RedisService {
 	/**
 	 * Store user socket mapping
 	 */
-	async storeUserSocket(userId: number, socketId: string): Promise<void> {
+	async storeUserSocket(userId: string, socketId: string): Promise<void> {
 		if (!this.isEnabled) return;
 
 		try {
@@ -106,7 +106,7 @@ class RedisService {
 	/**
 	 * Get user socket ID
 	 */
-	async getUserSocket(userId: number): Promise<string | null> {
+	async getUserSocket(userId: string): Promise<string | null> {
 		if (!this.isEnabled) return null;
 
 		try {
@@ -120,7 +120,7 @@ class RedisService {
 	/**
 	 * Remove user socket mapping
 	 */
-	async removeUserSocket(userId: number): Promise<void> {
+	async removeUserSocket(userId: string): Promise<void> {
 		if (!this.isEnabled) return;
 
 		try {
@@ -136,7 +136,7 @@ class RedisService {
 	 */
 	async storeGroupMemberSocket(
 		groupId: string,
-		userId: number,
+		userId: string,
 		socketId: string,
 	): Promise<void> {
 		if (!this.isEnabled) return;
@@ -160,7 +160,7 @@ class RedisService {
 	 */
 	async removeGroupMemberSocket(
 		groupId: string,
-		userId: number,
+		userId: string,
 	): Promise<void> {
 		if (!this.isEnabled) return;
 		await this.removeUserSocket(userId);

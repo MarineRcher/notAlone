@@ -11,7 +11,7 @@ const groupService = new GroupService();
 
 // Middleware to authenticate JWT tokens
 interface AuthenticatedRequest extends Request {
-	userId?: number;
+	userId?: string;
 	userLogin?: string;
 }
 
