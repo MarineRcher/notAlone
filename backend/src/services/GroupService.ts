@@ -4,6 +4,7 @@ import GroupMember from "../models/GroupMember";
 import User from "../models/User";
 import Message from "../models/Message";
 import RedisService from "./RedisService";
+import config from "../config/environment";
 
 export interface JoinGroupResult {
 	success: boolean;
@@ -179,7 +180,7 @@ class GroupService {
 			isActive: true,
 			isPublic: true,
 			maxMembers: 10, // Maximum group size
-			minMembersToStart: 3, // Minimum to start chatting
+			minMembersToStart: config.e2ee.minMembers, // Use environment variable
 			currentMembers: 0,
 			status: "waiting",
 		});
@@ -430,7 +431,7 @@ class GroupService {
 				isActive: true,
 				isPublic: true,
 				maxMembers: 10,
-				minMembersToStart: 2,
+				minMembersToStart: config.e2ee.minMembers,
 				status: "active", // Start as active for E2EE groups
 			});
 

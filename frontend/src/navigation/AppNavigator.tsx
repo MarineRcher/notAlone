@@ -18,6 +18,7 @@ import SupportScreen from "../screens/userInformations/supportScreen";
 import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
 import GroupChatScreen from "../screens/GroupChatScreen";
+import WaitroomScreen from "../screens/WaitroomScreen";
 import colors from "../css/colors";
 import AskDifficultyScreen from "../screens/Journal/AskDifficultyScreen";
 import AskConsumedScreen from "../screens/Journal/AskConsumedScreen";
@@ -121,6 +122,11 @@ const AppNavigator = () =>
 				<Stack.Screen
 					name="Support"
 					component={SupportScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Waitroom"
+					component={WaitroomScreen}
 					options={{ headerShown: false }}
 				/>
 				<Stack.Screen

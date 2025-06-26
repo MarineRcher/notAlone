@@ -170,7 +170,7 @@ const HomeScreen = ({ navigation }: Props) => {
 				<View style={styles.rightColumn}>
 					<TouchableOpacity
 						style={styles.group}
-						onPress={() => navigation.navigate("GroupChat")}
+						onPress={() => navigation.navigate("Waitroom")}
 					>
 						<GroupUsers width={36} height={36} />
 						<Text style={styles.userText}>Cercle de parole</Text>
