@@ -12,6 +12,7 @@ export interface UserAttributes {
 	failedLoginAttempts: number;
 	blockedUntil: Date | null;
 	points: number;
+	roleId: number;
 
 	createdAt?: Date;
 	updatedAt?: Date;

@@ -1,6 +1,8 @@
 import { Model, DataTypes, Optional } from "sequelize";
 import db from "./../config/database";
 import { UserAttributes } from "../types/users";
+import Role from "./Role";
+import Sponsor from "./Sponsor";
 
 interface UserCreationAttributes
 	extends Optional<
@@ -15,6 +17,7 @@ interface UserCreationAttributes
 		| "failedLoginAttempts"
 		| "blockedUntil"
 		| "points"
+		| "roleId"
 	> {}
 
 class User
@@ -34,6 +37,7 @@ class User
 	public failedLoginAttempts!: number;
 	public blockedUntil!: Date | null;
 	public points!: number;
+	public roleId!: number;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -107,6 +111,16 @@ User.init(
 			type: DataTypes.INTEGER,
 			defaultValue: 0,
 		},
+		roleId: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			field: "role_id",
+			references: {
+				model: "roles",
+				key: "id",
+			},
+		},
 	},
 	{
 		sequelize: db,
@@ -115,5 +129,39 @@ User.init(
 		timestamps: true,
 	},
 );
+
+// Define associations
+User.belongsTo(Role, {
+	foreignKey: 'roleId',
+	as: 'role',
+});
+
+Role.hasMany(User, {
+	foreignKey: 'roleId',
+	as: 'users',
+});
+
+// User can have one sponsor
+User.hasOne(Sponsor, {
+	foreignKey: 'userId',
+	as: 'sponsorship',
+});
+
+// User can be a sponsor to many users
+User.hasMany(Sponsor, {
+	foreignKey: 'sponsorId',
+	as: 'sponsoredUsers',
+});
+
+// Sponsor associations
+Sponsor.belongsTo(User, {
+	foreignKey: 'sponsorId',
+	as: 'sponsor',
+});
+
+Sponsor.belongsTo(User, {
+	foreignKey: 'userId',
+	as: 'user',
+});
 
 export default User;
