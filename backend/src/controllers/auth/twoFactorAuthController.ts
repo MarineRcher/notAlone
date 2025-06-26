@@ -93,7 +93,7 @@ export const verify2FASetup = async (
 		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
 			setupPhase: boolean;
 			secret: string;
-			userId: number;
+			userId: string;
 		};
 
 		if (!decoded.setupPhase || !decoded.secret) {
@@ -176,7 +176,7 @@ export const verify2FALogin = async (
 		}
 		const decoded = jwt.verify(tempToken, process.env.JWT_SECRET!) as {
 			requiresTwoFactor: boolean;
-			id: number;
+			id: string;
 		};
 		logger.info("Tentative de vérification 2FA", {
 			user: decoded.id,

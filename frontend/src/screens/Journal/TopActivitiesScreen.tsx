@@ -18,49 +18,41 @@ import styles from "./Journal.style";
 
 type Props = NativeStackScreenProps<any, "Activities">;
 
-const TopActivitiesScreen = ({ navigation, route }: Props) =>
-{
+const TopActivitiesScreen = ({ navigation, route }: Props) => {
 	const { user } = useContext(AuthContext);
 	const [activities, setActivities] = useState<Activity[]>([]);
-	const [selectedIds, setSelectedIds] = useState<number[]>([]);
+	const [selectedIds, setSelectedIds] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [journalData, setJournalData] = useState<NavigationParams | null>(
-		null
-	);
+	const [journalData, setJournalData] = useState<NavigationParams | null>(null);
 	const [showPopup, setShowPopup] = useState(false);
 	const [popupData, setPopupData] = useState({
 		message: "",
 		totalPoints: 0,
 	});
 
-	if (showPopup)
-	{
+	if (showPopup) {
 		Alert.alert(
 			"Points ajoutés 🎉",
 			`${popupData.message}\nPoints totaux: ${popupData.totalPoints}`,
-			[{ text: "OK", onPress: () => setShowPopup(false) }]
+			[{ text: "OK", onPress: () => setShowPopup(false) }],
 		);
 	}
-	useEffect(() =>
-	{
+	useEffect(() => {
 		const params = route.params as NavigationParams;
 
-		if (params)
-		{
+		if (params) {
 			setJournalData(params);
 
 			if (
-				selectedIds.length === 0
-                && params.existingData?.activities
-                && params.existingData.activities.length > 0
-			)
-			{
+				selectedIds.length === 0 &&
+				params.existingData?.activities &&
+				params.existingData.activities.length > 0
+			) {
 				const existingActivityIds = [
 					...new Set(
 						params.existingData.activities.map(
-							(activityGroup: any) =>
-								activityGroup.user_activity.id_activity
-						)
+							(activityGroup: any) => activityGroup.user_activity.id_activity,
+						),
 					),
 				];
 
@@ -68,16 +60,12 @@ const TopActivitiesScreen = ({ navigation, route }: Props) =>
 			}
 		}
 
-		const fetchActivities = async () =>
-		{
-			try
-			{
+		const fetchActivities = async () => {
+			try {
 				const response = await journalService.getActivities();
 
 				setActivities(response.data.activities);
-			}
-			catch (err)
-			{
+			} catch (err) {
 				console.error("Erreur lors du chargement des activités:", err);
 			}
 		};
@@ -85,48 +73,38 @@ const TopActivitiesScreen = ({ navigation, route }: Props) =>
 		fetchActivities();
 	}, [route.params]);
 
-	const toggleSelection = (id: number) =>
-	{
-		setSelectedIds((prev) =>
-		{
-			if (prev.includes(id))
-			{
-				return prev.filter((i) => i !== id);
+	const toggleSelection = (id: string) => {
+		setSelectedIds(prev => {
+			if (prev.includes(id)) {
+				return prev.filter(i => i !== id);
 			}
-			if (prev.length >= 2)
-			{
+			if (prev.length >= 2) {
 				return prev;
 			}
 			return [...prev, id];
 		});
 	};
 
-	const handleNext = async () =>
-	{
-		if (!journalData?.journalId || selectedIds.length === 0)
-		{
+	const handleNext = async () => {
+		if (!journalData?.journalId || selectedIds.length === 0) {
 			return;
 		}
 
 		setIsLoading(true);
-		try
-		{
+		try {
 			await journalService.addActivities({
 				id_journal: journalData.journalId,
 				activities: selectedIds,
 			});
 
-			if (user?.hasPremium)
-			{
+			if (user?.hasPremium) {
 				const updatedData: NavigationParams = {
 					...journalData,
 					currentStep: "goal",
 				};
 
 				navigation.navigate("Goal", updatedData);
-			}
-			else
-			{
+			} else {
 				const response = await journalService.addPoints({
 					id_journal: journalData.journalId,
 				});
@@ -137,16 +115,9 @@ const TopActivitiesScreen = ({ navigation, route }: Props) =>
 
 				navigation.navigate("Main", { screen: "Follow" });
 			}
-		}
-		catch (error)
-		{
-			console.error(
-				"Erreur lors de l'enregistrement des activités:",
-				error
-			);
-		}
-		finally
-		{
+		} catch (error) {
+			console.error("Erreur lors de l'enregistrement des activités:", error);
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -163,26 +134,20 @@ const TopActivitiesScreen = ({ navigation, route }: Props) =>
 				<ActivityIndicator size="large" color="#00adf5" />
 			) : (
 				<View style={styles.wordsList}>
-					{activities.map((activity) => (
+					{activities.map(activity => (
 						<TouchableOpacity
 							key={activity.id_activity}
-							onPress={() =>
-								toggleSelection(activity.id_activity)
-							}
+							onPress={() => toggleSelection(activity.id_activity)}
 							style={{
 								padding: 24,
 								margin: 8,
 								borderRadius: 9999,
-								backgroundColor: selectedIds.includes(
-									activity.id_activity
-								)
+								backgroundColor: selectedIds.includes(activity.id_activity)
 									? colors.primary
 									: colors.secondaryBackeground,
 							}}
 						>
-							<Text style={styles.textWords}>
-								{activity.activity}
-							</Text>
+							<Text style={styles.textWords}>{activity.activity}</Text>
 						</TouchableOpacity>
 					))}
 				</View>

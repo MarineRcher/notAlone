@@ -21,9 +21,9 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type AddictionItem = {
-	id: number;
+	id: string;
 	addiction: string;
-	addictionId: number;
+	addictionId: string;
 	phoneNumber: string;
 	date: string;
 };
@@ -31,15 +31,15 @@ type AddictionItem = {
 type Props = NativeStackScreenProps<any, any>;
 const HomeScreen = ({ navigation }: Props) => {
 	const [addictions, setAddictions] = useState<AddictionItem[]>([]);
-	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
+	const [selectedAddiction, setSelectedAddiction] = useState<string | null>(
 		null,
 	);
 	const [daysSinceStop, setDaysSinceStop] = useState(0);
 	const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
 
 	const [open, setOpen] = useState(false);
-	const [value, setValue] = useState<number | null>(null);
-	const [items, setItems] = useState<{ label: string; value: number }[]>([]);
+	const [value, setValue] = useState<string | null>(null);
+	const [items, setItems] = useState<{ label: string; value: string }[]>([]);
 
 	useEffect(() => {
 		loadUserAddictions();

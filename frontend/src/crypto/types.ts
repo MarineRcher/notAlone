@@ -9,7 +9,7 @@ export interface IdentityKeys {
   identityKey: KeyPair;
   signedPreKey: KeyPair;
   preKeys: KeyPair[];
-  registrationId: number;
+  registrationId: string;
 }
 
 export interface MessageKeys {
@@ -62,7 +62,7 @@ export interface DecryptedMessage {
 // Device and member bundle types
 export interface DeviceInfo {
   deviceId: string;
-  registrationId: number;
+  registrationId: string;
   identityKey: number[];
   signedPreKey: number[];
   preKeys: number[][];
