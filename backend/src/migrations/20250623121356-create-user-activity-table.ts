@@ -11,7 +11,6 @@ export default {
             },
             id_user: {
                 type: DataTypes.UUID,
-                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "users",
@@ -22,7 +21,6 @@ export default {
             },
             id_journal: {
                 type: DataTypes.UUID,
-                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "journal",
@@ -33,7 +31,6 @@ export default {
             },
             id_activity: {
                 type: DataTypes.UUID,
-                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
                 references: {
                     model: "activities",
@@ -51,6 +48,12 @@ export default {
                 allowNull: false,
             },
         });
+
+        // Add indexes for performance
+        await queryInterface.addIndex("user_activity", ["id_user"]);
+        await queryInterface.addIndex("user_activity", ["id_journal"]);
+        await queryInterface.addIndex("user_activity", ["id_activity"]);
+        await queryInterface.addIndex("user_activity", ["id_user", "id_journal"]);
     },
 
     async down(queryInterface: QueryInterface) {

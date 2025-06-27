@@ -53,32 +53,7 @@ export default {
             },
         });
 
-        // Add foreign key constraints
-        await queryInterface.addConstraint("sponsors", {
-            fields: ["sponsor_id"],
-            type: "foreign key",
-            name: "fk_sponsors_sponsor_id",
-            references: {
-                table: "users",
-                field: "id",
-            },
-            onUpdate: "CASCADE",
-            onDelete: "CASCADE",
-        });
-
-        await queryInterface.addConstraint("sponsors", {
-            fields: ["user_id"],
-            type: "foreign key",
-            name: "fk_sponsors_user_id",
-            references: {
-                table: "users",
-                field: "id",
-            },
-            onUpdate: "CASCADE",
-            onDelete: "CASCADE",
-        });
-
-        // Add indexes for performance
+        // Add indexes for performance (foreign key constraints are already defined in column definitions)
         await queryInterface.addIndex("sponsors", ["sponsor_id"]);
         await queryInterface.addIndex("sponsors", ["user_id"], { unique: true });
         await queryInterface.addIndex("sponsors", ["is_active"]);

@@ -11,12 +11,13 @@ export interface SponsorAttributes {
 	sponsorPublicKey?: string; // For E2EE communication
 	userPublicKey?: string; // For E2EE communication
 	keyExchangeComplete: boolean; // Track if both keys are exchanged
+	status: 'pending' | 'accepted' | 'rejected';
 	createdAt: Date;
 	updatedAt: Date;
 }
 
 interface SponsorCreationAttributes
-	extends Optional<SponsorAttributes, "id" | "endedAt" | "isActive" | "sponsorPublicKey" | "userPublicKey" | "keyExchangeComplete"> {}
+	extends Optional<SponsorAttributes, "id" | "endedAt" | "isActive" | "sponsorPublicKey" | "userPublicKey" | "keyExchangeComplete" | "status" | "startedAt" | "createdAt" | "updatedAt"> {}
 
 class Sponsor
 	extends Model<SponsorAttributes, SponsorCreationAttributes>
@@ -31,6 +32,7 @@ class Sponsor
 	public sponsorPublicKey?: string;
 	public userPublicKey?: string;
 	public keyExchangeComplete!: boolean;
+	public status!: 'pending' | 'accepted' | 'rejected';
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -96,6 +98,11 @@ Sponsor.init(
 			defaultValue: false,
 			field: "key_exchange_complete",
 			comment: "Whether both parties have exchanged their public keys",
+		},
+		status: {
+			type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
+			defaultValue: 'pending',
+			allowNull: false,
 		},
 		createdAt: {
 			type: DataTypes.DATE,

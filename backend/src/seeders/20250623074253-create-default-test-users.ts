@@ -31,6 +31,7 @@ export default {
         failed_login_attempts: 0,
         points: 0,
         role_id: 1, // user role
+        sponsor_code: '10000001', // Unique 8-digit sponsor code
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -47,6 +48,7 @@ export default {
         failed_login_attempts: 0,
         points: 50,
         role_id: 1, // user role
+        sponsor_code: '10000002', // Unique 8-digit sponsor code
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -63,6 +65,7 @@ export default {
         failed_login_attempts: 0,
         points: 120,
         role_id: 1, // user role
+        sponsor_code: '10000003', // Unique 8-digit sponsor code
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -80,6 +83,7 @@ export default {
         failed_login_attempts: 0,
         points: 500,
         role_id: 2, // sponsor role
+        sponsor_code: '10000006', // Unique 8-digit sponsor code
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -98,6 +102,7 @@ export default {
         failed_login_attempts: 0,
         points: 1000,
         role_id: 3, // association role
+        sponsor_code: '10000007', // Unique 8-digit sponsor code
         created_at: new Date(),
         updated_at: new Date()
       }
@@ -112,7 +117,7 @@ export default {
         
         if (!exists) {
           await queryInterface.bulkInsert('users', [user]);
-          console.log(`✅ Created test user: ${user.login} (${user.email}) - Password: test123`);
+          console.log(`✅ Created test user: ${user.login} (${user.email}) - Password: test123 - Sponsor Code: ${user.sponsor_code}`);
         } else {
           console.log(`⏭️  Test user already exists: ${user.login} (${user.email})`);
         }
@@ -128,6 +133,7 @@ export default {
         user_id: KNOWN_TEST_UUIDS.alice,
         started_at: new Date(),
         is_active: true,
+        status: 'accepted', // Add default status for existing relationships
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -136,6 +142,7 @@ export default {
         user_id: KNOWN_TEST_UUIDS.bob,
         started_at: new Date(),
         is_active: true,
+        status: 'accepted', // Add default status for existing relationships
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -144,6 +151,7 @@ export default {
         user_id: KNOWN_TEST_UUIDS.charlie,
         started_at: new Date(),
         is_active: true,
+        status: 'accepted', // Add default status for existing relationships
         created_at: new Date(),
         updated_at: new Date()
       }

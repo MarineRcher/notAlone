@@ -18,6 +18,7 @@ interface UserCreationAttributes
 		| "blockedUntil"
 		| "points"
 		| "roleId"
+		| "sponsorCode"
 	> {}
 
 class User
@@ -38,6 +39,7 @@ class User
 	public blockedUntil!: Date | null;
 	public points!: number;
 	public roleId!: number;
+	public sponsorCode!: string;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -121,12 +123,38 @@ User.init(
 				key: "id",
 			},
 		},
+		sponsorCode: {
+			type: DataTypes.STRING(8),
+			allowNull: false,
+			unique: true,
+			field: "sponsor_code",
+			validate: {
+				len: [8, 8],
+				isNumeric: true,
+			},
+		},
 	},
 	{
 		sequelize: db,
 		modelName: "User",
 		tableName: "users",
 		timestamps: true,
+		hooks: {
+			beforeCreate: async (user: User) => {
+				// Generate unique 8-digit sponsor code
+				let sponsorCode: string;
+				let isUnique = false;
+				
+				while (!isUnique) {
+					sponsorCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+					const existingUser = await User.findOne({ where: { sponsorCode } });
+					if (!existingUser) {
+						isUnique = true;
+						user.sponsorCode = sponsorCode;
+					}
+				}
+			},
+		},
 	},
 );
 
