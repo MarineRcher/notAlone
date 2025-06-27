@@ -25,21 +25,21 @@ class User
 	extends Model<UserAttributes, UserCreationAttributes>
 	implements UserAttributes
 {
-	public id!: string;
-	public login!: string;
-	public email!: string;
-	public password!: string;
-	public hasPremium!: boolean;
-	public has2FA!: boolean;
-	public twoFactorSecret!: string | null;
-	public isBlocked!: boolean;
-	public notify!: boolean;
-	public hourNotify!: Date | null;
-	public failedLoginAttempts!: number;
-	public blockedUntil!: Date | null;
-	public points!: number;
-	public roleId!: number;
-	public sponsorCode!: string;
+	declare id: string;
+	declare login: string;
+	declare email: string;
+	declare password: string;
+	declare hasPremium: boolean;
+	declare has2FA: boolean;
+	declare twoFactorSecret: string | null;
+	declare isBlocked: boolean;
+	declare notify: boolean;
+	declare hourNotify: Date | null;
+	declare failedLoginAttempts: number;
+	declare blockedUntil: Date | null;
+	declare points: number;
+	declare roleId: number;
+	declare sponsorCode: string;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;

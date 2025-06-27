@@ -7,6 +7,13 @@ const router = Router();
 // Get sponsorship info for current user
 router.get("/info", authMiddleware, SponsorChatController.getSponsorshipInfo);
 
+// Sponsor request workflow
+router.post("/request", authMiddleware, SponsorChatController.requestSponsor);
+router.post("/respond", authMiddleware, SponsorChatController.respondToSponsorRequest);
+router.get("/pending", authMiddleware, SponsorChatController.getPendingSponsorRequests);
+router.get("/status-updates", authMiddleware, SponsorChatController.checkSponsorStatusUpdates);
+router.delete("/:sponsorshipId", authMiddleware, SponsorChatController.removeSponsor);
+
 // Update public key for encryption
 router.post("/key", authMiddleware, SponsorChatController.updatePublicKey);
 

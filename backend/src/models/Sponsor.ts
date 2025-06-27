@@ -23,16 +23,16 @@ class Sponsor
 	extends Model<SponsorAttributes, SponsorCreationAttributes>
 	implements SponsorAttributes
 {
-	public id!: number;
-	public sponsorId!: string;
-	public userId!: string;
-	public startedAt!: Date;
-	public endedAt?: Date;
-	public isActive!: boolean;
-	public sponsorPublicKey?: string;
-	public userPublicKey?: string;
-	public keyExchangeComplete!: boolean;
-	public status!: 'pending' | 'accepted' | 'rejected';
+	declare id: number;
+	declare sponsorId: string;
+	declare userId: string;
+	declare startedAt: Date;
+	declare endedAt?: Date;
+	declare isActive: boolean;
+	declare sponsorPublicKey?: string;
+	declare userPublicKey?: string;
+	declare keyExchangeComplete: boolean;
+	declare status: 'pending' | 'accepted' | 'rejected';
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
