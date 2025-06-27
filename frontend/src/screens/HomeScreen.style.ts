@@ -99,6 +99,12 @@ const styles = StyleSheet.create({
 		height: 30,
 		width: "100%",
 	},
+	disabledButton: {
+		opacity: 0.5,
+	},
+	disabledText: {
+		color: colors.disable,
+	},
 });
 
 export default styles;

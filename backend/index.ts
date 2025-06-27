@@ -11,6 +11,7 @@ import journalRoutes from "./src/routes/journalRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
 import groupRoutes from "./src/routes/groupRoutes";
 import nobleGroupRoutes from "./src/routes/nobleGroupRoutes";
+import sponsorChatRoutes from "./src/routes/sponsorChatRoutes";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
 import { NobleSignalController } from "./src/controllers/NobleSignalController";
@@ -34,6 +35,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/noble-groups", nobleGroupRoutes);
+app.use("/api/sponsor-chat", sponsorChatRoutes);
 
 // Socket.IO server configuration
 const io = new Server(server, {

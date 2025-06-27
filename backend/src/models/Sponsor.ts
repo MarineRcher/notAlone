@@ -8,12 +8,15 @@ export interface SponsorAttributes {
 	startedAt: Date;
 	endedAt?: Date;
 	isActive: boolean;
+	sponsorPublicKey?: string; // For E2EE communication
+	userPublicKey?: string; // For E2EE communication
+	keyExchangeComplete: boolean; // Track if both keys are exchanged
 	createdAt: Date;
 	updatedAt: Date;
 }
 
 interface SponsorCreationAttributes
-	extends Optional<SponsorAttributes, "id" | "endedAt" | "isActive"> {}
+	extends Optional<SponsorAttributes, "id" | "endedAt" | "isActive" | "sponsorPublicKey" | "userPublicKey" | "keyExchangeComplete"> {}
 
 class Sponsor
 	extends Model<SponsorAttributes, SponsorCreationAttributes>
@@ -25,6 +28,9 @@ class Sponsor
 	public startedAt!: Date;
 	public endedAt?: Date;
 	public isActive!: boolean;
+	public sponsorPublicKey?: string;
+	public userPublicKey?: string;
+	public keyExchangeComplete!: boolean;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -72,6 +78,24 @@ Sponsor.init(
 			type: DataTypes.BOOLEAN,
 			defaultValue: true,
 			field: "is_active",
+		},
+		sponsorPublicKey: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			field: "sponsor_public_key",
+			comment: "Sponsor's public key for E2EE communication",
+		},
+		userPublicKey: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+			field: "user_public_key",
+			comment: "User's public key for E2EE communication",
+		},
+		keyExchangeComplete: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			field: "key_exchange_complete",
+			comment: "Whether both parties have exchanged their public keys",
 		},
 		createdAt: {
 			type: DataTypes.DATE,
