@@ -1,4 +1,4 @@
-import { Model, DataTypes, Optional } from "sequelize";
+import { Model, DataTypes, Optional, IntegerDataType } from "sequelize";
 import db from "./../config/database";
 import { nature } from "../types/forest";
 import { Url } from "url";
@@ -9,6 +9,7 @@ class Nature extends Model<nature, NatureCreationAttributes> implements nature {
 	declare id_nature: string;
 	declare name: string;
 	declare type: "tree" | "flower";
+	declare points: number;
 	declare url: Url;
 
 	declare readonly createdAt: Date;
@@ -29,6 +30,10 @@ Nature.init(
 		},
 		type: {
 			type: DataTypes.ENUM("tree", "flower"),
+			allowNull: false,
+		},
+		points: {
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
 		url: {
