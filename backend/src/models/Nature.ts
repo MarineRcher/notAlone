@@ -3,17 +3,13 @@ import db from "./../config/database";
 import { nature } from "../types/forest";
 import { Url } from "url";
 
-interface NatureCreationAttributes
-	extends Optional<nature, "id_nature"> {}
+interface NatureCreationAttributes extends Optional<nature, "id_nature"> {}
 
-class Nature
-	extends Model<nature, NatureCreationAttributes>
-	implements nature
-{
+class Nature extends Model<nature, NatureCreationAttributes> implements nature {
 	declare id_nature: string;
 	declare name: string;
 	declare type: "tree" | "flower";
-    declare url: Url;
+	declare url: Url;
 
 	declare readonly createdAt: Date;
 	declare readonly updatedAt: Date;
@@ -32,10 +28,10 @@ Nature.init(
 			allowNull: false,
 		},
 		type: {
-			type: DataTypes.ENUM("tree","flower"),
+			type: DataTypes.ENUM("tree", "flower"),
 			allowNull: false,
 		},
-        url: {
+		url: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
