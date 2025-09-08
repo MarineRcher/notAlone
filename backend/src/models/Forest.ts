@@ -28,11 +28,11 @@ Forest.init(
 			defaultValue: DataTypes.UUIDV4,
 		},
 		x: {
-			type: DataTypes.NUMBER,
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
 		y: {
-			type: DataTypes.NUMBER,
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
         id_user: {

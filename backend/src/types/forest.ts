@@ -5,6 +5,7 @@ export interface nature {
     name: string;
     type: "tree" | "flower";
     url: Url;
+    
 }
 export interface forest {
     id_forest: string;

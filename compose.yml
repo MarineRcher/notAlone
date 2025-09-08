@@ -14,7 +14,7 @@ services:
             - .env
         environment:
             DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-            REDIS_URL: "redis://redis:6379"
+            REDIS_URL: "redis://redis:6380"
         volumes:
             - ./backend:/app
             - ./.env:/app/.env
@@ -40,7 +40,7 @@ services:
     redis:
         image: redis:alpine
         ports:
-            - "6379:6379"
+            - "6380:6380"
         networks:
             - app-network
         volumes:

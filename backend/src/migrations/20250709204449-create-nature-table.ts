@@ -22,10 +22,17 @@ export default {
             url: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: DataTypes.UUIDV4,
-          },      
-        }),
-        await queryInterface.bulkInsert("addictions", [
+          },
+          created_at: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        });
+        await queryInterface.bulkInsert("natures", [
         {
             id_nature: uuidv4(),
             name: "1",
@@ -87,7 +94,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "1",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/1.svg" ,
           created_at: now,
           updated_at: now,
@@ -95,7 +102,7 @@ export default {
           {
             id_nature: uuidv4(),
             name: "2",
-            type: "flowers",
+            type: "flower",
             url:"/static/forest/flowers/2.svg" ,
             created_at: now,
             updated_at: now,
@@ -103,7 +110,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "3",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/3.svg" ,
           created_at: now,
           updated_at: now,
@@ -111,7 +118,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "4",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/4.svg" ,
           created_at: now,
           updated_at: now,
@@ -119,7 +126,7 @@ export default {
       {
         id_nature: uuidv4(),
         name: "5",
-        type: "flowers",
+        type: "flower",
         url:"/static/forest/flowers/5.svg" ,
         created_at: now,
         updated_at: now,
@@ -127,7 +134,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "6",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/6.svg" ,
           created_at: now,
           updated_at: now,
@@ -135,7 +142,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "7",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/7.svg" ,
           created_at: now,
           updated_at: now,
@@ -143,7 +150,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "8",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/8.svg" ,
           created_at: now,
           updated_at: now,
@@ -151,7 +158,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "9",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/9.svg" ,
           created_at: now,
           updated_at: now,
@@ -159,7 +166,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "10",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/10.svg" ,
           created_at: now,
           updated_at: now,
@@ -167,7 +174,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "11",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/11.svg" ,
           created_at: now,
           updated_at: now,
@@ -175,7 +182,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "12",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/12.svg" ,
           created_at: now,
           updated_at: now,
@@ -183,7 +190,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "13",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/13.svg" ,
           created_at: now,
           updated_at: now,
@@ -191,7 +198,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "14",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/14.svg" ,
           created_at: now,
           updated_at: now,
@@ -199,7 +206,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "15",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/15.svg" ,
           created_at: now,
           updated_at: now,
@@ -207,7 +214,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "16",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/16.svg" ,
           created_at: now,
           updated_at: now,
@@ -215,7 +222,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "17",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/17.svg" ,
           created_at: now,
           updated_at: now,
@@ -223,7 +230,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "18",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/18.svg" ,
           created_at: now,
           updated_at: now,
@@ -231,7 +238,7 @@ export default {
         {
           id_nature: uuidv4(),
           name: "19",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/19.svg" ,
           created_at: now,
           updated_at: now,
@@ -239,12 +246,12 @@ export default {
         {
           id_nature: uuidv4(),
           name: "20",
-          type: "flowers",
+          type: "flower",
           url:"/static/forest/flowers/20.svg" ,
           created_at: now,
           updated_at: now,
         },
-      
+
     ]);
   },
 
