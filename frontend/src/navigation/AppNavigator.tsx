@@ -28,6 +28,9 @@ import ResumeJourneyScreen from "../screens/Journal/ResumeJourneyScreen";
 import JourneyGoalScreen from "../screens/Journal/journeyGoalScreen";
 import FollowScreen from "../screens/followScreen";
 import BreathingScreen from "../screens/resources/BreathingScreen";
+import TreeShopScreen from "../screens/TreeShopScreen";
+import FlowerShopScreen from "../screens/FlowerShopScreen";
+import ForestScreen from "../screens/forestScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -164,6 +167,22 @@ const AppNavigator = () => {
 				<Stack.Screen
 					name="Breathing"
 					component={BreathingScreen}
+					options={{ headerShown: false }}
+				/>
+				{/* forest */}
+				<Stack.Screen
+					name="TreeShop"
+					component={TreeShopScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="FlowerShop"
+					component={FlowerShopScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Forest"
+					component={ForestScreen}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>

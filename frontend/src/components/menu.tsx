@@ -81,7 +81,7 @@ const BottomTabNavigator = () => {
 				}}
 			/>
 			<Tab.Screen
-				name="Forêt"
+				name="Forest"
 				component={ForestScreen}
 				options={{
 					tabBarIcon: ({ focused }) => (

@@ -19,7 +19,6 @@ export const getUserForest = async (
 
 		const userForest = await Forest.findAll({
 			where: { id_user: user_id },
-			order: [["date", "DESC"]],
 			raw: true,
 		});
 
