@@ -127,10 +127,13 @@ export class NobleSignalController {
 			const userId = decoded.id || decoded.userId;
 
 			if (decoded && userId) {
+				// Extract username - try multiple fields for compatibility
+				const username = decoded.login || decoded.username || decoded.email || `user_${userId}`;
+				
 				const user: AuthenticatedUser = {
 					userId: userId.toString(),
 					socketId: socket.id,
-					username: decoded.login || "unknown",
+					username: username,
 				};
 
 				socket.user = user;
@@ -138,13 +141,15 @@ export class NobleSignalController {
 				this.userToSocket.set(user.userId, socket.id);
 
 				console.log(
-					`✅ [NOBLE-SIGNAL] Real user authenticated: ${userId} (${decoded.login || "unknown"})`,
+					`✅ [NOBLE-SIGNAL] Real user authenticated: ${userId} (${username})`,
 				);
+				console.log(`   Token payload fields:`, Object.keys(decoded));
 				callback(true);
 			} else {
 				console.log(
 					"❌ [NOBLE-SIGNAL] Invalid token payload - missing user ID",
 				);
+				console.log(`   Token payload:`, decoded);
 				callback(false);
 			}
 		} catch (jwtError) {
@@ -152,6 +157,7 @@ export class NobleSignalController {
 				"❌ [NOBLE-SIGNAL] JWT verification failed:",
 				jwtError instanceof Error ? jwtError.message : String(jwtError),
 			);
+			console.error(`   Token preview:`, token.substring(0, 50) + "...");
 			callback(false);
 		}
 	}
