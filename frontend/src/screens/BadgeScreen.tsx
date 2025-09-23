@@ -4,12 +4,13 @@ import DropDownPicker from "react-native-dropdown-picker";
 import Mascot from "../components/mascot";
 import { BadgeCard } from "../components/badgeCard";
 import { badgeService, BadgeItem } from "../api/badgeService";
-import styles from "./BadgeScreen.style";
+import styles from "./HomeScreen.style";
 import addictionService from "../api/addictionService";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../context/AuthContext";
 import BackButton from "../components/backNavigation";
+import apiConfig from "../config/api";
 
 type AddictionItem = {
 	id: number;
@@ -88,10 +89,14 @@ const BadgeScreen = ({ navigation }: Props) => {
 	};
 
 	const renderBadgeItem = ({ item }: { item: BadgeItem }) => {
+		const fullUrl = item.url.startsWith("http")
+			? item.url
+			: `${apiConfig.baseURL}${item.url}`;
+
 		return (
 			<BadgeCard
-				svgUrl={item.url}
-				description={`${item.name}\n${item.timeInDays}j`}
+				svgUrl={fullUrl}
+				description={`${item.name}\n${item.time_in_days}j`}
 				testID={`badge-${item.badge_id}`}
 			/>
 		);
@@ -158,6 +163,7 @@ const BadgeScreen = ({ navigation }: Props) => {
 					text="Félicitations, tes efforts portent leurs fruits. Ces badges sont la preuve de ton avancée."
 				/>
 			</View>
+			{renderSection("Mes badges", badges, "Aucun badge gagné pour le moment")}
 		</KeyboardAwareScrollView>
 	);
 };

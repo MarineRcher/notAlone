@@ -4,7 +4,7 @@ export interface badge {
 	badge_id: string;
 	name: string;
 	description: string;
-	timeInDays: number;
+	time_in_days: number;
 	url: Url;
 }
 

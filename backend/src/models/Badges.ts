@@ -8,7 +8,7 @@ interface BadgeCreationAttributes extends Optional<badge, "badge_id"> {}
 class Badge extends Model<badge, BadgeCreationAttributes> implements badge {
 	declare badge_id: string;
 	declare name: string;
-	declare timeInDays: number;
+	declare time_in_days: number;
 	declare description: string;
 	declare url: Url;
 
@@ -28,7 +28,7 @@ Badge.init(
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		timeInDays: {
+		time_in_days: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},

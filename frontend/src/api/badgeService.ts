@@ -5,7 +5,7 @@ export interface BadgeItem {
 	badge_id: string;
 	name: string;
 	description: string;
-	timeInDays: number;
+	time_in_days: number;
 	url: string;
 }
 
@@ -16,7 +16,7 @@ export const badgeService = {
 			throw new Error("Token non disponible");
 		}
 		const response = await apiClient.post(
-			"/badge/userBadges",
+			"/badges/userBadges",
 			{
 				addiction_id: addictionId,
 			},
