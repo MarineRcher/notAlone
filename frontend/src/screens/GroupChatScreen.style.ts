@@ -260,6 +260,41 @@ const styles = StyleSheet.create({
 		fontStyle: 'italic',
 		color: colors.error,
 	},
+	
+	// Key status banner styles
+	keyStatusBanner: {
+		backgroundColor: '#FFF9E6',
+		padding: 12,
+		borderBottomWidth: 1,
+		borderBottomColor: '#FFE0B2',
+	},
+	
+	keyStatusRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginBottom: 8,
+	},
+	
+	keyStatusText: {
+		marginLeft: 8,
+		color: '#FF9800',
+		fontSize: 14,
+		fontFamily: Fonts.quicksand.regular,
+	},
+	
+	retryButton: {
+		backgroundColor: '#FFA500',
+		padding: 10,
+		borderRadius: 6,
+		alignItems: 'center',
+	},
+	
+	retryButtonText: {
+		color: '#fff',
+		fontWeight: 'bold',
+		fontSize: 14,
+		fontFamily: Fonts.quicksand.bold,
+	},
 });
 
 export default styles;

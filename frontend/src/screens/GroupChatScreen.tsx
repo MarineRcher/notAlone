@@ -10,6 +10,7 @@ import {
 	Alert,
 	KeyboardAvoidingView,
 	Platform,
+	ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
 import styles from './GroupChatScreen.style';
@@ -58,8 +59,20 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 	const [connectionStatus, setConnectionStatus] = useState('Connecting...');
 	const [pendingMessages, setPendingMessages] = useState<Map<string, any>>(new Map());
 	const [keyExchangeComplete, setKeyExchangeComplete] = useState<Set<string>>(new Set());
+	// Key retry mechanism states
+	const [keyRequestAttempts, setKeyRequestAttempts] = useState<Map<string, number>>(new Map());
+	const [keyRequestTimeouts, setKeyRequestTimeouts] = useState<Map<string, NodeJS.Timeout>>(new Map());
+	const [missingKeysAlert, setMissingKeysAlert] = useState<Set<string>>(new Set());
 	const socketRef = useRef<Socket | null>(null);
 	const flatListRef = useRef<FlatList>(null);
+	
+	// Constants for retry mechanism
+	const KEY_REQUEST_CONFIG = {
+		MAX_ATTEMPTS: 5,
+		INITIAL_DELAY: 2000,      // 2 seconds
+		MAX_DELAY: 30000,         // 30 seconds
+		RETRY_DELAYS: [0, 2000, 4000, 8000, 16000, 30000], // Exponential backoff
+	};
 
 	useEffect(() =>
 	{
@@ -73,6 +86,8 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			{
 				socketRef.current.disconnect();
 			}
+			// Clear all key request timeouts
+			keyRequestTimeouts.forEach(timeout => clearTimeout(timeout));
 		};
 	}, [user]);
 
@@ -108,6 +123,108 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 
 		return () => clearInterval(cleanup);
 	}, []);
+
+	// Key request with retry mechanism
+	const requestSenderKeyWithRetry = (userId: string, attempt: number = 1, isManualRequest: boolean = false) => {
+		// Check if we've already received the key
+		if (keyExchangeComplete.has(userId)) {
+			console.log(`✅ Key already received for user ${userId}`);
+			return;
+		}
+		
+		// Check max attempts (unless manual request)
+		if (!isManualRequest && attempt > KEY_REQUEST_CONFIG.MAX_ATTEMPTS) {
+			console.log(`❌ Max attempts reached for user ${userId}`);
+			setMissingKeysAlert(prev => new Set([...prev, userId]));
+			
+			// Show alert for manual intervention
+			Alert.alert(
+				'Encryption Key Missing',
+				`Unable to get encryption key from user ${userId}. They may be offline.`,
+				[
+					{
+						text: 'Retry',
+						onPress: () => requestSenderKeyWithRetry(userId, 1, true)
+					},
+					{
+						text: 'Request All Keys',
+						onPress: () => requestAllMissingKeys()
+					},
+					{
+						text: 'Cancel',
+						style: 'cancel'
+					}
+				]
+			);
+			return;
+		}
+		
+		console.log(`🔑 Requesting key from ${userId} (attempt ${attempt}/${KEY_REQUEST_CONFIG.MAX_ATTEMPTS})`);
+		
+		// Store attempt count
+		setKeyRequestAttempts(prev => new Map(prev).set(userId, attempt));
+		
+		// Send the request
+		socketRef.current?.emit('request_sender_key', {
+			groupId,
+			fromUserId: userId,
+			isRetry: attempt > 1,
+		});
+		
+		// Clear existing timeout if any
+		const existingTimeout = keyRequestTimeouts.get(userId);
+		if (existingTimeout) {
+			clearTimeout(existingTimeout);
+		}
+		
+		// Set up retry timeout
+		const delay = KEY_REQUEST_CONFIG.RETRY_DELAYS[attempt] || KEY_REQUEST_CONFIG.MAX_DELAY;
+		const timeout = setTimeout(() => {
+			if (!keyExchangeComplete.has(userId)) {
+				console.log(`⏱️ Key request timeout for ${userId}, retrying...`);
+				requestSenderKeyWithRetry(userId, attempt + 1, false);
+			} else {
+				console.log(`✅ Key received for ${userId}, canceling retry`);
+			}
+		}, delay);
+		
+		// Store timeout reference
+		setKeyRequestTimeouts(prev => new Map(prev).set(userId, timeout));
+	};
+	
+	// Request all missing keys manually
+	const requestAllMissingKeys = () => {
+		console.log('🔑 Manually requesting all missing keys...');
+		
+		const missingKeyUsers = new Set<string>();
+		
+		// Find all users we need keys from based on pending messages
+		pendingMessages.forEach((messageData) => {
+			if (!keyExchangeComplete.has(messageData.senderId)) {
+				missingKeyUsers.add(messageData.senderId);
+			}
+		});
+		
+		// Also check members who haven't exchanged keys
+		members.forEach(member => {
+			if (member.userId !== user?.id.toString() && !keyExchangeComplete.has(member.userId)) {
+				missingKeyUsers.add(member.userId);
+			}
+		});
+		
+		// Request keys from all missing users
+		missingKeyUsers.forEach(userId => {
+			requestSenderKeyWithRetry(userId, 1, true);
+		});
+		
+		if (missingKeyUsers.size > 0) {
+			Alert.alert(
+				'Requesting Keys',
+				`Requesting encryption keys from ${missingKeyUsers.size} user(s)...`,
+				[{ text: 'OK' }]
+			);
+		}
+	};
 
 	const initializeGroupChat = async () =>
 	{
@@ -150,24 +267,83 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			setConnectionStatus('Connected - Signal Protocol Active');
 			console.log('🔑 [LIBSIGNAL] ===== GROUP CHAT INITIALIZATION COMPLETE =====');
 		}
-		catch (error)
+		catch (error: any)
 		{
 			console.error('🔑 [LIBSIGNAL] ❌ Failed to initialize group chat:', error);
+			
+			// Provide detailed error message to user
+			let errorMessage = 'Failed to initialize secure group chat.';
+			let errorDetails = error.message || 'Unknown error';
+			
+			if (error.message?.includes('Authentication required')) {
+				errorMessage = 'Authentication required';
+				errorDetails = 'Please login again to access the chat.';
+			} else if (error.message?.includes('backend may be offline')) {
+				errorMessage = 'Cannot connect to server';
+				errorDetails = `Make sure the backend is running at ${apiConfig.socketURL}`;
+			} else if (error.message?.includes('ECONNREFUSED')) {
+				errorMessage = 'Server connection refused';
+				errorDetails = 'The backend server may not be running. Please check server status.';
+			} else if (error.message?.includes('timeout')) {
+				errorMessage = 'Connection timeout';
+				errorDetails = 'The server took too long to respond. Please check your network connection.';
+			}
+			
 			setConnectionStatus('Connection failed');
-			Alert.alert('Error', 'Failed to initialize secure group chat. Please try again.');
+			Alert.alert(
+				errorMessage, 
+				errorDetails,
+				[
+					{
+						text: 'Retry',
+						onPress: () => initializeGroupChat()
+					},
+					{
+						text: 'Cancel',
+						style: 'cancel',
+						onPress: () => navigation.goBack()
+					}
+				]
+			);
 			setIsLoading(false);
 		}
 	};
 
 	const initializeSocket = async (): Promise<void> =>
 	{
-		return new Promise((resolve, reject) =>
+		return new Promise(async (resolve, reject) =>
 		{
-			const socket = io(apiConfig.socketURL, {
+			// Get the real JWT token from secure storage
+			const { getValidToken } = await import('../api/authHelpers').then(m => m.authHelpers);
+			const token = await getValidToken();
+			
+			if (!token) {
+				console.error('❌ No valid JWT token available');
+				reject(new Error('Authentication required'));
+				return;
+			}
+			
+			console.log('🔑 Using authenticated token for socket connection');
+			
+			// Ensure the URL has the protocol
+			const socketUrl = apiConfig.socketURL.startsWith('http') 
+				? apiConfig.socketURL 
+				: `http://${apiConfig.socketURL}`;
+			
+			console.log('📡 Connecting to:', socketUrl);
+			console.log('   Raw config URL:', apiConfig.socketURL);
+			console.log('   Final URL:', socketUrl);
+			
+			const socket = io(socketUrl, {
 				auth: {
-					token: `mock_jwt_token_${user!.login}`,
+					token: token, // Use real JWT token
 				},
-				transports: ['websocket'],
+				transports: ['polling', 'websocket'], // Start with polling for better compatibility
+				reconnection: true,
+				reconnectionAttempts: 5,
+				reconnectionDelay: 1000,
+				timeout: 20000, // Increase timeout to 20 seconds
+				upgrade: true, // Allow upgrading from polling to websocket
 			});
 
 			socketRef.current = socket;
@@ -185,11 +361,36 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 				setConnectionStatus('Disconnected');
 			});
 
-			socket.on('connect_error', (error) =>
+			socket.on('connect_error', (error: any) =>
 			{
 				console.error('❌ Socket connection error:', error);
-				setConnectionStatus('Connection error');
-				reject(error);
+				console.error('Error type:', error.type || 'unknown');
+				console.error('Error message:', error.message);
+				console.error('Socket URL:', apiConfig.socketURL);
+				console.error('Transport:', socket.io.engine?.transport?.name || 'unknown');
+				
+				// More detailed error message
+				let errorMsg = 'Connection error';
+				if (error.message.includes('websocket')) {
+					errorMsg = 'WebSocket connection failed, using polling...';
+				} else if (error.message.includes('auth')) {
+					errorMsg = 'Authentication failed - please login again';
+				} else if (error.message.includes('timeout')) {
+					errorMsg = 'Connection timeout - retrying...';
+				} else if (error.message.includes('ECONNREFUSED')) {
+					errorMsg = 'Server refused connection - check if backend is running';
+				} else if (error.message.includes('xhr poll error')) {
+					errorMsg = 'Network error - check server connection';
+				}
+				
+				setConnectionStatus(errorMsg);
+				
+				// Don't immediately reject, let it retry
+				setTimeout(() => {
+					if (!socket.connected) {
+						reject(error);
+					}
+				}, 10000); // Increase wait time to 10 seconds
 			});
 
 			socket.on('group_message', async (data) =>
@@ -227,9 +428,11 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			{
 				if (!socket.connected)
 				{
-					reject(new Error('Socket connection timeout'));
+					console.error('⏱️ Socket connection timeout after 20 seconds');
+					console.error('   Check if backend is running at:', apiConfig.socketURL);
+					reject(new Error('Socket connection timeout - backend may be offline'));
 				}
-			}, 10000);
+			}, 20000); // Increased to 20 seconds to match connection timeout
 		});
 	};
 
@@ -287,18 +490,16 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 					return newMap;
 				});
 
-				// Request sender key distribution
-				socketRef.current?.emit('request_sender_key', {
-					groupId,
-					fromUserId: data.senderId,
-				});
+				// Request sender key with retry mechanism
+				requestSenderKeyWithRetry(data.senderId, 1, false);
 
-				// Show pending message
+				// Show pending message with retry status
+				const attempts = keyRequestAttempts.get(data.senderId) || 1;
 				const pendingMessage: Message = {
 					id: pendingId,
 					senderId: data.senderId,
 					senderName: data.senderName,
-					content: '🔄 Waiting for sender key...',
+					content: `🔄 Waiting for encryption key... (Attempt ${attempts}/${KEY_REQUEST_CONFIG.MAX_ATTEMPTS})`,
 					timestamp: data.encryptedMessage.timestamp,
 					isEncrypted: false,
 					isOwn: false,
@@ -371,11 +572,8 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 
 				console.log('✅ [LIBSIGNAL] Sent our sender key to new member');
 
-				// 2. Request the new member's sender key
-				socketRef.current?.emit('request_sender_key', {
-					groupId,
-					fromUserId: data.userId,
-				});
+				// 2. Request the new member's sender key with retry
+				requestSenderKeyWithRetry(data.userId, 1, false);
 
 				console.log('✅ [LIBSIGNAL] Requested sender key from new member');
 			}
@@ -427,6 +625,27 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			// Mark key exchange as complete for this user
 			setKeyExchangeComplete(prev => new Set([...prev, data.fromUserId]));
 			console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
+			
+			// Clear retry state for this user
+			const timeout = keyRequestTimeouts.get(data.fromUserId);
+			if (timeout) {
+				clearTimeout(timeout);
+				setKeyRequestTimeouts(prev => {
+					const newMap = new Map(prev);
+					newMap.delete(data.fromUserId);
+					return newMap;
+				});
+			}
+			setKeyRequestAttempts(prev => {
+				const newMap = new Map(prev);
+				newMap.delete(data.fromUserId);
+				return newMap;
+			});
+			setMissingKeysAlert(prev => {
+				const newSet = new Set(prev);
+				newSet.delete(data.fromUserId);
+				return newSet;
+			});
 
 			// Try to decrypt any pending messages from this sender
 			await processPendingMessages(data.fromUserId);
@@ -548,7 +767,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			const message: Message = {
 				id: encryptedMessage.messageId,
 				senderId: user!.id.toString(),
-				senderName: user!.login || 'You',
+				senderName: 'You', // Use 'You' for own messages
 				content: newMessage.trim(),
 				timestamp: encryptedMessage.timestamp,
 				isEncrypted: true,
@@ -588,6 +807,43 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 					},
 				},
 			]
+		);
+	};
+
+	// Render key status banner
+	const renderKeyStatusBanner = () => {
+		const hasPendingMessages = pendingMessages.size > 0;
+		const missingKeys = Array.from(missingKeysAlert);
+		const activeRetries = Array.from(keyRequestAttempts.entries()).filter(
+			([userId, attempts]) => attempts > 0 && attempts <= KEY_REQUEST_CONFIG.MAX_ATTEMPTS
+		);
+		
+		if (missingKeys.length === 0 && activeRetries.length === 0 && !hasPendingMessages) {
+			return null;
+		}
+		
+		return (
+			<View style={styles.keyStatusBanner}>
+				{activeRetries.length > 0 && (
+					<View style={styles.keyStatusRow}>
+						<ActivityIndicator size="small" color="#FFA500" />
+						<Text style={styles.keyStatusText}>
+							Requesting encryption keys from {activeRetries.length} user(s)...
+						</Text>
+					</View>
+				)}
+				
+				{missingKeys.length > 0 && (
+					<TouchableOpacity 
+						style={styles.retryButton}
+						onPress={requestAllMissingKeys}
+					>
+						<Text style={styles.retryButtonText}>
+							⚠️ Missing keys from {missingKeys.length} user(s) - Tap to retry
+						</Text>
+					</TouchableOpacity>
+				)}
+			</View>
 		);
 	};
 
@@ -656,6 +912,8 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 						<Text style={styles.leaveButtonText}>Leave</Text>
 					</TouchableOpacity>
 				</View>
+				
+				{renderKeyStatusBanner()}
 
 				<FlatList
 					ref={flatListRef}
