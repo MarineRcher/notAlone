@@ -162,14 +162,17 @@ const HomeScreen = ({ navigation }: Props) => {
 			</View>
 
 			<View style={styles.topRow}>
-				<TouchableOpacity onPress={() => navigation.navigate("Badges")}>
-					<View style={styles.leftBox}>
+				<View style={styles.leftBox}>
+					<TouchableOpacity
+						style={styles.leftBox}
+						onPress={() => navigation.navigate("Badges")}
+					>
 						<View style={styles.iconWrapper}>
 							<CheckCircle width={36} height={36} />
 						</View>
 						<Text style={styles.squaresText}>Vos badges</Text>
-					</View>
-				</TouchableOpacity>
+					</TouchableOpacity>
+				</View>
 
 				<View style={styles.rightColumn}>
 					<TouchableOpacity

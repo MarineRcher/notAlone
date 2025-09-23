@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		alignContent: "center",
 		alignItems: "center",
-		position: "relative", // Pour l'overlay premium
+		position: "relative",
 	},
 	cardDisabled: {
 		backgroundColor: "#F5F5F5",

@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.1,
 		shadowRadius: 12,
 		elevation: 8,
-		width: "30%",
 		minHeight: 140,
 		margin: 8,
 		padding: 16,

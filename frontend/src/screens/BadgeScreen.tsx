@@ -96,7 +96,7 @@ const BadgeScreen = ({ navigation }: Props) => {
 		return (
 			<BadgeCard
 				svgUrl={fullUrl}
-				description={`${item.name}\n${item.time_in_days}j`}
+				name={`${item.name}\n${item.time_in_days} jours`}
 				testID={`badge-${item.badge_id}`}
 			/>
 		);

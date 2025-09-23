@@ -5,8 +5,8 @@
 
 // Default configuration - can be overridden by environment variables
 const defaultConfig = {
-	API_BASE_URL: "http://172.16.1.37:3000",
-	SOCKET_URL: "http://172.16.1.37:3000",
+	API_BASE_URL: "http://192.168.1.155:3000",
+	SOCKET_URL: "http://192.168.1.155:3000",
 };
 
 /**
