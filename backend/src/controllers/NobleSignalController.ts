@@ -84,12 +84,34 @@ export class NobleSignalController {
 		callback: (authenticated: boolean) => void,
 	): void {
 		const loginName = token.replace("mock_jwt_token_", "");
+		
+		// Check if it's a UUID (real user ID)
+		if (this.isUUID(loginName)) {
+			// This is a real user ID from the frontend
+			const user: AuthenticatedUser = {
+				userId: loginName,
+				socketId: socket.id,
+				username: `User-${loginName.slice(-4)}`, // Use last 4 chars for display
+			};
+
+			socket.user = user;
+			this.socketToUser.set(socket.id, user);
+			this.userToSocket.set(user.userId, socket.id);
+
+			console.log(
+				`✅ [NOBLE-SIGNAL] Real user authenticated: ${user.username} (ID: ${loginName})`,
+			);
+			callback(true);
+			return;
+		}
+
+		// Use the same UUIDs as defined in the seeder for test users
 		const testUsers: Record<string, { id: string; login: string }> = {
-			alice: { id: "1001", login: "alice" },
-			bob: { id: "1002", login: "bob" },
-			charlie: { id: "1003", login: "charlie" },
-			diana: { id: "1004", login: "diana" },
-			eve: { id: "1005", login: "eve" },
+			alice: { id: "10010000-0000-0000-0000-000000000001", login: "alice" },
+			bob: { id: "10020000-0000-0000-0000-000000000002", login: "bob" },
+			charlie: { id: "10030000-0000-0000-0000-000000000003", login: "charlie" },
+			diana: { id: "10040000-0000-0000-0000-000000000004", login: "diana" },
+			eve: { id: "10050000-0000-0000-0000-000000000005", login: "eve" },
 		};
 
 		const testUser = testUsers[loginName];
@@ -160,6 +182,11 @@ export class NobleSignalController {
 			console.error(`   Token preview:`, token.substring(0, 50) + "...");
 			callback(false);
 		}
+	}
+
+	private isUUID(str: string): boolean {
+		const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+		return uuidRegex.test(str);
 	}
 
 	private setupSocketHandlers(socket: AuthenticatedSocket): void {
@@ -283,7 +310,7 @@ export class NobleSignalController {
 					// Call GroupService method directly to add user to group
 					await (this.groupService as any).addUserToGroup(
 						dbGroupId,
-						parseInt(socket.user.userId),
+						socket.user.userId,
 					);
 					console.log(
 						`💾 [NOBLE-SIGNAL] Added user to database group: ${dbGroupId}`,

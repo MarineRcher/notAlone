@@ -56,7 +56,9 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 	const [members, setMembers] = useState<GroupMember[]>([]);
 	const [isInitialized, setIsInitialized] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isWaitingForKeys, setIsWaitingForKeys] = useState(true);
 	const [connectionStatus, setConnectionStatus] = useState('Connecting...');
+	const [keyExchangeStatus, setKeyExchangeStatus] = useState('Initializing encryption...');
 	const [pendingMessages, setPendingMessages] = useState<Map<string, any>>(new Map());
 	const [keyExchangeComplete, setKeyExchangeComplete] = useState<Set<string>>(new Set());
 	// Key retry mechanism states
@@ -124,105 +126,25 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		return () => clearInterval(cleanup);
 	}, []);
 
-	// Key request with retry mechanism
-	const requestSenderKeyWithRetry = (userId: string, attempt: number = 1, isManualRequest: boolean = false) => {
-		// Check if we've already received the key
-		if (keyExchangeComplete.has(userId)) {
-			console.log(`✅ Key already received for user ${userId}`);
-			return;
-		}
+	const checkKeyExchangeStatus = (currentMembers: GroupMember[]) => {
+		const otherMembers = currentMembers.filter(m => m.userId !== user!.id.toString());
+		const requiredKeys = otherMembers.length;
+		const completedKeys = keyExchangeComplete.size;
+
+		console.log(`🔑 [KEY-EXCHANGE] Progress: ${completedKeys}/${requiredKeys} keys exchanged`);
 		
-		// Check max attempts (unless manual request)
-		if (!isManualRequest && attempt > KEY_REQUEST_CONFIG.MAX_ATTEMPTS) {
-			console.log(`❌ Max attempts reached for user ${userId}`);
-			setMissingKeysAlert(prev => new Set([...prev, userId]));
-			
-			// Show alert for manual intervention
-			Alert.alert(
-				'Encryption Key Missing',
-				`Unable to get encryption key from user ${userId}. They may be offline.`,
-				[
-					{
-						text: 'Retry',
-						onPress: () => requestSenderKeyWithRetry(userId, 1, true)
-					},
-					{
-						text: 'Request All Keys',
-						onPress: () => requestAllMissingKeys()
-					},
-					{
-						text: 'Cancel',
-						style: 'cancel'
-					}
-				]
-			);
-			return;
-		}
-		
-		console.log(`🔑 Requesting key from ${userId} (attempt ${attempt}/${KEY_REQUEST_CONFIG.MAX_ATTEMPTS})`);
-		
-		// Store attempt count
-		setKeyRequestAttempts(prev => new Map(prev).set(userId, attempt));
-		
-		// Send the request
-		socketRef.current?.emit('request_sender_key', {
-			groupId,
-			fromUserId: userId,
-			isRetry: attempt > 1,
-		});
-		
-		// Clear existing timeout if any
-		const existingTimeout = keyRequestTimeouts.get(userId);
-		if (existingTimeout) {
-			clearTimeout(existingTimeout);
-		}
-		
-		// Set up retry timeout
-		const delay = KEY_REQUEST_CONFIG.RETRY_DELAYS[attempt] || KEY_REQUEST_CONFIG.MAX_DELAY;
-		const timeout = setTimeout(() => {
-			if (!keyExchangeComplete.has(userId)) {
-				console.log(`⏱️ Key request timeout for ${userId}, retrying...`);
-				requestSenderKeyWithRetry(userId, attempt + 1, false);
-			} else {
-				console.log(`✅ Key received for ${userId}, canceling retry`);
-			}
-		}, delay);
-		
-		// Store timeout reference
-		setKeyRequestTimeouts(prev => new Map(prev).set(userId, timeout));
-	};
-	
-	// Request all missing keys manually
-	const requestAllMissingKeys = () => {
-		console.log('🔑 Manually requesting all missing keys...');
-		
-		const missingKeyUsers = new Set<string>();
-		
-		// Find all users we need keys from based on pending messages
-		pendingMessages.forEach((messageData) => {
-			if (!keyExchangeComplete.has(messageData.senderId)) {
-				missingKeyUsers.add(messageData.senderId);
-			}
-		});
-		
-		// Also check members who haven't exchanged keys
-		members.forEach(member => {
-			if (member.userId !== user?.id.toString() && !keyExchangeComplete.has(member.userId)) {
-				missingKeyUsers.add(member.userId);
-			}
-		});
-		
-		// Request keys from all missing users
-		missingKeyUsers.forEach(userId => {
-			requestSenderKeyWithRetry(userId, 1, true);
-		});
-		
-		if (missingKeyUsers.size > 0) {
-			Alert.alert(
-				'Requesting Keys',
-				`Requesting encryption keys from ${missingKeyUsers.size} user(s)...`,
-				[{ text: 'OK' }]
-			);
+		if (requiredKeys === 0) {
+			// Solo in group, no key exchange needed
+			setIsWaitingForKeys(false);
+			setKeyExchangeStatus('Ready to chat');
+		} else if (completedKeys >= requiredKeys) {
+			// All keys exchanged
+			setIsWaitingForKeys(false);
+			setKeyExchangeStatus('All keys exchanged - Ready to chat');
+		} else {
+			// Still waiting for keys
+			setIsWaitingForKeys(true);
+			setKeyExchangeStatus(`Exchanging keys... (${completedKeys}/${requiredKeys})`);
 		}
 	};
 
@@ -262,10 +184,11 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			await initializeSocket();
 			console.log('🔑 [LIBSIGNAL] ✅ Socket connection established');
 
-			setIsInitialized(true);
-			setIsLoading(false);
-			setConnectionStatus('Connected - Signal Protocol Active');
-			console.log('🔑 [LIBSIGNAL] ===== GROUP CHAT INITIALIZATION COMPLETE =====');
+					setIsInitialized(true);
+		setIsLoading(false);
+		setConnectionStatus('Connected - Signal Protocol Active');
+		setKeyExchangeStatus('Waiting for all members to join...');
+		console.log('🔑 [LIBSIGNAL] ===== GROUP CHAT INITIALIZATION COMPLETE =====');
 		}
 		catch (error: any)
 		{
@@ -336,7 +259,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			
 			const socket = io(socketUrl, {
 				auth: {
-					token: token, // Use real JWT token
+					token: `mock_jwt_token_${user!.id}`,
 				},
 				transports: ['polling', 'websocket'], // Start with polling for better compatibility
 				reconnection: true,
@@ -411,6 +334,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			socket.on('group_members', (data) =>
 			{
 				setMembers(data.members);
+				checkKeyExchangeStatus(data.members);
 			});
 
 			socket.on('sender_key_distribution', async (data) =>
@@ -532,14 +456,16 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		console.log('👤 [LIBSIGNAL] Member joined:', data.username);
 
 		// Update members list
-		setMembers(prev => [
-			...prev.filter(m => m.userId !== data.userId),
+		const newMembers = [
+			...members.filter(m => m.userId !== data.userId),
 			{
 				userId: data.userId,
 				username: data.username,
 				isOnline: true,
 			}
-		]);
+		];
+		setMembers(newMembers);
+		checkKeyExchangeStatus(newMembers);
 
 		// Add system message
 		const systemMessage: Message = {
@@ -622,30 +548,14 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			await CryptoAPI.addGroupMember(groupId, data.distributionMessage);
 			console.log('✅ [LIBSIGNAL] Sender key processed successfully');
 
-			// Mark key exchange as complete for this user
-			setKeyExchangeComplete(prev => new Set([...prev, data.fromUserId]));
-			console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
-			
-			// Clear retry state for this user
-			const timeout = keyRequestTimeouts.get(data.fromUserId);
-			if (timeout) {
-				clearTimeout(timeout);
-				setKeyRequestTimeouts(prev => {
-					const newMap = new Map(prev);
-					newMap.delete(data.fromUserId);
-					return newMap;
-				});
-			}
-			setKeyRequestAttempts(prev => {
-				const newMap = new Map(prev);
-				newMap.delete(data.fromUserId);
-				return newMap;
-			});
-			setMissingKeysAlert(prev => {
-				const newSet = new Set(prev);
-				newSet.delete(data.fromUserId);
-				return newSet;
-			});
+					// Mark key exchange as complete for this user
+		setKeyExchangeComplete(prev => {
+			const newSet = new Set([...prev, data.fromUserId]);
+			// Update key exchange status after state update
+			setTimeout(() => checkKeyExchangeStatus(members), 0);
+			return newSet;
+		});
+		console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
 
 			// Try to decrypt any pending messages from this sender
 			await processPendingMessages(data.fromUserId);
@@ -767,7 +677,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			const message: Message = {
 				id: encryptedMessage.messageId,
 				senderId: user!.id.toString(),
-				senderName: 'You', // Use 'You' for own messages
+				senderName: 'You',
 				content: newMessage.trim(),
 				timestamp: encryptedMessage.timestamp,
 				isEncrypted: true,
@@ -890,6 +800,37 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
             Setting up end-to-end encryption using @signalapp/libsignal-client...
 					</Text>
 					<Text style={styles.statusText}>{connectionStatus}</Text>
+				</View>
+			</View>
+		);
+	}
+
+	if (isWaitingForKeys && members.length > 1)
+	{
+		return (
+			<View style={styles.welcomeContainer}>
+				<View style={styles.infoContainer}>
+					<Text style={styles.infoTitle}>🔐 Échange de clés en cours</Text>
+					<Text style={styles.infoText}>
+            Établissement du chiffrement de bout en bout avec tous les membres...
+					</Text>
+					<Text style={styles.statusText}>{keyExchangeStatus}</Text>
+					<View style={styles.membersList}>
+						{members.map((member, index) => (
+							<View key={member.userId} style={styles.memberItem}>
+								<Text style={styles.memberText}>
+									{member.userId === user!.id ? '🔵 Vous' : `👤 ${member.username}`}
+								</Text>
+								<Text style={styles.memberStatus}>
+									{member.userId === user!.id 
+										? '✅ Prêt' 
+										: keyExchangeComplete.has(member.userId) 
+											? '✅ Clés échangées' 
+											: '🔄 En attente...'}
+								</Text>
+							</View>
+						))}
+					</View>
 				</View>
 			</View>
 		);

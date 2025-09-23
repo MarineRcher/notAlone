@@ -16,6 +16,7 @@ import nobleGroupRoutes from "./src/routes/nobleGroupRoutes";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
 import { NobleSignalController } from "./src/controllers/NobleSignalController";
+import { WaitroomController } from "./src/controllers/WaitroomController";
 
 // Initialize Express app
 const app = express();
@@ -51,13 +52,19 @@ const io = new Server(server, {
 	transports: ["websocket", "polling"],
 });
 
-// Initialize Noble Signal Protocol Group controller
+// Initialize controllers
 const nobleSignalController = new NobleSignalController(io);
+const waitroomController = new WaitroomController(io);
 
 // Socket.IO connection handling
 io.on("connection", socket => {
 	console.log("New client connected:", socket.id);
+	
+	// Set up Noble Signal Protocol handlers
 	nobleSignalController.handleConnection(socket as any);
+	
+	// Set up Waitroom handlers
+	waitroomController.setupSocketHandlers(socket as any);
 
 	socket.on("disconnect", reason => {
 		console.log(`Client ${socket.id} disconnected:`, reason);

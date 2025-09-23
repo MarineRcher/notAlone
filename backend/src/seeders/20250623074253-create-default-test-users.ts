@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { v4 as uuidv4 } from "uuid";
 import { QueryInterface, DataTypes } from "sequelize";
 
 export default {
@@ -7,10 +6,19 @@ export default {
     // Create real bcrypt hash for password "test123"
     const testPassword = await bcrypt.hash('test123', 10);
     
+    // Define known UUIDs for test users that match mock authentication
+    const KNOWN_TEST_UUIDS = {
+      alice: '10010000-0000-0000-0000-000000000001',
+      bob: '10020000-0000-0000-0000-000000000002', 
+      charlie: '10030000-0000-0000-0000-000000000003',
+      diana: '10040000-0000-0000-0000-000000000004',
+      eve: '10050000-0000-0000-0000-000000000005'
+    };
+    
     // Create test users for development and testing
     const testUsers = [
       {
-        id: uuidv4(),
+        id: KNOWN_TEST_UUIDS.alice,
         login: 'alice',
         email: 'alice@test.dev',
         password: testPassword, // Real bcrypt hash for "test123"
@@ -25,7 +33,7 @@ export default {
         updated_at: new Date()
       },
       {
-        id: uuidv4(),
+        id: KNOWN_TEST_UUIDS.bob,
         login: 'bob',
         email: 'bob@test.dev',
         password: testPassword, // Real bcrypt hash for "test123"
@@ -40,7 +48,7 @@ export default {
         updated_at: new Date()
       },
       {
-        id: uuidv4(),
+        id: KNOWN_TEST_UUIDS.charlie,
         login: 'charlie',
         email: 'charlie@test.dev',
         password: testPassword, // Real bcrypt hash for "test123"
@@ -55,7 +63,7 @@ export default {
         updated_at: new Date()
       },
       {
-        id: uuidv4(),
+        id: KNOWN_TEST_UUIDS.diana,
         login: 'diana',
         email: 'diana@test.dev',
         password: testPassword, // Real bcrypt hash for "test123"
@@ -70,7 +78,7 @@ export default {
         updated_at: new Date()
       },
       {
-        id: uuidv4(),
+        id: KNOWN_TEST_UUIDS.eve,
         login: 'eve',
         email: 'eve@test.dev',
         password: testPassword, // Real bcrypt hash for "test123"
