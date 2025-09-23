@@ -11,8 +11,13 @@ export default {
             },
             id_user: {
                 type: DataTypes.UUID,
-                defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
+                references: {
+                    model: "users",
+                    key: "id",
+                },
+                onUpdate: "CASCADE",
+                onDelete: "CASCADE",
             },
             difficulty: {
                 type: DataTypes.ENUM("Facile", "Moyen", "Dur"),
@@ -25,7 +30,12 @@ export default {
             id_resume_journey: {
                 type: DataTypes.UUID,
                 allowNull: true,
-                defaultValue: DataTypes.UUIDV4,
+                references: {
+                    model: "resume_journey",
+                    key: "id_resume_journey",
+                },
+                onUpdate: "CASCADE",
+                onDelete: "SET NULL",
             },
             note: {
                 type: DataTypes.STRING,
@@ -58,6 +68,12 @@ export default {
                 allowNull: false,
             },
         });
+
+        // Add indexes for performance
+        await queryInterface.addIndex("journal", ["id_user"]);
+        await queryInterface.addIndex("journal", ["id_resume_journey"]);
+        await queryInterface.addIndex("journal", ["created_at"]);
+        await queryInterface.addIndex("journal", ["id_user", "created_at"]);
     },
 
     async down(queryInterface: QueryInterface) {

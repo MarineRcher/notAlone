@@ -16,6 +16,7 @@ import Button from "../components/button";
 import Link from "../components/linkUserAccount";
 import LinkPremium from "../components/LinkPremium";
 import TimePicker from "../components/timePicker";
+import SponsorSection from "../components/SponsorSection";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
@@ -198,64 +199,118 @@ const UserScreen = ({ navigation }: Props) =>
 						/>
 					)}
 					{user?.notify && (
-						<Text style={styles.sectionTitle}>Notifications</Text>
-					)}
-					<Link
-						onPress={toggleNotifications}
-						title={
-							(user?.notify ? "Désactiver" : "Activer")
-							+ " les notifications"
-						}
-					/>
-
-					{user?.notify && (
 						<>
-							{isEditingTime ? (
-								<View>
-									<Text style={styles.bold}>
-										Heure choisie :
-									</Text>
-
-									<TimePicker
-										value={time}
-										onChange={(newTime) => setTime(newTime)}
-										showPicker={showPicker}
-										setShowPicker={setShowPicker}
-									/>
-									<Button
-										title="Enregistrer"
-										onPress={saveNotificationTime}
-									/>
-								</View>
-							) : (
+							<View style={styles.notificationContainer}>
+								<Text style={styles.notificationText}>
+									Notifications actives
+								</Text>
 								<TouchableOpacity
-									style={styles.timeButton}
-									onPress={() => setIsEditingTime(true)}
+									onPress={toggleNotifications}
+									style={styles.toggleButton}
 								>
-									<Text style={styles.bold}>
-										Heure:{" "}
-										{user.hourNotify || "Non définie"}
+									<Text style={styles.toggleButtonText}>
+										Désactiver
 									</Text>
-									<Text style={styles.link}>Modifier</Text>
 								</TouchableOpacity>
-							)}
+							</View>
+							<View style={styles.timeContainer}>
+								<Text style={styles.timeLabel}>
+									Heure de notification :{" "}
+									{user.hourNotify
+										? user.hourNotify.split(":").slice(0, 2).join(":")
+										: "Non définie"}
+								</Text>
+								{!isEditingTime ? (
+									<TouchableOpacity
+										onPress={() => setIsEditingTime(true)}
+										style={styles.editTimeButton}
+									>
+										<Text style={styles.editTimeButtonText}>
+											Modifier
+										</Text>
+									</TouchableOpacity>
+								) : (
+									<View style={styles.timeEditContainer}>
+										<TouchableOpacity
+											onPress={() => setShowPicker(true)}
+											style={styles.timeButton}
+										>
+											<Text style={styles.timeButtonText}>
+												{time.getHours().toString().padStart(2, "0")}:
+												{time.getMinutes().toString().padStart(2, "0")}
+											</Text>
+										</TouchableOpacity>
+										<View style={styles.timeActions}>
+											<TouchableOpacity
+												onPress={() => setIsEditingTime(false)}
+												style={styles.cancelButton}
+											>
+												<Text style={styles.cancelButtonText}>
+													Annuler
+												</Text>
+											</TouchableOpacity>
+											<TouchableOpacity
+												onPress={saveNotificationTime}
+												style={styles.saveButton}
+											>
+												<Text style={styles.saveButtonText}>
+													Sauvegarder
+												</Text>
+											</TouchableOpacity>
+										</View>
+									</View>
+								)}
+							</View>
 						</>
 					)}
+					{!user?.notify && (
+						<View style={styles.notificationContainer}>
+							<Text style={styles.notificationText}>
+								Notifications désactivées
+							</Text>
+							<TouchableOpacity
+								onPress={toggleNotifications}
+								style={styles.activateButton}
+							>
+								<Text style={styles.activateButtonText}>
+									Activer
+								</Text>
+							</TouchableOpacity>
+						</View>
+					)}
+				</View>
+
+				{/* Sponsor Section */}
+				<SponsorSection navigation={navigation} />
+
+				<View style={styles.bottomButtons}>
+					<Link
+						onPress={() => navigation.navigate("Support")}
+						title="Support"
+					/>
 					<Link
 						onPress={() => navigation.navigate("PrivacyPolicy")}
 						title="Politique de confidentialité"
 					/>
-					<Link
-						onPress={() => navigation.navigate("Support")}
-						title="Contacter le support"
+					<Button
+						title="Se déconnecter"
+						onPress={handleLogout}
+						style={styles.logoutButton}
+					/>
+					<Button
+						title="Supprimer le compte"
+						onPress={handleDeleteUserAccount}
+						style={styles.deleteButton}
 					/>
 				</View>
-				<View style={styles.footer}>
-					<Button onPress={handleLogout} title="Se déconnecter" />
-					<TouchableOpacity onPress={handleDeleteUserAccount}>
-						<Text style={styles.link}>Supprimer le compte</Text>
-					</TouchableOpacity>
-				</View>
+
+				{showPicker && (
+					<TimePicker
+						time={time}
+						setTime={setTime}
+						setShowPicker={setShowPicker}
+					/>
+				)}
 			</View>
 		</ScrollView>
 	);

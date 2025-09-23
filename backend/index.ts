@@ -13,6 +13,7 @@ import resourcesRoutes from "./src/routes/resourcesRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
 import groupRoutes from "./src/routes/groupRoutes";
 import nobleGroupRoutes from "./src/routes/nobleGroupRoutes";
+import sponsorChatRoutes from "./src/routes/sponsorChatRoutes";
 import { connectRedis } from "./src/config/redis";
 import helmet from "helmet";
 import { NobleSignalController } from "./src/controllers/NobleSignalController";
@@ -38,6 +39,7 @@ app.use("/api/groups", groupRoutes);
 app.use("/api/noble-groups", nobleGroupRoutes);
 app.use("/api/resources", resourcesRoutes);
 app.use("/api/games", gamesRoutes);
+app.use("/api/sponsor-chat", sponsorChatRoutes);
 app.use("/static", express.static(path.join(__dirname, "public")));
 
 // Socket.IO server configuration

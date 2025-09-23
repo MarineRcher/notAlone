@@ -17,6 +17,8 @@ import Phone from "../../assets/icons/phone.svg";
 import GroupUsers from "../../assets/icons/user-group.svg";
 import colors from "../css/colors";
 import addictionService from "../api/addictionService";
+import sponsorService, { SponsorshipInfo } from "../api/sponsorService";
+import { useAuth } from "../hooks/useAuth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../context/AuthContext";
@@ -31,13 +33,14 @@ type AddictionItem = {
 
 type Props = NativeStackScreenProps<any, any>;
 const HomeScreen = ({ navigation }: Props) => {
-	const { user } = useContext(AuthContext);
+	const { user } = useAuth();
 	const [addictions, setAddictions] = useState<AddictionItem[]>([]);
 	const [selectedAddiction, setSelectedAddiction] = useState<number | null>(
 		null,
 	);
 	const [daysSinceStop, setDaysSinceStop] = useState(0);
 	const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+	const [sponsorshipInfo, setSponsorshipInfo] = useState<SponsorshipInfo | null>(null);
 
 	const [open, setOpen] = useState(false);
 	const [value, setValue] = useState<number | null>(null);
@@ -45,6 +48,7 @@ const HomeScreen = ({ navigation }: Props) => {
 
 	useEffect(() => {
 		loadUserAddictions();
+		loadSponsorshipInfo();
 	}, []);
 
 	useEffect(() => {
@@ -94,6 +98,44 @@ const HomeScreen = ({ navigation }: Props) => {
 		const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
 		setDaysSinceStop(diffDays);
+	};
+
+	const loadSponsorshipInfo = async () => {
+		try {
+			const info = await sponsorService.getSponsorshipInfo();
+			setSponsorshipInfo(info);
+		} catch (error) {
+			console.error("Erreur lors du chargement des informations de parrainage:", error);
+		}
+	};
+
+	const handleSponsorChat = () => {
+		if (sponsorshipInfo?.hasSponsor && sponsorshipInfo.sponsorship) {
+			navigation.navigate("SponsorChat", {
+				sponsorshipId: sponsorshipInfo.sponsorship.id,
+				otherUserId: sponsorshipInfo.sponsorship.sponsorId,
+				otherUserName: sponsorshipInfo.sponsorship.sponsor?.login || "Votre parrain",
+				isSponsoring: false,
+			});
+		} else {
+			Alert.alert(
+				"Aucun parrain",
+				"Vous n'avez pas encore de parrain assigné.",
+			);
+		}
+	};
+
+	const handleSponsoredUsersView = () => {
+		if (sponsorshipInfo?.isSponsoring && sponsorshipInfo.sponsoredUsers.length > 0) {
+			navigation.navigate("SponsoredUsersList", {
+				sponsoredUsers: sponsorshipInfo.sponsoredUsers,
+			});
+		} else {
+			Alert.alert(
+				"Aucun filleul",
+				"Vous n'avez pas encore de filleuls à parrainer.",
+			);
+		}
 	};
 
 	const handlePhoneCall = () => {
@@ -177,10 +219,40 @@ const HomeScreen = ({ navigation }: Props) => {
 						<GroupUsers width={36} height={36} />
 						<Text style={styles.userText}>Cercle de parole</Text>
 					</TouchableOpacity>
-					<View style={styles.user}>
-						<User width={36} height={36} />
-						<Text style={styles.squaresText}>Parler avec votre parain</Text>
-					</View>
+					{/* Sponsor chat button - changes based on user role and status */}
+					{sponsorshipInfo?.hasSponsor ? (
+						<TouchableOpacity
+							style={[
+								styles.user,
+								!sponsorshipInfo.sponsorship?.keyExchangeComplete && styles.disabledButton
+							]}
+							onPress={handleSponsorChat}
+							disabled={!sponsorshipInfo.sponsorship?.keyExchangeComplete}
+						>
+							<User width={36} height={36} fill={sponsorshipInfo.sponsorship?.keyExchangeComplete ? colors.primary : colors.disable} />
+							<Text style={[
+								styles.squaresText,
+								!sponsorshipInfo.sponsorship?.keyExchangeComplete && styles.disabledText
+							]}>
+								Parler avec votre parrain
+							</Text>
+						</TouchableOpacity>
+					) : sponsorshipInfo?.isSponsoring ? (
+						<TouchableOpacity
+							style={styles.user}
+							onPress={handleSponsoredUsersView}
+						>
+							<User width={36} height={36} />
+							<Text style={styles.squaresText}>Parler à un filleul</Text>
+						</TouchableOpacity>
+					) : (
+						<View style={[styles.user, styles.disabledButton]}>
+							<User width={36} height={36} fill={colors.disable} />
+							<Text style={[styles.squaresText, styles.disabledText]}>
+								{sponsorshipInfo ? "Aucun parrainage actif" : "Chargement..."}
+							</Text>
+						</View>
+					)}
 				</View>
 			</View>
 			<TouchableOpacity

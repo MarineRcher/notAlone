@@ -13,6 +13,8 @@ export interface UserAttributes {
 	blockedUntil: Date | null;
 	points: number;
 	last_animation_at: Date | null;
+	roleId: number;
+	sponsorCode: string;
 
 	createdAt?: Date;
 	updatedAt?: Date;
