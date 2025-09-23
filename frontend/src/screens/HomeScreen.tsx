@@ -163,10 +163,12 @@ const HomeScreen = ({ navigation }: Props) => {
 
 			<View style={styles.topRow}>
 				<View style={styles.leftBox}>
-					<View style={styles.iconWrapper}>
-						<CheckCircle width={36} height={36} />
-					</View>
-					<Text style={styles.squaresText}>Vos badges</Text>
+					<TouchableOpacity onPress={() => navigation.navigate("Badges")}>
+						<View style={styles.iconWrapper}>
+							<CheckCircle width={36} height={36} />
+						</View>
+						<Text style={styles.squaresText}>Vos badges</Text>
+					</TouchableOpacity>
 				</View>
 
 				<View style={styles.rightColumn}>

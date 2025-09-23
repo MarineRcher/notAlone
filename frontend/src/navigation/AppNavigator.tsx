@@ -31,6 +31,7 @@ import BreathingScreen from "../screens/resources/BreathingScreen";
 import TreeShopScreen from "../screens/TreeShopScreen";
 import FlowerShopScreen from "../screens/FlowerShopScreen";
 import ForestScreen from "../screens/forestScreen";
+import BadgeScreen from "../screens/BadgeScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -183,6 +184,11 @@ const AppNavigator = () => {
 				<Stack.Screen
 					name="Forest"
 					component={ForestScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Badges"
+					component={BadgeScreen}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>
