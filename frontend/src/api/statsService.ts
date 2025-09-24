@@ -14,6 +14,10 @@ export interface AcquiredResponse {
 	startDate: Date;
 }
 
+export interface save {
+	save: number;
+}
+
 export const statsService = {
 	getAcquired: async (addictionId: string): Promise<AcquiredResponse> => {
 		const token = await authHelpers.getToken();
@@ -32,10 +36,29 @@ export const statsService = {
 				},
 			},
 		);
-
 		return {
 			acquired: response.data.acquired,
 			startDate: new Date(response.data.startDate),
 		};
+	},
+	getMoneySave: async (addictionId: string): Promise<save> => {
+		const token = await authHelpers.getToken();
+		if (!token) {
+			throw new Error("Token non disponible");
+		}
+		const response = await apiClient.post(
+			"/stats/moneySave",
+			{
+				addiction_id: addictionId,
+			},
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"Content-Type": "application/json",
+				},
+			},
+		);
+
+		return response.data;
 	},
 };

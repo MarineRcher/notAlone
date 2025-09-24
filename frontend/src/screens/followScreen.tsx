@@ -94,7 +94,6 @@ const FollowScreen = ({ navigation }: Props) => {
 					/>
 				</View>
 				<View style={styles.stats}>
-					<Text style={styles.title}>Statistiques</Text>
 					<TouchableOpacity onPress={() => navigation.navigate("Acquired")}>
 						<View style={styles.boxAcquired}>
 							<Text style={styles.lightTitle}>Acquis / Pas acquis</Text>

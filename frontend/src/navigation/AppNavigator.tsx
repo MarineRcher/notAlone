@@ -14,8 +14,6 @@ import AddUserAddictionScreen from "../screens/userInformations/AddUserAddiction
 import AskNotificationsScreen from "../screens/userInformations/askNotificationsScreen";
 import AskNotificationsHourScreen from "../screens/userInformations/AskNotificationsHourScreen";
 import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
-import SupportScreen from "../screens/userInformations/supportScreen";
-import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
 import GroupChatScreen from "../screens/GroupChatScreen";
 import colors from "../css/colors";
@@ -116,16 +114,6 @@ const AppNavigator = () => {
 				<Stack.Screen
 					name="AddUserAddiction"
 					component={AddUserAddictionScreen}
-					options={{ headerShown: false }}
-				/>
-				<Stack.Screen
-					name="PrivacyPolicy"
-					component={PrivacyPolicycreen}
-					options={{ headerShown: false }}
-				/>
-				<Stack.Screen
-					name="Support"
-					component={SupportScreen}
 					options={{ headerShown: false }}
 				/>
 				<Stack.Screen

@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.secondary,
 		padding: 20,
 		alignItems: "center",
+		alignContent: "center",
 		borderRadius: 25,
 		flexDirection: "row",
 		justifyContent: "center",
@@ -62,6 +63,7 @@ const styles = StyleSheet.create({
 		borderRadius: 25,
 		flexDirection: "row",
 		justifyContent: "center",
+		alignContent: "center",
 		gap: 16,
 	},
 	squaresText: {

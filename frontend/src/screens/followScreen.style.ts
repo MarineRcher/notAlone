@@ -7,12 +7,11 @@ const styles = StyleSheet.create({
 		flex: 1,
 		width: "100%",
 		alignItems: "center",
-		paddingBottom: 10,
 	},
 	calendar: {
 		width: 300,
 		flex: 1,
-		maxHeight: 400,
+		maxHeight: 330,
 	},
 	FollowPage: {
 		flex: 1,
@@ -26,6 +25,7 @@ const styles = StyleSheet.create({
 		fontFamily: Fonts.balsamiqSans.bold,
 		fontSize: 22,
 		color: colors.background,
+		textAlign: "center",
 	},
 	stats: {
 		marginVertical: 32,
@@ -36,9 +36,12 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 		backgroundColor: colors.text,
 		color: colors.background,
-		paddingHorizontal: 16,
+		paddingHorizontal: 12,
 		paddingVertical: 32,
+		flex: 1,
+		textAlign: "center",
 		justifyContent: "center",
+		alignContent: "center",
 	},
 });
 
