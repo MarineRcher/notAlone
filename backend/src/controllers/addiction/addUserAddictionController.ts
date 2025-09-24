@@ -106,7 +106,7 @@ export const addUserAddiction = async (
 		}
 
 		// Vérification de l'existence de l'utilisateur
-		const user = await User.findByPk(user_id);
+		const user = await User.findByPk(user_id, {raw: true});
 		if (!user) {
 			res.status(404).json({
 				message: "Utilisateur introuvable",
@@ -115,7 +115,7 @@ export const addUserAddiction = async (
 		}
 
 		// Vérification de l'existence de l'addiction
-		const addictionExists = await Addiction.findByPk(addiction_id);
+		const addictionExists = await Addiction.findByPk(addiction_id, {raw: true});
 		if (!addictionExists) {
 			res.status(404).json({
 				message: "Addiction introuvable",
