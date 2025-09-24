@@ -21,7 +21,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../context/AuthContext";
 
-type AddictionItem = {
+export type AddictionItem = {
 	id: number;
 	addiction: string;
 	addictionId: number;

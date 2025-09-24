@@ -32,6 +32,7 @@ import TreeShopScreen from "../screens/TreeShopScreen";
 import FlowerShopScreen from "../screens/FlowerShopScreen";
 import ForestScreen from "../screens/forestScreen";
 import BadgeScreen from "../screens/BadgeScreen";
+import AcquiredScreen from "../screens/stats/AcquiredScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -189,6 +190,11 @@ const AppNavigator = () => {
 				<Stack.Screen
 					name="Badges"
 					component={BadgeScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Acquired"
+					component={AcquiredScreen}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>
