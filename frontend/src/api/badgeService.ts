@@ -4,7 +4,6 @@ import { authHelpers } from "./authHelpers";
 export interface BadgeItem {
 	badge_id: string;
 	name: string;
-	description: string;
 	time_in_days: number;
 	url: string;
 }
