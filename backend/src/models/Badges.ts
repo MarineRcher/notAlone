@@ -9,7 +9,6 @@ class Badge extends Model<badge, BadgeCreationAttributes> implements badge {
 	declare badge_id: string;
 	declare name: string;
 	declare time_in_days: number;
-	declare description: string;
 	declare url: Url;
 
 	declare readonly createdAt: Date;
@@ -30,10 +29,6 @@ Badge.init(
 		},
 		time_in_days: {
 			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		description:{
-			type: DataTypes.STRING,
 			allowNull: false,
 		},
 		url: {

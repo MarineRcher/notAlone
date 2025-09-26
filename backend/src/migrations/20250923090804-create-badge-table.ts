@@ -15,10 +15,6 @@ export default {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
-			description: {
-				type: DataTypes.STRING,
-				allowNull: false,
-			},
 			time_in_days: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
