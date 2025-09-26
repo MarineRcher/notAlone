@@ -1,7 +1,7 @@
 {
 	"expo": {
 		"newArchEnabled": true,
-		"name": "frontend",
+		"name": "notAlone",
 		"slug": "frontend",
 		"version": "1.0.0",
 		"orientation": "portrait",
@@ -14,19 +14,20 @@
 		},
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.anonymous.frontend"
+			"bundleIdentifier": "com.anonymous.notAlone"
 		},
 		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/adaptive-icon.png",
-				"backgroundColor": "#ffffff"
-			},
-			"package": "com.anonymous.frontend"
+			"package": "com.anonymous.notAlone"
 		},
 		"web": {
 			"favicon": "./assets/favicon.png",
 			"bundler": "metro"
 		},
-		"plugins": ["expo-secure-store", "expo-font"]
+		"plugins": ["expo-secure-store", "expo-font"],
+		"extra": {
+			"eas": {
+				"projectId": "f3bface8-5132-42b5-8aeb-cf2504227340"
+			}
+		}
 	}
 }
