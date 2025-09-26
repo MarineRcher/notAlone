@@ -10,6 +10,8 @@ RUN mkdir -p /app/logs && chown -R node:node /app
 
 RUN yarn install
 
+RUN yarn global add nodemon ts-node
+
 COPY . .
 
 EXPOSE 3000
