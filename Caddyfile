@@ -1,5 +1,5 @@
 # Remplacez par votre domaine
-votre-domaine.com {
+notalone.davidgailleton.me {
     reverse_proxy api:3000
 
     # Configuration HTTPS automatique via Let's Encrypt
@@ -28,7 +28,7 @@ votre-domaine.com {
 }
 
 # Configuration pour l'environnement local (optionnel)
-notalone.davidgailleton.me {
+localhost, 127.0.0.1 {
     reverse_proxy api:3000
 
     # HTTPS local avec certificat auto-signé
