@@ -3,10 +3,9 @@ votre-domaine.com {
     reverse_proxy api:3000
 
     # Configuration HTTPS automatique via Let's Encrypt
-    tls {
-        # Optionnel : spécifier l'email pour Let's Encrypt
-        # email votre-email@example.com
-    }
+    # tls est automatique avec un domaine réel
+    # Décommentez la ligne suivante si vous voulez spécifier un email
+    #tls votre-email@example.com
 
     # Logs
     log {
@@ -29,7 +28,7 @@ votre-domaine.com {
 }
 
 # Configuration pour l'environnement local (optionnel)
-localhost, 127.0.0.1 {
+notalone.davidgailleton.me {
     reverse_proxy api:3000
 
     # HTTPS local avec certificat auto-signé
