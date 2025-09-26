@@ -1,33 +1,39 @@
 {
-	"expo": {
-		"newArchEnabled": true,
-		"name": "notAlone",
-		"slug": "frontend",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
-		"splash": {
-			"image": "./assets/mascot/woaw.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#ffffff"
-		},
-		"ios": {
-			"supportsTablet": true,
-			"bundleIdentifier": "com.anonymous.notAlone"
-		},
-		"android": {
-			"package": "com.anonymous.notAlone"
-		},
-		"web": {
-			"favicon": "./assets/favicon.png",
-			"bundler": "metro"
-		},
-		"plugins": ["expo-secure-store", "expo-font"],
-		"extra": {
-			"eas": {
-				"projectId": "f3bface8-5132-42b5-8aeb-cf2504227340"
-			}
-		}
-	}
+  "expo": {
+    "newArchEnabled": true,
+    "name": "notAlone",
+    "slug": "frontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/mascot/woaw.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.notAlone",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.anonymous.notAlone"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f3bface8-5132-42b5-8aeb-cf2504227340"
+      }
+    }
+  }
 }

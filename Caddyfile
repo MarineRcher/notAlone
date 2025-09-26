@@ -1,0 +1,37 @@
+# Remplacez par votre domaine
+votre-domaine.com {
+    reverse_proxy api:3000
+
+    # Configuration HTTPS automatique via Let's Encrypt
+    tls {
+        # Optionnel : spécifier l'email pour Let's Encrypt
+        # email votre-email@example.com
+    }
+
+    # Logs
+    log {
+        output file /data/access.log
+    }
+
+    # Headers de sécurité
+    header {
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Empêcher l'embedding dans des iframes
+        X-Frame-Options "DENY"
+        # Protection XSS
+        X-XSS-Protection "1; mode=block"
+        # Empêcher le MIME sniffing
+        X-Content-Type-Options "nosniff"
+        # Politique de référent
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}
+
+# Configuration pour l'environnement local (optionnel)
+localhost, 127.0.0.1 {
+    reverse_proxy api:3000
+
+    # HTTPS local avec certificat auto-signé
+    tls internal
+}
