@@ -45,13 +45,33 @@ export default function WaitroomScreen({ navigation }: WaitroomScreenProps) {
       setIsConnecting(true);
       setConnectionStatus('Connexion au serveur...');
 
+      // Get the real JWT token from secure storage
+      const { getValidToken } = await import('../api/authHelpers').then(m => m.authHelpers);
+      const token = await getValidToken();
+      
+      if (!token) {
+        console.error('❌ No valid JWT token available');
+        setConnectionStatus('Erreur d\'authentification');
+        setIsConnecting(false);
+        return;
+      }
+      
+      console.log('🔑 Using authenticated token for waitroom connection');
+
       // Initialize socket connection
       const socket = io(apiConfig.socketURL, {
         auth: {
-          token: `mock_jwt_token_${user!.id}`,
+          token: token,
         },
-        transports: ['websocket'],
-        timeout: 10000,
+        transports: ['polling', 'websocket'], // Start with polling for better compatibility
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 20000, // Increase timeout to 20 seconds
+        upgrade: true, // Allow upgrading from polling to websocket
+        forceNew: true, // Force new connection
+        rememberUpgrade: false, // Don't remember upgrade for React Native compatibility
+        autoConnect: true, // Ensure auto connection
       });
 
       socketRef.current = socket;
@@ -69,10 +89,23 @@ export default function WaitroomScreen({ navigation }: WaitroomScreenProps) {
 
       socket.on('connect_error', (error) => {
         console.error('❌ Waitroom connection error:', error);
-        setConnectionStatus('Erreur de connexion');
+        console.error('❌ Error type:', error.type);
+        console.error('❌ Error description:', error.description);
+        console.error('❌ Error context:', error.context);
+        console.error('❌ Error transport:', error.transport);
+        console.error('❌ Socket URL:', apiConfig.socketURL);
+        
+        setConnectionStatus(`Erreur de connexion: ${error.message || error.type || 'Unknown'}`);
         setIsConnecting(false);
-        Alert.alert('Erreur de connexion', 'Impossible de se connecter au serveur. Veuillez réessayer.', [
-          { text: 'OK', onPress: () => navigation.goBack() }
+        
+        // More detailed error message
+        const errorMsg = error.type === 'TransportError' 
+          ? 'Erreur de transport réseau. Vérifiez votre connexion.'
+          : `Impossible de se connecter au serveur: ${error.message || error.type}`;
+          
+        Alert.alert('Erreur de connexion', errorMsg, [
+          { text: 'Réessayer', onPress: () => initializeWaitroom() },
+          { text: 'Retour', onPress: () => navigation.goBack() }
         ]);
       });
 

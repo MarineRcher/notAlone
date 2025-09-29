@@ -259,7 +259,7 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			
 			const socket = io(socketUrl, {
 				auth: {
-					token: `mock_jwt_token_${user!.id}`,
+					token: token,
 				},
 				transports: ['polling', 'websocket'], // Start with polling for better compatibility
 				reconnection: true,

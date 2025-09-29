@@ -62,11 +62,8 @@ const waitroomController = new WaitroomController(io);
 io.on("connection", socket => {
 	console.log("New client connected:", socket.id);
 	
-	// Set up Noble Signal Protocol handlers
-	nobleSignalController.handleConnection(socket as any);
-	
-	// Set up Waitroom handlers
-	waitroomController.setupSocketHandlers(socket as any);
+	// Set up Noble Signal Protocol handlers (includes waitroom setup after auth)
+	nobleSignalController.handleConnection(socket as any, waitroomController);
 
 	socket.on("disconnect", reason => {
 		console.log(`Client ${socket.id} disconnected:`, reason);

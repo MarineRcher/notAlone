@@ -31,7 +31,7 @@ export class NobleSignalController {
 		this.groupService = new GroupService();
 	}
 
-	public handleConnection(socket: AuthenticatedSocket): void {
+	public handleConnection(socket: AuthenticatedSocket, waitroomController?: any): void {
 		console.log("🔌 [NOBLE-SIGNAL] New socket connection:", socket.id);
 
 		this.authenticateSocket(socket, authenticated => {
@@ -48,6 +48,11 @@ export class NobleSignalController {
 				socket.user?.username,
 			);
 			this.setupSocketHandlers(socket);
+			
+			// Set up waitroom handlers after authentication completes
+			if (waitroomController) {
+				waitroomController.setupSocketHandlers(socket);
+			}
 		});
 	}
 
