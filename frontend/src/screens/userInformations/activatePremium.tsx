@@ -19,34 +19,26 @@ import Feature from "../../components/feature";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const ActivatePremiumScreen = ({ navigation }: Props) =>
-{
+const ActivatePremiumScreen = ({ navigation }: Props) => {
 	const { setUser } = useContext(AuthContext);
 	const [loading, setLoading] = useState(false);
 
-	const handleActivate = async () =>
-	{
-		try
-		{
+	const handleActivate = async () => {
+		try {
 			setLoading(true);
 			const response = await userService.activatePremium();
 
-			if (response.token)
-			{
+			if (response.token) {
 				const decoded = jwtDecode<User>(response.token);
 
 				setUser(decoded);
 			}
 			Alert.alert("Succès", "Version premium activée !");
 			navigation.goBack();
-		}
-		catch (error)
-		{
+		} catch (error) {
 			console.error("Erreur premium:", error);
 			Alert.alert("Erreur", "Impossible d'activer la version premium");
-		}
-		finally
-		{
+		} finally {
 			setLoading(false);
 		}
 	};
@@ -61,16 +53,14 @@ const ActivatePremiumScreen = ({ navigation }: Props) =>
 				/>
 
 				<View style={styles.formSection}>
-					<Feature feature="Plus de limites" />
-					<Feature feature="Plus de limites" />
-					<Feature feature="Plus de limites" />
-					<Feature feature="Plus de limites" />
-					<Feature feature="Plus de limites" />
+					<Feature feature="Plus d'arbres et de fleurs pour construire une forêt plus diversifiée" />
+					<Feature feature="Plus d'accès aux bénéfices acquis et en cours d'acquisition" />
+					<Feature feature="La possibilité de gérer plusieurs arrêts d'addiction" />
+					<Feature feature="Accès à l'atelier de respiration illimité" />
+					<Feature feature="Plus de questions de suivi dans le journal" />
 				</View>
 				<Button
-					title={
-						loading ? "Chargement..." : "Activer version Premium"
-					}
+					title={loading ? "Chargement..." : "Activer version Premium"}
 					onPress={handleActivate}
 					disabled={loading}
 				/>

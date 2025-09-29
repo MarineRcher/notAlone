@@ -14,8 +14,6 @@ import AddUserAddictionScreen from "../screens/userInformations/AddUserAddiction
 import AskNotificationsScreen from "../screens/userInformations/askNotificationsScreen";
 import AskNotificationsHourScreen from "../screens/userInformations/AskNotificationsHourScreen";
 import ChangeEmailScreen from "../screens/userInformations/changeEmailScreen";
-import SupportScreen from "../screens/userInformations/supportScreen";
-import PrivacyPolicycreen from "../screens/userInformations/PrivacyPolicyScreen";
 import ActivatePremiumScreen from "../screens/userInformations/activatePremium";
 import GroupChatScreen from "../screens/GroupChatScreen";
 import WaitroomScreen from "../screens/WaitroomScreen";
@@ -32,6 +30,8 @@ import BreathingScreen from "../screens/resources/BreathingScreen";
 import TreeShopScreen from "../screens/TreeShopScreen";
 import FlowerShopScreen from "../screens/FlowerShopScreen";
 import ForestScreen from "../screens/forestScreen";
+import BadgeScreen from "../screens/BadgeScreen";
+import AcquiredScreen from "../screens/stats/AcquiredScreen";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -118,16 +118,6 @@ const AppNavigator = () => {
 					options={{ headerShown: false }}
 				/>
 				<Stack.Screen
-					name="PrivacyPolicy"
-					component={PrivacyPolicycreen}
-					options={{ headerShown: false }}
-				/>
-				<Stack.Screen
-					name="Support"
-					component={SupportScreen}
-					options={{ headerShown: false }}
-				/>
-				<Stack.Screen
 					name="Waitroom"
 					component={WaitroomScreen}
 					options={{ headerShown: false }}
@@ -189,6 +179,16 @@ const AppNavigator = () => {
 				<Stack.Screen
 					name="Forest"
 					component={ForestScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Badges"
+					component={BadgeScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="Acquired"
+					component={AcquiredScreen}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>

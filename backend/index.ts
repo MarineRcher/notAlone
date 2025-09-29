@@ -8,9 +8,11 @@ import sequelize from "./src/config/database";
 import authRoutes from "./src/routes/authRoutes";
 import usersRoutes from "./src/routes/userRoutes";
 import gamesRoutes from "./src/routes/gamesRoutes";
+import badgesRoutes from "./src/routes/badgesRoutes";
 import journalRoutes from "./src/routes/journalRoutes";
 import resourcesRoutes from "./src/routes/resourcesRoutes";
 import addictionRoutes from "./src/routes/addictionRoutes";
+import statsRoutes from "./src/routes/statsRoutes";
 import groupRoutes from "./src/routes/groupRoutes";
 import nobleGroupRoutes from "./src/routes/nobleGroupRoutes";
 import sponsorChatRoutes from "./src/routes/sponsorChatRoutes";
@@ -40,6 +42,8 @@ app.use("/api/noble-groups", nobleGroupRoutes);
 app.use("/api/resources", resourcesRoutes);
 app.use("/api/games", gamesRoutes);
 app.use("/api/sponsor-chat", sponsorChatRoutes);
+app.use("/api/badges", badgesRoutes);
+app.use("/api/stats", statsRoutes);
 app.use("/static", express.static(path.join(__dirname, "public")));
 
 // Socket.IO server configuration

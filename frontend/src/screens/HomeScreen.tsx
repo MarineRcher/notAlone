@@ -23,7 +23,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../context/AuthContext";
 
-type AddictionItem = {
+export type AddictionItem = {
 	id: number;
 	addiction: string;
 	addictionId: number;
@@ -205,10 +205,15 @@ const HomeScreen = ({ navigation }: Props) => {
 
 			<View style={styles.topRow}>
 				<View style={styles.leftBox}>
-					<View style={styles.iconWrapper}>
-						<CheckCircle width={36} height={36} />
-					</View>
-					<Text style={styles.squaresText}>Vos badges</Text>
+					<TouchableOpacity
+						style={styles.leftBox}
+						onPress={() => navigation.navigate("Badges")}
+					>
+						<View style={styles.iconWrapper}>
+							<CheckCircle width={36} height={36} />
+						</View>
+						<Text style={styles.squaresText}>Vos badges</Text>
+					</TouchableOpacity>
 				</View>
 
 				<View style={styles.rightColumn}>

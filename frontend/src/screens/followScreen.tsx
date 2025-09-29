@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import Mascot from "../components/mascot";
@@ -13,28 +13,22 @@ import { ScrollView } from "react-native-gesture-handler";
 
 type Props = NativeStackScreenProps<any, "Follow">;
 
-const FollowScreen = ({ navigation }: Props) =>
-{
+const FollowScreen = ({ navigation }: Props) => {
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
-	const handleDayPress = (day: { dateString: string }) =>
-	{
+	const handleDayPress = (day: { dateString: string }) => {
 		setSelectedDate(day.dateString);
 	};
 
-	const handleFillJournal = async () =>
-	{
-		const dateToUse
-            = selectedDate || new Date().toISOString().split("T")[0];
+	const handleFillJournal = async () => {
+		const dateToUse = selectedDate || new Date().toISOString().split("T")[0];
 
 		setIsLoading(true);
-		try
-		{
-			const journalData: JournalResponse
-                = await journalService.getJournal({
-                	date: new Date(dateToUse),
-                });
+		try {
+			const journalData: JournalResponse = await journalService.getJournal({
+				date: new Date(dateToUse),
+			});
 
 			const navigationParams: NavigationParams = {
 				date: dateToUse,
@@ -45,17 +39,13 @@ const FollowScreen = ({ navigation }: Props) =>
 			};
 
 			navigation.navigate("Difficulty", navigationParams);
-		}
-		catch (error)
-		{
+		} catch (error) {
 			navigation.navigate("Difficulty", {
 				date: dateToUse,
 				isNewJournal: true,
 				currentStep: "difficulty",
 			});
-		}
-		finally
-		{
+		} finally {
 			setIsLoading(false);
 		}
 	};
@@ -89,21 +79,26 @@ const FollowScreen = ({ navigation }: Props) =>
 						markedDates={
 							selectedDate
 								? {
-									[selectedDate]: {
-										selected: true,
-										selectedColor: colors.primary,
-									},
-								}
+										[selectedDate]: {
+											selected: true,
+											selectedColor: colors.primary,
+										},
+									}
 								: {}
 						}
 					/>
 					<Button
-						title={
-							isLoading ? "Chargement..." : "Remplir le journal"
-						}
+						title={isLoading ? "Chargement..." : "Remplir le journal"}
 						onPress={handleFillJournal}
 						disabled={isLoading}
 					/>
+				</View>
+				<View style={styles.stats}>
+					<TouchableOpacity onPress={() => navigation.navigate("Acquired")}>
+						<View style={styles.boxAcquired}>
+							<Text style={styles.lightTitle}>Acquis / Pas acquis</Text>
+						</View>
+					</TouchableOpacity>
 				</View>
 			</View>
 		</ScrollView>

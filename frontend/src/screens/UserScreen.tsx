@@ -20,18 +20,15 @@ import SponsorSection from "../components/SponsorSection";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 type Props = NativeStackScreenProps<any, any>;
-const UserScreen = ({ navigation }: Props) =>
-{
+const UserScreen = ({ navigation }: Props) => {
 	const { user, updateNotificationSettings } = useContext(AuthContext);
 	const { setUser } = useContext(AuthContext);
 	const [isEditingTime, setIsEditingTime] = useState(false);
 	const [showPicker, setShowPicker] = useState(false);
 	const [time, setTime] = useState(new Date());
 
-	useEffect(() =>
-	{
-		if (user?.hourNotify)
-		{
+	useEffect(() => {
+		if (user?.hourNotify) {
 			const [hours, minutes] = user.hourNotify.split(":").map(Number);
 			const newDate = new Date();
 
@@ -41,25 +38,20 @@ const UserScreen = ({ navigation }: Props) =>
 		}
 	}, [user?.hourNotify]);
 
-	const handleLogout = () =>
-	{
+	const handleLogout = () => {
 		Alert.alert("Se déconnecter", "Es-tu sûr de vouloir te déconnecter ?", [
 			{ text: "Annuler", style: "cancel" },
 			{
 				text: "Déconnexion",
 				style: "destructive",
-				onPress: async () =>
-				{
-					try
-					{
+				onPress: async () => {
+					try {
 						await authService.logout();
 						navigation.reset({
 							index: 0,
 							routes: [{ name: "Login" }],
 						});
-					}
-					catch (error)
-					{
+					} catch (error) {
 						Alert.alert("Erreur", "La déconnexion a échoué");
 					}
 				},
@@ -67,30 +59,21 @@ const UserScreen = ({ navigation }: Props) =>
 		]);
 	};
 
-	const handleDeactivatePremium = async () =>
-	{
-		try
-		{
+	const handleDeactivatePremium = async () => {
+		try {
 			const response = await userService.deactivatePremium();
 
-			if (response.token)
-			{
+			if (response.token) {
 				const decoded = jwtDecode<User>(response.token);
 
 				setUser(decoded);
 			}
 			Alert.alert("Succès", "Version premium desactive");
-		}
-		catch (error)
-		{
-			Alert.alert(
-				"Erreur",
-				"La deactivation de la version premium a échoué"
-			);
+		} catch (error) {
+			Alert.alert("Erreur", "La deactivation de la version premium a échoué");
 		}
 	};
-	const handleDeleteUserAccount = () =>
-	{
+	const handleDeleteUserAccount = () => {
 		Alert.alert(
 			"Supprimer le compte",
 			"Cette action est irréversible. Es-tu sûr de vouloir supprimer ton compte ?",
@@ -99,51 +82,38 @@ const UserScreen = ({ navigation }: Props) =>
 				{
 					text: "Supprimer",
 					style: "destructive",
-					onPress: async () =>
-					{
-						try
-						{
+					onPress: async () => {
+						try {
 							await userService.deleteUserAccount();
 							navigation.reset({
 								index: 0,
 								routes: [{ name: "Register" }],
 							});
-						}
-						catch (error)
-						{
+						} catch (error) {
 							Alert.alert("Erreur", "La suppression a échoué");
 						}
 					},
 				},
-			]
+			],
 		);
 	};
 
-	const toggleNotifications = async () =>
-	{
-		try
-		{
-			if (user?.notify)
-			{
+	const toggleNotifications = async () => {
+		try {
+			if (user?.notify) {
 				await userService.deactivateNotifications();
 				updateNotificationSettings(false);
-			}
-			else
-			{
+			} else {
 				await userService.activateNotifications();
 				updateNotificationSettings(true);
 			}
-		}
-		catch (error)
-		{
+		} catch (error) {
 			Alert.alert("Erreur", "Opération échouée");
 		}
 	};
 
-	const saveNotificationTime = async () =>
-	{
-		try
-		{
+	const saveNotificationTime = async () => {
+		try {
 			const hours = time.getHours().toString().padStart(2, "0");
 			const minutes = time.getMinutes().toString().padStart(2, "0");
 			const timeString = `${hours}:${minutes}`;
@@ -152,9 +122,7 @@ const UserScreen = ({ navigation }: Props) =>
 			updateNotificationSettings(user?.notify || true, timeString);
 			setIsEditingTime(false);
 			Alert.alert("Succès", "Heure de notification mise à jour");
-		}
-		catch (error)
-		{
+		} catch (error) {
 			Alert.alert("Erreur", "Format d'heure invalide");
 		}
 	};
@@ -163,14 +131,10 @@ const UserScreen = ({ navigation }: Props) =>
 		<ScrollView style={styles.scrollContainer}>
 			<View style={styles.container}>
 				<View style={styles.links}>
-					<Text style={styles.titleUserScreen}>
-						Compte Utilisateur
-					</Text>
+					<Text style={styles.titleUserScreen}>Compte Utilisateur</Text>
 					{!user?.hasPremium ? (
 						<LinkPremium
-							onPress={() =>
-								navigation.navigate("ActivatePremium")
-							}
+							onPress={() => navigation.navigate("ActivatePremium")}
 							title="Activer l'abonnement premium"
 						/>
 					) : (
@@ -199,99 +163,45 @@ const UserScreen = ({ navigation }: Props) =>
 						/>
 					)}
 					{user?.notify && (
+						<Text style={styles.sectionTitle}>Notifications</Text>
+					)}
+					<Link
+						onPress={toggleNotifications}
+						title={
+							(user?.notify ? "Désactiver" : "Activer") + " les notifications"
+						}
+					/>
+
+					{user?.notify && (
 						<>
-							<View style={styles.notificationContainer}>
-								<Text style={styles.notificationText}>
-									Notifications actives
-								</Text>
+							{isEditingTime ? (
+								<View>
+									<Text style={styles.bold}>Heure choisie :</Text>
+
+									<TimePicker
+										value={time}
+										onChange={newTime => setTime(newTime)}
+										showPicker={showPicker}
+										setShowPicker={setShowPicker}
+									/>
+									<Button title="Enregistrer" onPress={saveNotificationTime} />
+								</View>
+							) : (
 								<TouchableOpacity
-									onPress={toggleNotifications}
-									style={styles.toggleButton}
+									onPress={() => setIsEditingTime(true)}
+									style={styles.editTimeButton}
 								>
-									<Text style={styles.toggleButtonText}>
-										Désactiver
+									<Text style={styles.bold}>
+										Heure: {user.hourNotify || "Non définie"}
 									</Text>
 								</TouchableOpacity>
-							</View>
-							<View style={styles.timeContainer}>
-								<Text style={styles.timeLabel}>
-									Heure de notification :{" "}
-									{user.hourNotify
-										? user.hourNotify.split(":").slice(0, 2).join(":")
-										: "Non définie"}
-								</Text>
-								{!isEditingTime ? (
-									<TouchableOpacity
-										onPress={() => setIsEditingTime(true)}
-										style={styles.editTimeButton}
-									>
-										<Text style={styles.editTimeButtonText}>
-											Modifier
-										</Text>
-									</TouchableOpacity>
-								) : (
-									<View style={styles.timeEditContainer}>
-										<TouchableOpacity
-											onPress={() => setShowPicker(true)}
-											style={styles.timeButton}
-										>
-											<Text style={styles.timeButtonText}>
-												{time.getHours().toString().padStart(2, "0")}:
-												{time.getMinutes().toString().padStart(2, "0")}
-											</Text>
-										</TouchableOpacity>
-										<View style={styles.timeActions}>
-											<TouchableOpacity
-												onPress={() => setIsEditingTime(false)}
-												style={styles.cancelButton}
-											>
-												<Text style={styles.cancelButtonText}>
-													Annuler
-												</Text>
-											</TouchableOpacity>
-											<TouchableOpacity
-												onPress={saveNotificationTime}
-												style={styles.saveButton}
-											>
-												<Text style={styles.saveButtonText}>
-													Sauvegarder
-												</Text>
-											</TouchableOpacity>
-										</View>
-									</View>
-								)}
-							</View>
+							)
 						</>
-					)}
-					{!user?.notify && (
-						<View style={styles.notificationContainer}>
-							<Text style={styles.notificationText}>
-								Notifications désactivées
-							</Text>
-							<TouchableOpacity
-								onPress={toggleNotifications}
-								style={styles.activateButton}
-							>
-								<Text style={styles.activateButtonText}>
-									Activer
-								</Text>
-							</TouchableOpacity>
-						</View>
 					)}
 				</View>
 
-				{/* Sponsor Section */}
-				<SponsorSection navigation={navigation} />
-
+				{/* Bottom buttons */}
 				<View style={styles.bottomButtons}>
-					<Link
-						onPress={() => navigation.navigate("Support")}
-						title="Support"
-					/>
-					<Link
-						onPress={() => navigation.navigate("PrivacyPolicy")}
-						title="Politique de confidentialité"
-					/>
 					<Button
 						title="Se déconnecter"
 						onPress={handleLogout}

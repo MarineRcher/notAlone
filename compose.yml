@@ -4,8 +4,11 @@ services:
             context: ./backend/
             dockerfile: Dockerfile
         user: "1000:1000"
-        ports:
-            - "0.0.0.0:${API_PORT}:3000"
+        # Supprimer l'exposition directe du port
+        # ports:
+        #     - "0.0.0.0:${API_PORT}:3000"
+        expose:
+            - "3000"
         networks:
             - app-network
         depends_on:
@@ -45,11 +48,28 @@ services:
             - app-network
         volumes:
             - redis-data:/data
-        command: ["redis-server", "--bind", "0.0.0.0"]
+        command: ["redis-server", "--bind", "0.0.0.0", "--port", "6380"]
+
+    caddy:
+        image: caddy:latest
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - app-network
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - caddy-data:/data
+            - caddy-config:/config
+        depends_on:
+            - api
+        restart: unless-stopped
 
 volumes:
     db-data:
     redis-data:
+    caddy-data:
+    caddy-config:
 
 networks:
     app-network:
