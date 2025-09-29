@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Alert, ActivityIndicator, Clipboard } from 'react-native';
 import sponsorService, { SponsorshipInfo, PendingRequests } from '../api/sponsorService';
-import { SponsorChatProtocol } from '../crypto/sponsor-protocol';
 import Input from './input';
 import Button from './button';
 import { StyleSheet } from 'react-native';
@@ -61,21 +60,7 @@ const SponsorSection: React.FC<SponsorSectionProps> = ({ navigation }) => {
 		try {
 			setLoading(true);
 			
-			// Initialize the sponsor chat protocol
-			await SponsorChatProtocol.initialize();
-			
-			// Create a temporary session to get public key
-			const tempSessionId = Math.floor(Math.random() * 1000000);
-			await SponsorChatProtocol.createSession(tempSessionId, 'temp-user', 'temp-sponsor');
-			const userPublicKey = SponsorChatProtocol.getMyPublicKey(tempSessionId);
-			
-			if (!userPublicKey) {
-				throw new Error('Failed to generate public key');
-			}
-
-			const publicKeyString = Array.from(userPublicKey).join(',');
-			
-			const result = await sponsorService.requestSponsor(sponsorCode, publicKeyString);
+			const result = await sponsorService.requestSponsor(sponsorCode);
 			
 			Alert.alert('Succès', result.message);
 			setSponsorCode('');
@@ -92,24 +77,7 @@ const SponsorSection: React.FC<SponsorSectionProps> = ({ navigation }) => {
 		try {
 			setLoading(true);
 
-			let sponsorPublicKey: string | undefined;
-			if (action === 'accept') {
-				// Initialize the sponsor chat protocol
-				await SponsorChatProtocol.initialize();
-				
-				// Create a session to get public key
-				const tempSessionId = Math.floor(Math.random() * 1000000);
-				await SponsorChatProtocol.createSession(tempSessionId, 'temp-sponsor', 'temp-user');
-				const publicKey = SponsorChatProtocol.getMyPublicKey(tempSessionId);
-				
-				if (!publicKey) {
-					throw new Error('Failed to generate public key');
-				}
-				
-				sponsorPublicKey = Array.from(publicKey).join(',');
-			}
-
-			const result = await sponsorService.respondToSponsorRequest(sponsorshipId, action, sponsorPublicKey);
+			const result = await sponsorService.respondToSponsorRequest(sponsorshipId, action);
 			
 			Alert.alert('Succès', result.message);
 			loadSponsorshipInfo();

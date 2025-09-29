@@ -101,12 +101,12 @@ class SponsorChatController {
 	static async requestSponsor(req: AuthenticatedRequest, res: Response): Promise<void> {
 		try {
 			const userId = req.user!.id;
-			const { sponsorCode, userPublicKey } = req.body;
+			const { sponsorCode } = req.body;
 
-			if (!sponsorCode || !userPublicKey) {
+			if (!sponsorCode) {
 				res.status(400).json({
 					success: false,
-					message: "Sponsor code and public key are required",
+					message: "Sponsor code is required",
 				});
 				return;
 			}
@@ -164,7 +164,6 @@ class SponsorChatController {
 				sponsorId: sponsor.id,
 				userId: userId,
 				status: 'pending',
-				userPublicKey: userPublicKey,
 				isActive: false, // Will be activated when accepted
 			});
 
@@ -188,23 +187,15 @@ class SponsorChatController {
 	static async respondToSponsorRequest(req: AuthenticatedRequest, res: Response): Promise<void> {
 		try {
 			const userId = req.user!.id;
-			const { sponsorshipId, action, sponsorPublicKey } = req.body;
+		const { sponsorshipId, action } = req.body;
 
-			if (!sponsorshipId || !action || !['accept', 'reject'].includes(action)) {
-				res.status(400).json({
-					success: false,
-					message: "Sponsorship ID and valid action (accept/reject) are required",
-				});
-				return;
-			}
-
-			if (action === 'accept' && !sponsorPublicKey) {
-				res.status(400).json({
-					success: false,
-					message: "Sponsor public key is required when accepting",
-				});
-				return;
-			}
+		if (!sponsorshipId || !action || !['accept', 'reject'].includes(action)) {
+			res.status(400).json({
+				success: false,
+				message: "Sponsorship ID and valid action (accept/reject) are required",
+			});
+			return;
+		}
 
 			const sponsorship = await Sponsor.findByPk(sponsorshipId);
 			if (!sponsorship) {
@@ -233,19 +224,13 @@ class SponsorChatController {
 				return;
 			}
 
-			if (action === 'accept') {
-				sponsorship.status = 'accepted';
-				sponsorship.sponsorPublicKey = sponsorPublicKey;
-				sponsorship.isActive = true;
-				sponsorship.startedAt = new Date();
-				
-				// Check if key exchange is complete
-				if (sponsorship.userPublicKey && sponsorPublicKey) {
-					sponsorship.keyExchangeComplete = true;
-				}
-			} else {
-				sponsorship.status = 'rejected';
-			}
+		if (action === 'accept') {
+			sponsorship.status = 'accepted';
+			sponsorship.isActive = true;
+			sponsorship.startedAt = new Date();
+		} else {
+			sponsorship.status = 'rejected';
+		}
 
 			await sponsorship.save();
 
@@ -543,12 +528,12 @@ class SponsorChatController {
 	static async sendMessage(req: AuthenticatedRequest, res: Response): Promise<void> {
 		try {
 			const userId = req.user!.id;
-			const { sponsorshipId, encryptedContent, messageType = "text" } = req.body;
+			const { sponsorshipId, content, messageType = "text" } = req.body;
 
-			if (!sponsorshipId || !encryptedContent) {
+			if (!sponsorshipId || !content) {
 				res.status(400).json({
 					success: false,
-					message: "Sponsorship ID and encrypted content are required",
+					message: "Sponsorship ID and message content are required",
 				});
 				return;
 			}
@@ -571,11 +556,11 @@ class SponsorChatController {
 				return;
 			}
 
-			// Check if key exchange is complete
-			if (!sponsorship.keyExchangeComplete && messageType !== "key_exchange") {
+			// Check if sponsorship is active
+			if (!sponsorship.isActive || sponsorship.status !== 'accepted') {
 				res.status(400).json({
 					success: false,
-					message: "Key exchange must be completed before sending messages",
+					message: "Sponsorship must be active to send messages",
 				});
 				return;
 			}
@@ -583,7 +568,7 @@ class SponsorChatController {
 			const message = await SponsorMessage.create({
 				sponsorshipId,
 				senderId: userId,
-				encryptedContent,
+				encryptedContent: content, // Store plain text content in the field for now
 				messageType,
 			});
 

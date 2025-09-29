@@ -6,9 +6,6 @@ export interface SponsorshipInfo {
 		id: number;
 		sponsorId: string;
 		userId: string;
-		sponsorPublicKey?: string;
-		userPublicKey?: string;
-		keyExchangeComplete: boolean;
 		status: 'pending' | 'accepted' | 'rejected';
 		sponsor?: {
 			id: string;
@@ -21,9 +18,6 @@ export interface SponsorshipInfo {
 		id: number;
 		sponsorId: string;
 		userId: string;
-		sponsorPublicKey?: string;
-		userPublicKey?: string;
-		keyExchangeComplete: boolean;
 		status: 'pending' | 'accepted' | 'rejected';
 		user?: {
 			id: string;
@@ -36,7 +30,6 @@ export interface SponsorshipInfo {
 		id: number;
 		sponsorId: string;
 		userId: string;
-		userPublicKey?: string;
 		status: 'pending';
 		user?: {
 			id: string;
@@ -51,7 +44,6 @@ export interface PendingRequests {
 		id: number;
 		sponsorId: string;
 		userId: string;
-		userPublicKey?: string;
 		status: 'pending';
 		user?: {
 			id: string;
@@ -63,7 +55,6 @@ export interface PendingRequests {
 		id: number;
 		sponsorId: string;
 		userId: string;
-		userPublicKey?: string;
 		status: 'pending';
 		sponsor?: {
 			id: string;
@@ -77,8 +68,8 @@ export interface SponsorMessage {
 	id: string;
 	sponsorshipId: number;
 	senderId: string;
-	encryptedContent: string;
-	messageType: 'text' | 'system' | 'key_exchange';
+	encryptedContent: string; // Now stores plain text content
+	messageType: 'text' | 'system';
 	timestamp: string;
 	isDelivered: boolean;
 	sender?: {
@@ -95,20 +86,18 @@ const sponsorService = {
 	},
 
 	// Request sponsorship using sponsor code
-	async requestSponsor(sponsorCode: string, userPublicKey: string): Promise<{ message: string; sponsorship: any }> {
+	async requestSponsor(sponsorCode: string): Promise<{ message: string; sponsorship: any }> {
 		const response = await apiClient.post('/sponsor-chat/request', {
 			sponsorCode,
-			userPublicKey,
 		});
 		return response.data.data;
 	},
 
 	// Respond to a sponsor request (accept/reject)
-	async respondToSponsorRequest(sponsorshipId: number, action: 'accept' | 'reject', sponsorPublicKey?: string): Promise<{ message: string; sponsorship: any }> {
+	async respondToSponsorRequest(sponsorshipId: number, action: 'accept' | 'reject'): Promise<{ message: string; sponsorship: any }> {
 		const response = await apiClient.post('/sponsor-chat/respond', {
 			sponsorshipId,
 			action,
-			sponsorPublicKey,
 		});
 		return response.data.data;
 	},
@@ -131,15 +120,6 @@ const sponsorService = {
 		return response.data.data;
 	},
 
-	// Update public key for encryption
-	async updatePublicKey(sponsorshipId: number, publicKey: string): Promise<{ keyExchangeComplete: boolean }> {
-		const response = await apiClient.post('/sponsor-chat/key', {
-			sponsorshipId,
-			publicKey,
-		});
-		return response.data.data;
-	},
-
 	// Get messages for a sponsorship
 	async getMessages(sponsorshipId: number): Promise<{ messages: SponsorMessage[]; sponsorship: any }> {
 		const response = await apiClient.get(`/sponsor-chat/${sponsorshipId}/messages`);
@@ -147,10 +127,10 @@ const sponsorService = {
 	},
 
 	// Send a message
-	async sendMessage(sponsorshipId: number, encryptedContent: string, messageType: 'text' | 'system' | 'key_exchange' = 'text'): Promise<SponsorMessage> {
+	async sendMessage(sponsorshipId: number, content: string, messageType: 'text' | 'system' = 'text'): Promise<SponsorMessage> {
 		const response = await apiClient.post('/sponsor-chat/messages', {
 			sponsorshipId,
-			encryptedContent,
+			content,
 			messageType,
 		});
 		return response.data.data;

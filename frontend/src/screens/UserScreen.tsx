@@ -200,6 +200,9 @@ const UserScreen = ({ navigation }: Props) => {
 					)}
 				</View>
 
+				{/* Sponsor Section */}
+				<SponsorSection navigation={navigation} />
+
 				{/* Bottom buttons */}
 				<View style={styles.bottomButtons}>
 					<Button

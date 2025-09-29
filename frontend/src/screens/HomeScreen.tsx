@@ -227,18 +227,11 @@ const HomeScreen = ({ navigation }: Props) => {
 					{/* Sponsor chat button - changes based on user role and status */}
 					{sponsorshipInfo?.hasSponsor ? (
 						<TouchableOpacity
-							style={[
-								styles.user,
-								!sponsorshipInfo.sponsorship?.keyExchangeComplete && styles.disabledButton
-							]}
+							style={styles.user}
 							onPress={handleSponsorChat}
-							disabled={!sponsorshipInfo.sponsorship?.keyExchangeComplete}
 						>
-							<User width={36} height={36} fill={sponsorshipInfo.sponsorship?.keyExchangeComplete ? colors.primary : colors.disable} />
-							<Text style={[
-								styles.squaresText,
-								!sponsorshipInfo.sponsorship?.keyExchangeComplete && styles.disabledText
-							]}>
+							<User width={36} height={36} fill={colors.primary} />
+							<Text style={styles.squaresText}>
 								Parler avec votre parrain
 							</Text>
 						</TouchableOpacity>

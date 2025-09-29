@@ -11,14 +11,13 @@ import {
 import styles from './HomeScreen.style'; // Reuse home screen styles
 import User from '../../assets/icons/menu/user.svg';
 import colors from '../css/colors';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 interface SponsoredUser {
 	id: number;
 	sponsorId: string;
 	userId: string;
-	sponsorPublicKey?: string;
-	userPublicKey?: string;
-	keyExchangeComplete: boolean;
+	status: 'pending' | 'accepted' | 'rejected';
 	user?: {
 		id: string;
 		login: string;
@@ -26,17 +25,10 @@ interface SponsoredUser {
 	};
 }
 
-interface SponsoredUsersListProps {
-	route: {
-		params: {
-			sponsoredUsers: SponsoredUser[];
-		};
-	};
-	navigation: any;
-}
+type Props = NativeStackScreenProps<any, any>;
 
-export default function SponsoredUsersList({ route, navigation }: SponsoredUsersListProps) {
-	const { sponsoredUsers } = route.params;
+export default function SponsoredUsersList({ route, navigation }: Props) {
+	const { sponsoredUsers } = route.params || {};
 
 	const handleSelectUser = (sponsoredUser: SponsoredUser) => {
 		if (!sponsoredUser.user) {
@@ -54,30 +46,22 @@ export default function SponsoredUsersList({ route, navigation }: SponsoredUsers
 
 	const renderSponsoredUser = ({ item }: { item: SponsoredUser }) => (
 		<TouchableOpacity
-			style={[
-				styles.user,
-				!item.keyExchangeComplete && styles.disabledButton
-			]}
+			style={styles.user}
 			onPress={() => handleSelectUser(item)}
-			disabled={!item.keyExchangeComplete}
 		>
 			<User 
 				width={36} 
 				height={36} 
-				fill={item.keyExchangeComplete ? colors.primary : colors.disable} 
+				fill={colors.primary} 
 			/>
-			<Text style={[
-				styles.squaresText,
-				!item.keyExchangeComplete && styles.disabledText
-			]}>
+			<Text style={styles.squaresText}>
 				{item.user?.login || 'Unknown User'}
 			</Text>
 			<Text style={[
 				styles.squaresText,
-				{ fontSize: 12, marginTop: 5 },
-				!item.keyExchangeComplete && styles.disabledText
+				{ fontSize: 12, marginTop: 5 }
 			]}>
-				{item.keyExchangeComplete ? '🔒 Ready to chat' : '🔄 Setting up encryption'}
+				Ready to chat
 			</Text>
 		</TouchableOpacity>
 	);

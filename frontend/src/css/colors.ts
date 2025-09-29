@@ -10,6 +10,7 @@ const colors = {
 	sky: "#A3CFEF",
 	error: "#FF4444",
 	success: "#4CAF50",
+	warning: "#FF9800",
 };
 
 export default colors;

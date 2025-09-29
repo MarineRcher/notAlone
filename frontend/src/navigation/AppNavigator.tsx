@@ -32,6 +32,8 @@ import FlowerShopScreen from "../screens/FlowerShopScreen";
 import ForestScreen from "../screens/forestScreen";
 import BadgeScreen from "../screens/BadgeScreen";
 import AcquiredScreen from "../screens/stats/AcquiredScreen";
+import SponsorChatScreen from "../screens/SponsorChatScreen";
+import SponsoredUsersList from "../screens/SponsoredUsersList";
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -172,7 +174,7 @@ const AppNavigator = () => {
 					options={{ headerShown: false }}
 				/>
 				<Stack.Screen
-					name="FlowerShop"
+					name="flowershop"
 					component={FlowerShopScreen}
 					options={{ headerShown: false }}
 				/>
@@ -189,6 +191,18 @@ const AppNavigator = () => {
 				<Stack.Screen
 					name="Acquired"
 					component={AcquiredScreen}
+					options={{ headerShown: false }}
+				/>
+				
+				{/* Sponsor screens */}
+				<Stack.Screen
+					name="SponsorChat"
+					component={SponsorChatScreen}
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
+					name="SponsoredUsersList"
+					component={SponsoredUsersList}
 					options={{ headerShown: false }}
 				/>
 			</Stack.Navigator>
