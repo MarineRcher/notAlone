@@ -164,7 +164,6 @@ const ChangePasswordScreen = ({ navigation }: Props) =>
 			let errorMessage
 				= "Une erreur est survenue lors du changement de mot de passe";
 
-			console.log(error);
 			if (error.response)
 			{
 				errorMessage = error.response.data.message || errorMessage;

@@ -85,8 +85,6 @@ const ForestScreen = ({ navigation, route }: Props) => {
 				[{ text: "OK" }],
 			);
 		} catch (err: any) {
-			console.error("Erreur placement:", err);
-
 			// Gérer les différents types d'erreurs
 			if (err.response?.status === 400) {
 				Alert.alert(

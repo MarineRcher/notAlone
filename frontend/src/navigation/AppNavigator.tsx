@@ -174,7 +174,7 @@ const AppNavigator = () => {
 					options={{ headerShown: false }}
 				/>
 				<Stack.Screen
-					name="flowershop"
+					name="Flowershop"
 					component={FlowerShopScreen}
 					options={{ headerShown: false }}
 				/>
@@ -193,7 +193,7 @@ const AppNavigator = () => {
 					component={AcquiredScreen}
 					options={{ headerShown: false }}
 				/>
-				
+
 				{/* Sponsor screens */}
 				<Stack.Screen
 					name="SponsorChat"
