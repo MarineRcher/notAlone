@@ -195,7 +195,7 @@ const UserScreen = ({ navigation }: Props) => {
 										Heure: {user.hourNotify || "Non définie"}
 									</Text>
 								</TouchableOpacity>
-							)
+							)}
 						</>
 					)}
 				</View>
@@ -216,8 +216,9 @@ const UserScreen = ({ navigation }: Props) => {
 
 				{showPicker && (
 					<TimePicker
-						time={time}
-						setTime={setTime}
+						value={time}
+						onChange={newTime => setTime(newTime)}
+						showPicker={showPicker}
 						setShowPicker={setShowPicker}
 					/>
 				)}
