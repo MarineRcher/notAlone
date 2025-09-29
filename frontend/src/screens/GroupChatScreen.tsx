@@ -544,8 +544,14 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			console.log('🔑 [LIBSIGNAL] ===== PROCESSING SENDER KEY DISTRIBUTION =====');
 			console.log('🔑 [LIBSIGNAL] From user:', data.fromUserId);
 
+			// Ensure the distribution message has the correct userId
+			const memberData = {
+				...data.distributionMessage,
+				userId: data.fromUserId  // Ensure userId is set correctly
+			};
+
 			// Add the new sender to our group crypto session
-			await CryptoAPI.addGroupMember(groupId, data.distributionMessage);
+			await CryptoAPI.addGroupMember(groupId, memberData);
 			console.log('✅ [LIBSIGNAL] Sender key processed successfully');
 
 					// Mark key exchange as complete for this user
@@ -556,6 +562,35 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 			return newSet;
 		});
 		console.log('🔑 [LIBSIGNAL] Key exchange marked complete for user:', data.fromUserId);
+
+		// Clear retry timeout for this user since we got their key
+		const existingTimeout = keyRequestTimeouts.get(data.fromUserId);
+		if (existingTimeout)
+		{
+			clearTimeout(existingTimeout);
+			setKeyRequestTimeouts(prev =>
+			{
+				const newMap = new Map(prev);
+				newMap.delete(data.fromUserId);
+				return newMap;
+			});
+		}
+
+		// Clear attempt count
+		setKeyRequestAttempts(prev =>
+		{
+			const newMap = new Map(prev);
+			newMap.delete(data.fromUserId);
+			return newMap;
+		});
+
+		// Remove from missing keys alert
+		setMissingKeysAlert(prev =>
+		{
+			const newSet = new Set(prev);
+			newSet.delete(data.fromUserId);
+			return newSet;
+		});
 
 			// Try to decrypt any pending messages from this sender
 			await processPendingMessages(data.fromUserId);
@@ -586,6 +621,81 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 		catch (error: any)
 		{
 			console.error('❌ [LIBSIGNAL] Failed to send sender key:', error);
+		}
+	};
+
+	const requestSenderKeyWithRetry = (userId: string, attempt: number, isRetry: boolean = false) =>
+	{
+		console.log(`🔑 [KEY-REQUEST] ${isRetry ? 'Retrying' : 'Requesting'} sender key from ${userId} (attempt ${attempt}/${KEY_REQUEST_CONFIG.MAX_ATTEMPTS})`);
+
+		// Check if we've exceeded max attempts
+		if (attempt > KEY_REQUEST_CONFIG.MAX_ATTEMPTS)
+		{
+			console.error(`❌ [KEY-REQUEST] Max attempts reached for ${userId}, giving up`);
+			setMissingKeysAlert(prev => new Set([...prev, userId]));
+			return;
+		}
+
+		// Update attempt count
+		setKeyRequestAttempts(prev =>
+		{
+			const newMap = new Map(prev);
+			newMap.set(userId, attempt);
+			return newMap;
+		});
+
+		// Clear any existing timeout for this user
+		const existingTimeout = keyRequestTimeouts.get(userId);
+		if (existingTimeout)
+		{
+			clearTimeout(existingTimeout);
+		}
+
+		// Send the request immediately for first attempt, or after delay for retries
+		const sendRequest = () =>
+		{
+			if (socketRef.current)
+			{
+				socketRef.current.emit('request_sender_key', {
+					groupId,
+					fromUserId: userId,
+				});
+				console.log(`📤 [KEY-REQUEST] Sent request to ${userId}`);
+			}
+			else
+			{
+				console.error('❌ [KEY-REQUEST] Socket not available');
+				return;
+			}
+
+			// Set up retry timeout if not the last attempt
+			if (attempt < KEY_REQUEST_CONFIG.MAX_ATTEMPTS)
+			{
+				const delay = KEY_REQUEST_CONFIG.RETRY_DELAYS[attempt] || KEY_REQUEST_CONFIG.MAX_DELAY;
+				const timeoutId = setTimeout(() =>
+				{
+					requestSenderKeyWithRetry(userId, attempt + 1, true);
+				}, delay);
+
+				setKeyRequestTimeouts(prev =>
+				{
+					const newMap = new Map(prev);
+					newMap.set(userId, timeoutId);
+					return newMap;
+				});
+
+				console.log(`⏰ [KEY-REQUEST] Next retry for ${userId} in ${delay}ms`);
+			}
+		};
+
+		// For first attempt, send immediately. For retries, there's already a delay from the timeout
+		if (!isRetry)
+		{
+			sendRequest();
+		}
+		else
+		{
+			sendRequest();
 		}
 	};
 
@@ -646,6 +756,34 @@ export default function GroupChatScreen({ route, navigation }: GroupChatScreenPr
 				console.error('❌ [LIBSIGNAL] Still cannot decrypt message:', pendingId, error);
 			}
 		}
+	};
+
+	const requestAllMissingKeys = () =>
+	{
+		console.log('🔑 [KEY-REQUEST] Requesting all missing keys...');
+		
+		// Get all users from missingKeysAlert set
+		const missingUsers = Array.from(missingKeysAlert);
+		
+		for (const userId of missingUsers)
+		{
+			console.log(`🔑 [KEY-REQUEST] Retrying key request for user: ${userId}`);
+			
+			// Clear any existing timeout for this user
+			const existingTimeout = keyRequestTimeouts.get(userId);
+			if (existingTimeout)
+			{
+				clearTimeout(existingTimeout);
+			}
+			
+			// Reset attempt count and start fresh
+			requestSenderKeyWithRetry(userId, 1, false);
+		}
+		
+		// Clear the missing keys alert since we're retrying
+		setMissingKeysAlert(new Set());
+		
+		console.log(`🔑 [KEY-REQUEST] Started retry for ${missingUsers.length} users`);
 	};
 
 	const sendMessage = async () =>
